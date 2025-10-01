@@ -7,8 +7,8 @@ import PostSpecsStep from "./PostSpecsStep";
 
 const Stepper = ({ onClose, post = null, step = 1, setStep }) => {
     const steps = [
-        { id: 1, label: "Information" },
-        { id: 2, label: "Cover Image" },
+        { id: 1, label: "Info" },
+        { id: 2, label: "Cover" },
         { id: 3, label: "Gallery" },
         { id: 4, label: "Specs" },
         { id: 5, label: "Add-ons" },

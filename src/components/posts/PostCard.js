@@ -1,7 +1,7 @@
 import React from "react";
 import { ClockIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { Link } from "react-router-dom";
-import PlaceHolderImage from "../../assets/images/placeholder-car.jpg"
+import PlaceHolderImage from "../../assets/images/placeholder-car.jpg";
 
 const PostCard = ({ post, onDelete, onEdit }) => {
   const statusColors = {
@@ -35,11 +35,11 @@ const PostCard = ({ post, onDelete, onEdit }) => {
       to={`/showroom/posts/${post.postCode}`}
       className="block mb-3 bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-200 overflow-hidden"
     >
-      <div className="flex flex-row w-full">
+      <div className="flex md:flex-row flex-col w-full">
         {/* Image Section */}
-        <div className="relative max-w-60 bg-gray-100">
+        <div className="relative md:max-w-60 max-w-full bg-gray-100">
           <img
-            src={post.rectangleImageUrl || PlaceHolderImage }
+            src={post.rectangleImageUrl || PlaceHolderImage}
             alt={post.title}
             className="w-full h-full object-cover"
           />
@@ -72,17 +72,28 @@ const PostCard = ({ post, onDelete, onEdit }) => {
         </div>
 
         {/* Content Section */}
-        <div className="p-4 w-full">
+        <div className="px-4 py-2 w-full">
           {/* Title and Category */}
           <div className="mb-3">
-            <h3 className="text-lg font-semibold text-gray-900 line-clamp-1">
-              {post.carNamePl}, {post.carNameWithYearPl}
-            </h3>
-            <p className="text-sm text-gray-500">{post.categoryNamePl}</p>
+            <div className="flex justify-between space-x-2">
+              <h3 className="text-lg font-semibold text-gray-900 line-clamp-1">
+                {post.carNameWithYearPl}
+              </h3>
+              <p className="text-sm font-medium text-gray-900">
+                {post.categoryNamePl}
+              </p>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <p className="text-xs text-gray-500">Post Code</p>
+              <p className="text-sm font-medium text-gray-900">
+                {post.postCode}
+              </p>
+            </div>
           </div>
 
           {/* Price and Mileage */}
-          <div className="grid grid-cols-5 gap-4 mb-4">
+          <div className="grid  md:grid-cols-4 grid-cols-2 gap-4 mb-2">
             <div className="bg-gray-50 p-2 rounded-lg">
               <div className="flex items-center space-x-2">
                 <div>
@@ -95,16 +106,7 @@ const PostCard = ({ post, onDelete, onEdit }) => {
                 </div>
               </div>
             </div>
-            <div className="bg-gray-50 p-2 rounded-lg">
-              <div className="flex items-center space-x-2">
-                <div>
-                  <p className="text-xs text-gray-500">Post Code</p>
-                  <p className="text-sm font-medium text-gray-900">
-                    {post.postCode}
-                  </p>
-                </div>
-              </div>
-            </div>
+            
             <div className="bg-gray-50 p-2 rounded-lg">
               <div className="flex items-center space-x-2">
                 <div>

@@ -15,7 +15,7 @@ export default function Login() {
   useEffect(() => {
     if (user) {
       if(localStorage.getItem("role") === "superAdmin"){
-        navigate("/showrooms");
+        navigate("/admin/dealer/showrooms");
       }else{
         navigate("/dashboard");
       }

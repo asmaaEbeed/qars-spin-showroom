@@ -145,7 +145,7 @@ function App() {
             />
 
             <Route
-              path="/showrooms"
+              path="/admin/dealer/showrooms"
               element={
                 <PostsProvider>
                   <ProtectedRoute allowedRoles={["superAdmin"]}>
