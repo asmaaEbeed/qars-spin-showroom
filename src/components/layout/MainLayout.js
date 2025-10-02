@@ -20,7 +20,7 @@ const MainLayout = ({ children }) => {
           {
             label: "ShowRooms",
             to: `/admin/dealer/showrooms`,
-            isActive: /^\/showrooms(\/|$)/.test(path),
+            isActive: /^\/admin\/dealer\/showrooms(\/|$)/.test(path),
           },
         ]
       : []),
