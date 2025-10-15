@@ -129,7 +129,7 @@ export function PostsProvider({ children }) {
         const response = await superAdminAPI.postChangeStatus({
           Post_ID: data.id,
           newStatus: data.state,
-          reason: result.value,
+          reason: data.state === "Rejected" ? result.value : "",
         });
         Swal.close();
         return response;
