@@ -82,7 +82,7 @@ const PostMediaGallery = ({ currentPost = {} }) => {
       const fileName = `photo_${Date.now()}.jpg`;
       const formData = new FormData();
       formData.append("Post_ID", currentPost.postId);
-      formData.append("Our_Secret", 1244);
+      formData.append("Our_Secret", process.env.REACT_APP_API_OUR_SECRET);
       formData.append("PhotoBytes", file, fileName);
 
       try {

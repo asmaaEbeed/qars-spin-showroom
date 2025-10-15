@@ -11,6 +11,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Login from "./pages/Login";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
+import AdminDashboard from "./pages/Admin/AdminDashboard";
 import Posts from "./pages/Posts";
 import PostDetails from "./pages/PostDetails";
 import Showroom from "./pages/Showroom";
@@ -19,7 +20,7 @@ import UserSettings from "./components/profile/UserSettings";
 import Welcome from "./pages/Welcome";
 import Apply from "./pages/Apply";
 import { CarProvider } from "./context/CarContext";
-import ShowRooms from "./pages/ShowRooms";
+import ShowRooms from "./pages/Admin/ShowRooms";
 import NotAuthorized from "./pages/NotAuthorized";
 
 function App() {
@@ -145,11 +146,31 @@ function App() {
             />
 
             <Route
-              path="/admin/dealer/showrooms"
+              path="/admin/showrooms"
               element={
                 <PostsProvider>
                   <ProtectedRoute allowedRoles={["superAdmin"]}>
                     <ShowRooms />
+                  </ProtectedRoute>
+                </PostsProvider>
+              }
+            />
+            <Route
+              path="/admin/superAdmin-panel"
+              element={
+                <PostsProvider>
+                  <ProtectedRoute allowedRoles={["superAdmin"]}>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                </PostsProvider>
+              }
+            />
+            <Route
+              path="/admin/posts"
+              element={
+                <PostsProvider>
+                  <ProtectedRoute allowedRoles={["superAdmin"]}>
+                    <Posts />
                   </ProtectedRoute>
                 </PostsProvider>
               }

@@ -19,7 +19,7 @@ const PostCreateEditModal = ({ onClose, post = null }) => {
     return (
         <div
             className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto"
-            onClick={(e) => { e.target === e.currentTarget && handleClose() }}
+            // onClick={(e) => { e.target === e.currentTarget && handleClose() }}
         >
             <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl flex flex-col relative">
                 <div className="flex justify-between items-center p-4 bg-primary text-white rounded-t-lg">

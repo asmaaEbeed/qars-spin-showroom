@@ -3,9 +3,11 @@ import { useProfile } from "../../context/ProfileContext";
 import { FiUpload, FiX } from "react-icons/fi";
 import Swal from "sweetalert2";
 import { dashboardAPI, ShowroomProfileAPI } from "../../services/api";
+import { useAuth } from "../../context/AuthContext";
 
-const ProfileHeader = ({ partner}) => {
+const ProfileHeader = ({ partner }) => {
   const { uploadLogo } = useProfile();
+  const { user } = useAuth();
   const fileInputRef = useRef(null);
   const [isUploading, setIsUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(null);
@@ -20,7 +22,7 @@ const ProfileHeader = ({ partner}) => {
   });
 
   const handleLogoClick = () => {
-    if ( fileInputRef.current) {
+    if (fileInputRef.current) {
       fileInputRef.current.click();
     }
   };
@@ -42,7 +44,10 @@ const ProfileHeader = ({ partner}) => {
 
     // Upload the file
     try {
-      const result = await ShowroomProfileAPI.uploadLogo(partner.partnerId, file); 
+      const result = await ShowroomProfileAPI.uploadLogo(
+        partner.partnerId,
+        file
+      );
 
       if (result.status === 200) {
         setPartnerLogo(result.data.fileUrl);
@@ -113,9 +118,10 @@ const ProfileHeader = ({ partner}) => {
   // Reviewed
 
   useEffect(() => {
+    if (user.userId === null) return;
     const fetchStats = async () => {
       try {
-        const res = await dashboardAPI.getTopCounters(localStorage.getItem("partnerId"));
+        const res = await dashboardAPI.getTopCounters(user.partnerId);
         setStats({
           visitsCount: res.data.visitsCount,
           activePosts: res.data.activePosts,
@@ -127,7 +133,7 @@ const ProfileHeader = ({ partner}) => {
       }
     };
     fetchStats();
-  }, []);
+  }, [user]);
 
   return (
     <div className="relative overflow-hidden">
@@ -143,15 +149,14 @@ const ProfileHeader = ({ partner}) => {
         <div className="flex flex-col lg:flex-row items-start lg:items-center space-y-6 lg:space-y-0 lg:space-x-8">
           {/* Logo/Avatar */}
           <div className="flex-shrink-0 relative group">
-            
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleFileChange}
-                accept="image/*"
-                className="hidden"
-                disabled={isUploading}
-              />
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              accept="image/*"
+              className="hidden"
+              disabled={isUploading}
+            />
             <div
               className={`w-32 h-32 lg:w-40 lg:h-40 rounded-2xl overflow-hidden shadow-2xl bg-white/20 backdrop-blur-sm border-2
                  border-dashed border-white/50 hover:border-white/80 cursor-pointer transition-colors duration-200
@@ -160,7 +165,7 @@ const ProfileHeader = ({ partner}) => {
               onClick={handleLogoClick}
               style={{ position: "relative" }}
             >
-              {partnerLogoUrl? (
+              {partnerLogoUrl ? (
                 <img
                   src={partnerLogoUrl}
                   alt="Partner Logo"
@@ -190,16 +195,14 @@ const ProfileHeader = ({ partner}) => {
               )}
             </div>
 
-            
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleFileChange}
-                accept="image/*"
-                className="hidden"
-                disabled={isUploading}
-              />
-            
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              accept="image/*"
+              className="hidden"
+              disabled={isUploading}
+            />
 
             {/* { (partnerLogoUrl || previewUrl) && (
               <button
@@ -255,12 +258,15 @@ const ProfileHeader = ({ partner}) => {
           <div className="flex-shrink-0 w-full lg:w-auto">
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
               {Object.entries(stats).map(([key, value]) => (
-                <div key={key} className="bg-white/20 backdrop-blur-sm rounded-xl p-4 border border-white/30 text-center">
+                <div
+                  key={key}
+                  className="bg-white/20 backdrop-blur-sm rounded-xl p-4 border border-white/30 text-center"
+                >
                   <p className="text-white/80 text-sm capitalize">
-                    {key.replace(/([A-Z])/g, ' $1').toLowerCase()}
+                    {key.replace(/([A-Z])/g, " $1").toLowerCase()}
                   </p>
                   <p className="text-white font-bold text-2xl mt-1">
-                    {key === 'averageRating' ? `${value}/5` : value}
+                    {key === "averageRating" ? `${value}/5` : value}
                   </p>
                 </div>
               ))}

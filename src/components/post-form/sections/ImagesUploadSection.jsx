@@ -126,7 +126,7 @@ const ImagesUploadSection = ({ post = null, setStep, onClose }) => {
             const imgFormData = new FormData();
             // imgFormData.append("Post_ID", 372);
             imgFormData.append("Post_ID", post !== null ? post.postId : postCreatedId);
-            imgFormData.append("Our_Secret", 1244);
+            imgFormData.append("Our_Secret", process.env.REACT_APP_API_OUR_SECRET);
             imgFormData.append("PhotoBytes", file, fileName);
             try {
                 setIsLoadingAddImg(true);

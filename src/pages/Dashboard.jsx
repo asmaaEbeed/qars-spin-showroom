@@ -9,6 +9,7 @@ import { useParams } from 'react-router-dom';
 
 export default function Dashboard() {
   const {id} = useParams();
+  const { user } = useAuth()
   const [loadingWelcome, setLoadingWelcome] = useState(false)
   const [loadingStats, setLoadingStats] = useState(false)
   const [loadingMonthlyState, setLoadingMonthlyState] = useState(false)
@@ -52,7 +53,7 @@ export default function Dashboard() {
           response = await dashboardAPI.getTopCounters(id);
         }
       } else {
-       response = await dashboardAPI.getTopCounters(localStorage.getItem("partnerId"));
+       response = await dashboardAPI.getTopCounters(user.partnerId);
       }
       setStats({
         visits: response.data.visitsCount,
@@ -70,7 +71,7 @@ export default function Dashboard() {
   const monthlyState = async () => {
     setLoadingMonthlyState(true)
     try {
-      const response = await dashboardAPI.monthlyStats(localStorage.getItem("partnerId"));
+      const response = await dashboardAPI.monthlyStats(user.partnerId);
       setVisitsData({
         labels: response.data.labels,
         values: response.data.visitsData,
@@ -87,10 +88,12 @@ export default function Dashboard() {
   }
 
   useEffect(() => {
-    fetchWelcome()
-    fetchStats();
-    monthlyState();
-  }, []);
+    if(user.userId !== null){
+      fetchWelcome()
+      fetchStats();
+      monthlyState();
+    }
+  }, [user]);
 
 
   if (localStorage.getItem("role") === "superAdmin") {
@@ -105,8 +108,8 @@ export default function Dashboard() {
           {!loadingWelcome ?
             <div>
               <p className='text-xl font-semibold text-gray-900'>{welcomeMessage.greeting}, {localStorage.getItem("fullName")}!</p>
-              {id && localStorage.getItem("role") === "superAdmin" && <h6 className='mt-2 text-lg font-semibold text-gray-600'>As a super admin you can manage all showrooms</h6>}
               <h6 className='mt-2 text-lg font-semibold text-gray-600'>Manager Dashboard.</h6>
+              {id && localStorage.getItem("role") === "superAdmin" && <h6 className='mt-2 text-sm text-gray-600'>As a super admin you can manage all showrooms</h6>}
             </div> :
             <div className="text-center">
               <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary-500 border-t-transparent mx-auto mb-4"></div>

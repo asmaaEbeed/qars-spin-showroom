@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
+import { usePosts } from "../../context/PostsContext";
 
 const PostSearch = ({
   onFilterChange,
-  filtersClearData,
-  setFiltersClearData,
 }) => {
+
+  const { filters, setFilters, setClearFilter } = usePosts()
   
   const [searchTerm, setSearchTerm] = useState("");
   const [searchBy, setSearchBy] = useState(0);
@@ -14,14 +15,14 @@ const PostSearch = ({
 
 
   useEffect(() => {
-    setSearchTerm("");
-    setSearchBy(0);
-    setStatus("");
-    setSortBy(0);
-  }, [filtersClearData]);
+    setSearchTerm(filters.searchTerm);
+    setSearchBy(filters.searchBy);
+    setStatus(filters.status);
+    setSortBy(filters.sortBy);
+    setPinToTop(filters.pinToTop);
+  }, [filters])
 
   const handleFilter = () => {
-    setFiltersClearData(false);
     onFilterChange({
       searchBy,
       searchTerm,
@@ -68,12 +69,12 @@ const PostSearch = ({
               Search By
             </label>
             <select
-              value={searchBy}
+              value={searchBy ?? 0}
               onChange={(e) => setSearchBy(e.target.value)}
               className="w-full px-2.5 py-1.5 text-xs border border-secondary-200 rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-transparent transition-all duration-200 bg-white/80"
             >
               {searchOptions.map((option) => (
-                <option key={option.value} value={option.value}>
+                <option key={option.value} value={option.value ?? 0}>
                   {option.label}
                 </option>
               ))}
@@ -86,7 +87,7 @@ const PostSearch = ({
             </label>
             <input
               type="text"
-              value={searchTerm}
+              value={searchTerm ?? ""}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full px-2.5 py-1.5 text-xs border border-secondary-200 rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-transparent transition-all duration-200 bg-white/80"
               placeholder="Enter search term"
@@ -101,7 +102,7 @@ const PostSearch = ({
               Status
             </label>
             <select
-              value={status}
+              value={status ?? ""}
               onChange={(e) => setStatus(e.target.value)}
               className="w-full px-2.5 py-1.5 text-xs border border-secondary-200 rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-transparent transition-all duration-200 bg-white/80"
             >
@@ -118,13 +119,13 @@ const PostSearch = ({
               Sort By
             </label>
             <select
-              value={sortBy}
+              value={sortBy ?? 0}
               onChange={(e) => setSortBy(e.target.value)}
               className="w-full px-2.5 py-1.5 text-xs border border-secondary-200 rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-transparent transition-all duration-200 bg-white/80"
             >
               <option value={0}>All Sort By</option>
               {sortByOptions.map((option) => (
-                <option key={option.value} value={option.value}>
+                <option key={option.value} value={option.value ?? 0}>
                   {option.label}
                 </option>
               ))}
@@ -134,7 +135,7 @@ const PostSearch = ({
             <label className="flex items-center cursor-pointer">
               <input
                 type="checkbox"
-                checked={pinToTop}
+                checked={pinToTop ?? false}
                 onChange={(e) => setPinToTop(e.target.checked)}
                 className="w-3 h-3 text-primary-600 bg-white border-secondary-300 rounded focus:ring-primary-500 focus:ring-1"
               />
@@ -157,18 +158,16 @@ const PostSearch = ({
           <button
             type="button"
             onClick={() => {
-              setSearchTerm("");
-              setSearchBy(0);
-              setStatus("");
-              setSortBy(0);
-              setPinToTop(false);
-              onFilterChange({
+              setClearFilter(true)
+              setFilters({
                 searchBy: 0,
                 searchTerm: "",
+                category: "",
                 status: "",
                 sortBy: 0,
+                year: "",
                 pinToTop: false,
-              });
+              })
             }}
             className="w-full px-3 py-2 text-xs font-medium hover:text-secondary-600 text-white bg-secondary-100 hover:bg-secondary-200 rounded-md focus:outline-none focus:ring-1 focus:ring-secondary-500 transition-all duration-200"
           >

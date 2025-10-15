@@ -13,14 +13,14 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
-    if (user) {
+    if (user.userId) {
       if(localStorage.getItem("role") === "superAdmin"){
-        navigate("/admin/dealer/showrooms");
+        navigate("/admin/superAdmin-panel");
       }else{
         navigate("/dashboard");
       }
     }
-  }, [user]);
+  }, [user, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

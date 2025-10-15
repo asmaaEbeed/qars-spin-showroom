@@ -1,39 +1,70 @@
-import React from "react";
-import { ClockIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
-import { Link } from "react-router-dom";
+import React, { useEffect } from "react";
+import {
+  ClockIcon,
+  PencilIcon,
+  // TrashIcon,
+  PaperAirplaneIcon,
+  CheckCircleIcon,
+  XCircleIcon,
+} from "@heroicons/react/24/outline";
+import { Link, useParams } from "react-router-dom";
 import PlaceHolderImage from "../../assets/images/placeholder-car.jpg";
+import { useAuth } from "../../context/AuthContext";
+import { toast } from "react-toastify";
+import { usePosts } from "../../context/PostsContext";
 
-const PostCard = ({ post, onDelete, onEdit }) => {
-  const statusColors = {
-    Approved: {
-      bg: "bg-green-50",
-      text: "text-green-800",
-      border: "border-green-200",
-    },
-    Pending: {
-      bg: "bg-yellow-50",
-      text: "text-yellow-800",
-      border: "border-yellow-200",
-    },
-    Rejected: {
-      bg: "bg-red-50",
-      text: "text-red-800",
-      border: "border-red-200",
-    },
-    Draft: {
-      bg: "bg-gray-50",
-      text: "text-gray-800",
-      border: "border-gray-200",
-    },
+const statusColors = {
+  Approved: {
+    bg: "bg-emerald-200",
+    text: "text-emerald-800",
+    border: "border-emerald-200",
+  },
+  "Pending Approval": {
+    bg: "bg-yellow-200",
+    text: "text-yellow-800",
+    border: "border-yellow-200",
+  },
+  Rejected: {
+    bg: "bg-red-50",
+    text: "text-red-800",
+    border: "border-red-200",
+  },
+  Draft: {
+    bg: "bg-gray-200",
+    text: "text-gray-800",
+    border: "border-gray-400",
+  },
+};
+
+const PostCard = ({ post, onDelete, onEdit, handleStatusChange, handleChangePostStatus }) => {
+  const { user } = useAuth();
+  const { onSendToReview } = usePosts();
+  const {id} = useParams();
+  
+
+
+  const status = post.postStatus || "Draft";
+  const statusStyle = statusColors[status] || statusColors.Draft;
+
+  const handleSendToReview = async () => {
+    const response = await onSendToReview({
+      UserName: user.userName,
+      Post_ID: post.postId,
+    });
+    if (response.Code === "OK") {
+      toast.success(response.Desc);
+      handleStatusChange(post.postId, "Pending Approval")
+    } else if (response.Code !== "CANCELLED") {
+      toast.error("Failed to send post to review");
+    }
   };
 
-  const status = post.status || "Draft";
-  const statusStyle = statusColors[status] || statusColors.Draft;
+
 
   return (
     <Link
-      to={`/showroom/posts/${post.postCode}`}
-      className="block mb-3 bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-200 overflow-hidden"
+      to={`${id ? `/admin/dealer/${id}` : ""}/showroom/posts/${post.postCode}`}
+      className="block mb-3 bg-white rounded-xl  shadow-sm border border-gray-100 hover:shadow-md transition-all duration-200 overflow-hidden"
     >
       <div className="flex md:flex-row flex-col w-full">
         {/* Image Section */}
@@ -45,17 +76,7 @@ const PostCard = ({ post, onDelete, onEdit }) => {
           />
           <div className="absolute top-3 left-3 flex flex-col space-y-1">
             <p
-              className={`${
-                post.postStatus === "Approved"
-                  ? "bg-green-50 text-green-800 border-green-500"
-                  : post.postStatus === "Pending"
-                  ? "bg-yellow-50 text-yellow-800 border-yellow-200"
-                  : post.postStatus === "Rejected"
-                  ? "bg-red-50 text-red-800 border-red-200"
-                  : "bg-gray-50 text-gray-800 border-gray-200 "
-              } px-3 py-1 rounded-full text-xs min-w-20 text-center ${
-                statusStyle.bg
-              } ${statusStyle.text} ${statusStyle.border}`}
+              className={`px-3 py-1 rounded-full text-xs min-w-20 text-center border ${statusStyle.bg} ${statusStyle.text} ${statusStyle.border}`}
             >
               {post.postStatus}
             </p>
@@ -106,7 +127,7 @@ const PostCard = ({ post, onDelete, onEdit }) => {
                 </div>
               </div>
             </div>
-            
+
             <div className="bg-gray-50 p-2 rounded-lg">
               <div className="flex items-center space-x-2">
                 <div>
@@ -173,11 +194,52 @@ const PostCard = ({ post, onDelete, onEdit }) => {
                   e.stopPropagation();
                   onEdit(e);
                 }}
-                className="p-2  text-primary-600 bg-primary-50 hover:bg-primary-600 hover:text-white rounded-full transition-colors"
+                className="p-3 h-10  w-10 text-white bg-primary-400 hover:bg-primary-600 hover:text-white rounded-full transition-colors"
                 title="Edit post"
               >
                 <PencilIcon className="h-4 w-4" />
               </button>
+              {(post.postStatus === "Draft" && user.role !== "superAdmin")&& (
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleSendToReview();
+                  }}
+                  className="p-2 bg-blue-600 text-white hover:bg-blue-700 hover:text-white rounded-full transition-colors font-bold"
+                  title="Send to review"
+                >
+                  <PaperAirplaneIcon className="h-4 w-4" />
+                </button>
+              )}
+              {(post.postStatus === "Pending Approval" && user.role === "superAdmin" )&& (
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleChangePostStatus(post.postId, "Approved");
+                
+                  }}
+                  className="p-2 bg-green-600 text-white hover:bg-green-600 hover:text-white rounded-full transition-colors font-bold"
+                  title="Approve post"
+                >
+                  <CheckCircleIcon className="h-6 w-6" />
+                </button>
+              )}
+              {(post.postStatus === "Pending Approval" && user.role === "superAdmin" )&& (
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleChangePostStatus(post.postId, "Rejected");
+                
+                  }}
+                  className="p-2 bg-red-600 text-white hover:bg-red-600 hover:text-white rounded-full transition-colors font-bold"
+                  title="Reject post"
+                >
+                  <XCircleIcon className="h-6 w-6" />
+                </button>
+              )}
               {/* <button
                 onClick={(e) => {
                   e.preventDefault();
@@ -193,6 +255,7 @@ const PostCard = ({ post, onDelete, onEdit }) => {
           </div>
         </div>
       </div>
+      
     </Link>
   );
 };

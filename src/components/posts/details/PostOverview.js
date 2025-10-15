@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import PostSpecifications from "./PostSpecifications";
 import PublishedOverview from "./post-overview-components/PublishedOverview";
 import InternalInformation from "./post-overview-components/InternalInformation";
-import PostForm from "../../post-form/PostForm";
 import PostCreateEditModal from "../PostCreateEditModal";
 import { usePosts } from "../../../context/PostsContext";
 // import InternalInfoModal from "../InternalInfoModal";
@@ -11,10 +10,10 @@ const PostOverview = ({
   currentPost = null,
   setModalOpen,
   setModalType,
-  setModalData,
   setSelectedCover,
 }) => {
   const [postFormModal, setPostFormModal] = useState(false);
+ 
 
   const [activeTab, setActiveTab] = useState("Published OverView");
   const { setPostCreatedCode, setPostCreatedId } = usePosts();

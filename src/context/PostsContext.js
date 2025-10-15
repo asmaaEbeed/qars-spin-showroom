@@ -1,10 +1,7 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
-import Car01 from "../assets/images/car-01.jpg";
-import Car02 from "../assets/images/car-02.jpg";
-import Car03 from "../assets/images/car-03.jpg";
-import Car04 from "../assets/images/car-04.jpeg";
-import Car05 from "../assets/images/car-05.jpg";
-import { managementAPI } from "../services/api";
+import React, { createContext, useContext, useState } from "react";
+import { carAPI, managementAPI, superAdminAPI } from "../services/api";
+import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 // Post kind constants
 
 const PostsContext = createContext(null);
@@ -28,19 +25,11 @@ export function PostsProvider({ children }) {
   const [postLogs, setPostLogs] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
-  const [postCreatedId, setPostCreatedId] = useState("")
-  const [postCreatedCode, setPostCreatedCode] = useState("")
+  const [postCreatedId, setPostCreatedId] = useState("");
+  const [postCreatedCode, setPostCreatedCode] = useState("");
 
   // Update Specification for post Reviewed after AI
   const updateSpecification = async (postId, specId, updatedSpec) => {
-    // We Will use next function to update spec in database
-    // const res = await updatePostSpec({
-    //   Display_Order: "",      //Didn't use it
-    //   Spec_Value_PL: updatedSpec.Spec_value_pl,
-    //   Spec_Value_SL: updatedSpec.Spec_value_sl,
-    //   Post_ID: postId,
-    //   Spec_ID: specId,
-    // });
     setPosts((prevPosts) =>
       prevPosts.map((post) => {
         if (post.id === postId) {
@@ -60,7 +49,6 @@ export function PostsProvider({ children }) {
     );
   };
 
-  
   const fetchPosts = async (params) => {
     try {
       setLoadingFetchPosts(true);
@@ -74,16 +62,84 @@ export function PostsProvider({ children }) {
   };
 
   const fetchCarsName = async () => {
-    setCarsNameListLoading(true)
+    setCarsNameListLoading(true);
     try {
-      const res = await managementAPI.getInitCarData()
-        setCarsNameList(res.data.combinedModelName);
-    } catch(e) {
+      const res = await managementAPI.getInitCarData();
+      setCarsNameList(res.data.combinedModelName);
+    } catch (e) {
       console.log(e);
     } finally {
-      setCarsNameListLoading(false)
+      setCarsNameListLoading(false);
     }
-  }
+  };
+
+  const onSendToReview = async (data) => {
+    const result = await Swal.fire({
+      icon: "warning",
+      title: `Post Review`,
+      text: "Are you sure you want to send this post for review?",
+      showConfirmButton: true,
+      confirmButtonText: "Send Request",
+      confirmButtonColor: "#34c38f",
+      showCancelButton: true,
+      cancelButtonText: "Close",
+      cancelButtonColor: "#f46a6a",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        Swal.showLoading();
+        const response = await carAPI.postApprovalRequest(data);
+        Swal.close();
+        return response;
+      } catch (error) {
+        Swal.close();
+        return { Code: "ERROR", Desc: error.message };
+      }
+    }
+    return { Code: "CANCELLED" };
+  };
+
+  // Accept or Reject, ...
+  const onChangePostStatus = async (data) => {
+  
+    const result = await Swal.fire({
+      icon: `${data.state === "Approved" ? "success" : "error"}`,
+      title: `${data.state} Post`,
+      input: data.state === "Rejected" ? 'text' : undefined,
+      inputPlaceholder: "Enter reason for rejection",
+      text: `Are you sure you want to ${data.state} this post?`,
+      showConfirmButton: true,
+      confirmButtonText: "Confirm",
+      confirmButtonColor: "#34c38f",
+      showCancelButton: true,
+      cancelButtonText: "Close",
+      cancelButtonColor: "#f46a6a",
+      preConfirm: (value) => {
+        if (data.state === "Rejected" && !value) {   // ✅ match same property
+          Swal.showValidationMessage('Please enter a value');
+        }
+        return value;
+      }
+    });
+
+    if (result.isConfirmed) {
+      try {
+        Swal.showLoading();
+        const response = await superAdminAPI.postChangeStatus({
+          Post_ID: data.id,
+          newStatus: data.state,
+          reason: result.value,
+        });
+        Swal.close();
+        return response;
+      } catch (error) {
+        Swal.close();
+        return { Code: "ERROR", Desc: error.message };
+      }
+    }
+    return { Code: "CANCELLED" };
+  };
 
   const value = {
     posts,
@@ -106,6 +162,8 @@ export function PostsProvider({ children }) {
     postCreatedCode,
     getPostById: (id) => posts.find((post) => post.id === id),
     updateSpecification,
+    onSendToReview,
+    onChangePostStatus,
   };
 
   return (

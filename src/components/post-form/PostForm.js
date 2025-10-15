@@ -33,7 +33,6 @@ const PostForm = ({ onClose, post = null, setStep, step = 0 }) => {
     fetchCarProfile,
     code,
     onClose,
-    
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -88,15 +87,23 @@ const PostForm = ({ onClose, post = null, setStep, step = 0 }) => {
 
       <div className="flex justify-end space-x-3 p-4 sticky bottom-0 z-50 bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
         <button
-          type="button"
-          onClick={handleClose}
-          className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+          type="submit"
+          disabled={isSubmitting}
+          value="publish"
+          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
         >
-          Cancel
+          {isSubmitting
+            ? post
+              ? "Updating..."
+              : "Creating..."
+            : post
+            ? "Update"
+            : "Publish & Next"}
         </button>
         <button
           type="submit"
           disabled={isSubmitting}
+          value="save"
           className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
         >
           {isSubmitting
@@ -106,6 +113,14 @@ const PostForm = ({ onClose, post = null, setStep, step = 0 }) => {
             : post
             ? "Update"
             : "Save & Next"}
+        </button>
+
+        <button
+          type="button"
+          onClick={handleClose}
+          className="px-4 py-2 bg-gray-600 text-white rounded-md shadow-sm text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+        >
+          Cancel
         </button>
       </div>
     </form>

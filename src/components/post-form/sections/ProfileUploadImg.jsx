@@ -3,7 +3,8 @@ import Swal from 'sweetalert2';
 import { FiUpload } from "react-icons/fi";
 import { toast } from 'react-toastify';
 import { usePosts } from '../../../context/PostsContext';
-
+import { useAuth } from '../../../context/AuthContext';
+import { useParams } from 'react-router-dom';
 
 const ProfileUploadImg = ({ post = null, onClose, setStep }) => {
     const fileInputRef = useRef(null);
@@ -12,6 +13,8 @@ const ProfileUploadImg = ({ post = null, onClose, setStep }) => {
     const [fileData, setFileData] = useState(null);
     const [error, setError] = useState(null);
     const { postCreatedId, setPostCreatedId, setPostCreatedCode, fetchPosts } = usePosts();
+    const { user } = useAuth();
+    const { id } = useParams()
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -23,7 +26,7 @@ const ProfileUploadImg = ({ post = null, onClose, setStep }) => {
         const formData = new FormData();
         formData.append("Post_ID", post ? post.postId : postCreatedId);
         // formData.append("Post_ID", post.postId);
-        formData.append("Our_Secret", 1244);
+        formData.append("Our_Secret", process.env.REACT_APP_API_OUR_SECRET);
         formData.append("PhotoBytes", fileData, "cover.jpg");
 
         try {
@@ -42,7 +45,7 @@ const ProfileUploadImg = ({ post = null, onClose, setStep }) => {
             // لو السيرفر بيرجع JSON
             const data = await response.json();
             toast.success("Post cover photo uploaded successfully");
-            fetchPosts({ partnerId: localStorage.getItem("partnerId") });
+            fetchPosts({ partnerId: user.partnerId || id });
             setStep((prev) => prev + 1);
 
             return data;

@@ -7,6 +7,7 @@ import {
 import { carAPI } from "../../../services/api/carForSaleProfile.api";
 import { toast } from "react-toastify";
 import { useCarContext } from "../../../context/CarContext";
+import { useParams } from "react-router-dom";
 
 const PostSpecifications = ({
   currentPost = null,
@@ -14,6 +15,7 @@ const PostSpecifications = ({
   styleFromSteps = "",
 }) => {
   // reviewd
+  const{code: postCode} = useParams()
   const [isUpdateLoading, setIsUpdateLoading] = useState(false);
   const [postSpec, setPostSpec] = useState([]);
   const [editingSpec, setEditingSpec] = useState(null);
@@ -35,10 +37,10 @@ const PostSpecifications = ({
   }, [carSpecs]);
 
   useEffect(() => {
-    if (code) {
-      fetchCarSpecification(code);
+    if ((code || postCode) && carSpecs.length === 0) {
+      fetchCarSpecification(code || postCode);
     }
-  }, [code]);
+  }, [code, postCode, fetchCarSpecification, carSpecs]);
 
   // Reviewd
   const handleInputChange = (field, value) => {
@@ -191,9 +193,9 @@ const PostSpecifications = ({
                           </div>
                         ) : (
                           <div className="flex space-x-2 ">
-                            <p className="text-xs text-green-800 font-semibold">
-                              {spec.specValuePl}
-                            </p>
+                            <div className="text-xs text-green-800 font-semibold">
+                              {spec.specType === "Color" ? <p style={{ backgroundColor: spec.specValuePl }} className="w-5 h-5 rounded-md"></p> :  spec.specValuePl}
+                            </div>
                           </div>
                         )}
                       </div>

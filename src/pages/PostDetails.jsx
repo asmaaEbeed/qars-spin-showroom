@@ -12,6 +12,10 @@ import PostOverview from "../components/posts/details/PostOverview";
 import { useCar360Request } from "./hooks/useCar360Request";
 import { useCarContext } from "../context/CarContext";
 import { useCarOffers } from "./hooks/useCarOffers";
+import { usePosts } from "../context/PostsContext";
+import { useAuth } from "../context/AuthContext";
+import { toast } from "react-toastify";
+import { useCarProfile } from "./hooks/useCarProfile";
 
 const LoadingState = () => (
   <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-indigo-50 flex items-center justify-center">
@@ -33,7 +37,9 @@ const ModalWrapper = ({ children }) => (
 const PostDetails = () => {
   const { code } = useParams();
   // const { postDetails, isLoading } = useCarProfile(code);
-  const { fetchCarProfile, carDetails, isLoading, fetchCarSpecification } = useCarContext();
+  const { fetchCarProfile, carDetails, isLoading } = useCarContext();
+  const { onSendToReview, onChangePostStatus } = usePosts();
+  const { user } = useAuth();
 
   useCarOffers(code);
 
@@ -45,15 +51,55 @@ const PostDetails = () => {
   const [selectedCover, setSelectedCover] = useState(null);
 
   const handle360Request = useCar360Request(postDetails?.car);
+  
   useEffect(() => {
     fetchCarProfile(code);
-    fetchCarSpecification(code);
-  }, [code])
+  }, [code, fetchCarProfile])
 
   useEffect(() => {
     setPostDetails(carDetails)
   }, [carDetails])
 
+
+
+  const handleSendToReview = async () => {
+    console.log(postDetails)
+    const response = await onSendToReview({
+      UserName: user.userName,
+      Post_ID: postDetails?.car.postId,
+    });
+    if (response.Code === "OK") {
+      toast.success(response.Desc);
+      // To Change Status After sent to review
+      setPostDetails(prev => ({
+        ...prev,
+        car: {
+          ...prev.car,
+          postStatus: "Pending Approval",
+        },
+      }));
+
+    } else if (response.Code !== "CANCELLED") {
+      toast.error("Failed to send post to review");
+    }
+  };
+
+  const handleChangePostStatus = async (state) => {
+    const res = await onChangePostStatus({ id: postDetails?.car.postId, state });
+    
+        if (res?.data?.post_ID) {
+          toast.success(res.data.message);
+          setPostDetails(prev => ({
+            ...prev,
+            car: {
+              ...prev.car,
+              postStatus: state,
+            },
+          }));
+        } else if (res?.Code !== "CANCELLED") {
+          toast.error("Failed to change post status");
+        }
+  }
 
   if (isLoading || !postDetails) {
     return (
@@ -96,6 +142,7 @@ const PostDetails = () => {
                 modalData={modalData}
                 setModalData={setModalData}
                 selectedCover={selectedCover}
+                handleSendToReview={handleSendToReview}
               />}
             </ModalWrapper>
           )}
@@ -110,6 +157,10 @@ const PostDetails = () => {
               setModalOpen={setModalOpen}
               setModalType={setModalType}
               handle360Request={handle360Request}
+              handleSendToReview={handleSendToReview}
+              postStatus={postDetails?.car?.postStatus}
+              role={user.role}
+              handleChangePostStatus={handleChangePostStatus}
             />
           </div>}
 

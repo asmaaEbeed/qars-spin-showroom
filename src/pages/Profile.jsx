@@ -3,16 +3,18 @@ import MainLayout from "../components/layout/MainLayout";
 import ProfileHeader from "../components/profile/ProfileHeader";
 import ProfileTabOverview from "../components/profile/ProfileTabOverview";
 import MediaTab from "../components/profile/MediaTab";
-import ProfileTabSettings from "../components/profile/UserSettings";
+// import ProfileTabSettings from "../components/profile/UserSettings";
 import { ShowroomProfileAPI } from "../services/api";
 import { useParams } from "react-router-dom";
 import SelectShowroomHint from "../components/adminHint/SelectShowroomHint";
+import { useAuth } from "../context/AuthContext";
 
 
 const Profile = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
 
   const { id } = useParams();
 
@@ -20,34 +22,32 @@ const Profile = () => {
     setActiveTab(tab);
   };
 
-  // // Load profile data when component mounts
-  // useEffect(() => {
-  //   refreshProfileData();
-  // }, [refreshProfileData]);
-
-  const fetchProfileDetails = async () => {
-    setLoading(true)
-    try {
-      if (localStorage.getItem("role") === "superAdmin") {
-        if (id !== "undefiend") {
-          const res = await ShowroomProfileAPI.getDetails(id);
-          setProfileData(res.data)
-        }
-
-      } else {
-        const res = await ShowroomProfileAPI.getDetails(localStorage.getItem("partnerId"));
-        setProfileData(res.data)
-      }
-    } catch (error) {
-      console.log(error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
   useEffect(() => {
-    fetchProfileDetails()
-  }, [])
+    const fetchProfileDetails = async () => {
+      setLoading(true);
+      try {
+        if (localStorage.getItem("role") === "superAdmin") {
+          if (id !== "undefined") {
+            const res = await ShowroomProfileAPI.getDetails(id);
+            setProfileData(res.data);
+          }
+        } else {
+          const res = await ShowroomProfileAPI.getDetails(user.partnerId);
+          setProfileData(res.data);
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (profileData === null && user.userId !== null) {
+      fetchProfileDetails();
+    }
+  }, [id, profileData, user]);
+
+
 
 
   // if (error) {

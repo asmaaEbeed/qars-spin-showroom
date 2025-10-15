@@ -18,7 +18,7 @@ export default function SelectShowroomHint() {
                 <p className="text-gray-500 max-w-md">
                     Please select a showroom from the list to view its dashboard and posts.
                 </p>
-                <Link to="/admin/dealer/showrooms" className="bg-primary hover:bg-primary-600 text-white py-2 px-4 rounded mt-4">
+                <Link to="/admin/showrooms" className="bg-primary hover:bg-primary-600 text-white py-2 px-4 rounded mt-4">
                     Select Showroom
                 </Link>
             </div>

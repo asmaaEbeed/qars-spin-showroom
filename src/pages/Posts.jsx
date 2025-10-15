@@ -5,6 +5,10 @@ import PostCard from "../components/posts/PostCard";
 import PostSearch from "../components/posts/PostSearch";
 import PostPageHeader from "../components/posts/PostPageHeader";
 import PostCreateEditModal from "../components/posts/PostCreateEditModal";
+import { useAuth } from "../context/AuthContext";
+import { useParams } from "react-router-dom";
+import { FolderPlusIcon, FunnelIcon, PlusIcon } from "@heroicons/react/24/outline";
+import { toast } from "react-toastify";
 
 const Posts = () => {
   const {
@@ -17,34 +21,60 @@ const Posts = () => {
     totalPages,
     setPostCreatedId,
     setPostCreatedCode,
+    onChangePostStatus,
   } = usePosts();
+  const { user, loading } = useAuth();
+  const { id } = useParams();
 
   const [showModal, setShowModal] = useState(false);
   // const [selectedPost, setSelectedPost] = useState(null);
 
   // Reviewed
   const [postsList, setPostsList] = useState([]);
-  const [filtersClearData, setFiltersClearData] = useState(false);
   // For Pagination
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize] = useState(10);
   const [editModalData, setEditModalData] = useState(null);
-
+  const [clearFilter, setClearFilter] = useState(false)
 
   useEffect(() => {
     setPostsList(posts)
   }, [posts])
 
+
   useEffect(() => {
+    if (loading || user.userId === null) return;
+
+    let computedStatus = null;
+    if (!id && !user?.partnerId) {
+      computedStatus = "Pending Approval"
+    }
+
     const params = {
-      ...filters,
-      partnerId: localStorage.getItem("partnerId"),
-      PageNumber: pageNumber,
-      PageSize: pageSize,
-      // status: "Approved",
+      partnerId: id || user?.partnerId || null,
+      status: computedStatus,
+      pageSize: pageSize,
+      pageNumber: pageNumber,
     };
+
     fetchPosts(params);
-  }, [pageNumber]);
+
+  }, [id, user, loading, pageNumber, pageSize]);
+
+  useEffect(() => {
+    if (loading || user.userId === null) return;
+    let computedStatus = null;
+    // View posts from superAdmin role that not have partnerId or params id
+    if (!id && !user?.partnerId) {
+      computedStatus = "Pending Approval"
+      if (filters.status !== computedStatus && !clearFilter) {
+        setFilters({ status: computedStatus });
+      }
+    } else {
+      setFilters({ status: "" });
+    }
+
+  }, [clearFilter, id, user, loading])
 
   const handleFilterChange = async (newFilters) => {
     setPageNumber(1)
@@ -54,7 +84,7 @@ const Posts = () => {
     }));
 
     const params = {
-      partnerId: localStorage.getItem("partnerId"),
+      partnerId: id || user.partnerId,
       // status: "Approved",
       SearchType: newFilters.searchBy,
       SearchTerm: newFilters.searchTerm,
@@ -72,9 +102,17 @@ const Posts = () => {
   };
 
   const clearFilters = () => {
-    setFiltersClearData(true)
+    setFilters({
+      searchBy: 0,
+      searchTerm: "",
+      category: "",
+      status: "",
+      sortBy: 0,
+      year: "",
+      pinToTop: false,
+    })
     const params = {
-      partnerId: localStorage.getItem("partnerId"),
+      partnerId: id || user.partnerId,
       status: "Approved",
       PageNumber: pageNumber,
     };
@@ -82,18 +120,54 @@ const Posts = () => {
   };
 
 
-  const handlePrev = () => {
-    if (pageNumber > 1) setPageNumber((prev) => prev - 1);
+  const handlePrev = () => { if (pageNumber > 1) setPageNumber((prev) => prev - 1); };
+
+  const handleNext = () => { if (pageNumber < totalPages) setPageNumber((prev) => prev + 1); };
+
+  // Handle Change from draft to pending Approval
+  const handleStatusChange = (postId, newStatus) => {
+    setPostsList(prev =>
+      prev.map(p =>
+        p.car.postId === postId
+          ? {
+            ...p,
+            postStatus: newStatus,
+            car: { ...p.car, postStatus: newStatus },
+          }
+          : p
+      )
+    );
   };
 
-  const handleNext = () => {
-    if (pageNumber < totalPages) setPageNumber((prev) => prev + 1);
-  };
+  // Handle Change from pending approval to approved or rejected
+  const handleChangePostStatus = async (id, state) => {
+    const res = await onChangePostStatus({ id, state });
+
+    if (res?.data?.post_ID) {
+      toast.success(res.data.message);
+      if (filters.status !== "" && filters.status === state) {
+        setPostsList(prev =>
+          prev.map(p =>
+            p.car.postId === id
+              ? {
+                ...p,
+                car: { ...p.car, postStatus: state },
+              }
+              : p
+          )
+        );
+      } else {
+        setPostsList(prev => prev.filter(p => p.car.postId !== res?.data?.post_ID))
+      }
+    } else if (res?.Code !== "CANCELLED") {
+      toast.error("Failed to change post status");
+    }
+  }
   return (
     <MainLayout>
       <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-indigo-50">
         {/* Header Section */}
-        <PostPageHeader setShowModal={setShowModal} />
+        <PostPageHeader setShowModal={setShowModal} id={id} user={user} />
 
         {/* Main Content */}
         <div className="max-w-7xl mx-auto px-6 py-8">
@@ -103,20 +177,8 @@ const Posts = () => {
               <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 lg:sticky lg:top-32 overflow-hidden">
                 <div className="px-4 py-3 border-b border-secondary-100">
                   <div className="flex items-center">
-                    <div className="h-6 w-6 bg-gradient-to-br from-primary-400 to-primary-600 rounded-lg flex items-center justify-center mr-2">
-                      <svg
-                        className="h-3 w-3 text-white"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
-                        />
-                      </svg>
+                    <div className="h-8 w-8 bg-gradient-to-br from-primary-400 to-primary-600 rounded-lg flex items-center justify-center mr-2">
+                      <FunnelIcon className="w-6 h-6  text-white" />
                     </div>
                     <h2 className="text-sm font-semibold text-secondary-800">
                       Search & Filter
@@ -126,9 +188,8 @@ const Posts = () => {
                 <div className="px-4 py-3">
                   <PostSearch
                     onFilterChange={handleFilterChange}
-                    // onSortChange={handleSortChange}
-                    filtersClearData={filtersClearData}
-                    setFiltersClearData={setFiltersClearData}
+                    setClearFilter={setClearFilter}
+
                   />
                 </div>
               </div>
@@ -151,7 +212,7 @@ const Posts = () => {
                       </span>
                       {filters && Object.keys(filters).length > 0 && (
                         <button
-                          onClick={() => clearFilters()}
+                          onClick={() => { clearFilters() }}
                           className="text-xs text-secondary-500 hover:text-secondary-700 underline"
                         >
                           Clear all filters
@@ -198,22 +259,10 @@ const Posts = () => {
                       </p>
                       <p className="text-secondary-500 text-center">{error}</p>
                     </div>
-                  ) : postsList.length === 0 && !filtersClearData ? (
+                  ) : postsList.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-20">
                       <div className="h-20 w-20 bg-secondary-100 rounded-2xl flex items-center justify-center mb-6">
-                        <svg
-                          className="h-10 w-10 text-white"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-                          />
-                        </svg>
+                        <FolderPlusIcon className="h-10 w-10 text-white" />
                       </div>
                       <h3 className="text-xl font-semibold text-secondary-700 mb-2">
                         No car listings found
@@ -229,19 +278,7 @@ const Posts = () => {
                         }}
                         className="inline-flex items-center px-6 py-3 border border-transparent text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 shadow-lg hover:shadow-xl transition-all duration-200"
                       >
-                        <svg
-                          className="mr-2 h-5 w-5"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M12 4v16m8-8H4"
-                          />
-                        </svg>
+                        <PlusIcon className="mr-2 h-5 w-5" />
                         Create First Listing
                       </button>
                     </div>
@@ -250,20 +287,22 @@ const Posts = () => {
                       <div className="">
                         {postsList.map((post, i) => (
                           <PostCard
-                            key={i}
+                            key={post.car.postId}
                             post={post.car}
                             onDelete={handleDeletePost}
                             onEdit={() => {
                               setShowModal(true);
                               setEditModalData(post.car)
                             }}
+                            handleStatusChange={handleStatusChange}
+                            handleChangePostStatus={handleChangePostStatus}
                           />
                         ))}
                       </div>
                       <div className="flex justify-center items-center gap-2 mt-4">
                         <button
                           onClick={handlePrev}
-                          disabled={pageNumber === 1 }
+                          disabled={pageNumber === 1}
                           className="text-sm px-3 py-1 rounded-2xl disabled:opacity-50 bg-primary-100 text-primary-800 disabled:cursor-not-allowed hover:bg-primary-200 transition-all duration-200"
                         >
                           ← Prev

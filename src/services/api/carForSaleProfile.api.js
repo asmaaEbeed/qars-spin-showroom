@@ -39,11 +39,11 @@ export const carAPI = {
   postDeleteGalleryImg: async (mediaId) => {
     try {
       const response = await fetch(`${url}/DeleteGalleryImage`, {
-        method: "POST", 
+        method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
-        body: `Media_ID=${mediaId}&Our_Secret=1244`,
+        body: `Media_ID=${mediaId}&Our_Secret=${process.env.REACT_APP_API_OUR_SECRET}`,
       });
 
       if (!response.ok) {
@@ -57,5 +57,23 @@ export const carAPI = {
       return error;
     }
   },
-
+  postApprovalRequest: async (body) => {
+    try {
+      const response = await fetch(`${url}/RequestPostApproval`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: `Post_ID=${body.Post_ID}&UserName=${body.UserName}&Our_Secret=${process.env.REACT_APP_API_OUR_SECRET}`,
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Upload failed:", error);
+      return error;
+    }
+  },
 };

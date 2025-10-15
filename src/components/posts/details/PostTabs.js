@@ -1,7 +1,21 @@
+import {
+  CheckCircleIcon,
+  PaperAirplaneIcon,
+  XCircleIcon,
+} from "@heroicons/react/24/outline";
 import React from "react";
 
-const PostTabs = ({ activeTab, setActiveTab, setModalOpen, setModalType, handle360Request }) => {
-
+const PostTabs = ({
+  activeTab,
+  setActiveTab,
+  setModalOpen,
+  setModalType,
+  handle360Request,
+  handleSendToReview,
+  postStatus,
+  role,
+  handleChangePostStatus,
+}) => {
   const handleTabChange = (tabName) => {
     setActiveTab(tabName);
   };
@@ -109,11 +123,11 @@ const PostTabs = ({ activeTab, setActiveTab, setModalOpen, setModalType, handle3
                 Status
               </button>
             </div> */}
+
             <div className="relative">
               <button
                 onClick={() => {
-                  
-                  handle360Request()
+                  handle360Request();
                 }}
                 className="flex items-center bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors md:text-md text-sm md:px-4 px-1 py-2"
               >
@@ -133,12 +147,50 @@ const PostTabs = ({ activeTab, setActiveTab, setModalOpen, setModalType, handle3
                 Request 360°
               </button>
             </div>
-            
+            {postStatus === "Draft" && (
+              <div className="relative">
+                <button
+                  onClick={() => {
+                    handleSendToReview();
+                  }}
+                  className="flex items-center bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors md:text-md text-sm md:px-4 px-1 py-2"
+                >
+                  <PaperAirplaneIcon className="h-4 w-4" />
+                  Send to Review
+                </button>
+              </div>
+            )}
+            {postStatus === "Pending Approval" && role === "superAdmin" && (
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleChangePostStatus("Approved");
+                }}
+                className="flex items-center bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors md:text-md text-sm md:px-4 px-1 py-2"
+                title="Approve post"
+              >
+                <CheckCircleIcon className="h-6 w-6" />
+                Approve
+              </button>
+            )}
+            {postStatus === "Pending Approval" && role === "superAdmin" && (
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleChangePostStatus("Rejected");
+                }}
+                className="flex items-center bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors md:text-md text-sm md:px-4 px-1 py-2"
+                title="Reject post"
+              >
+                <XCircleIcon className="h-6 w-6" />
+                Reject
+              </button>
+            )}
           </div>
         </div>
       </div>
-
-
     </div>
   );
 };

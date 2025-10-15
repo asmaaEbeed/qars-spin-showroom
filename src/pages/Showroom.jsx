@@ -40,32 +40,14 @@ const Showroom = () => {
       count: stats.carsForSale,
       path: "/showroom/posts",
     },
-    // {
-    //   id: "cars-rent",
-    //   title: "Cars For Rent",
-    //   description: "Manage your car rental listings",
-    //   color: "blue",
-    //   icon: <FiTruck className="w-8 h-8 text-blue-600" />,
-    //   count: stats.carsForRent,
-    //   path: "#",
-    // },
-    // {
-    //   id: "bikes-sale",
-    //   title: "Bikes For Sale",
-    //   description: "Manage your bike listings for sale",
-    //   color: "green",
-    //   icon: <FaMotorcycle className="w-8 h-8 text-green-600" />,
-    //   count: stats.bikesForSale,
-    //   path: "#",
-    // },
   ];
 
   // Set the partner id in the local storage in case of super admin
-  useEffect(() => {
-    if (localStorage.getItem("role") === "superAdmin") {
-      if (id && id !== "undefined") localStorage.setItem("partnerId", id)
-    }
-  }, [id]);
+  // useEffect(() => {
+  //   if (localStorage.getItem("role") === "superAdmin") {
+  //     if (id && id !== "undefined") localStorage.setItem("partnerId", id)
+  //   }
+  // }, [id]);
 
   // Check if the user is a super admin and if the id is undefined, then show the select showroom hint component.
 

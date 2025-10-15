@@ -17,10 +17,15 @@ const MainLayout = ({ children }) => {
   const navItems = [
     ...(localStorage.getItem("role") === "superAdmin"
       ? [
+          // {
+          //   label: "ShowRooms",
+          //   to: `/admin/showrooms`,
+          //   isActive: /^\/admin\/showrooms(\/|$)/.test(path),
+          // },
           {
-            label: "ShowRooms",
-            to: `/admin/dealer/showrooms`,
-            isActive: /^\/admin\/dealer\/showrooms(\/|$)/.test(path),
+            label: "SuperAdmin Panel",
+            to: `/admin/superAdmin-panel`,
+            isActive: /^\/admin\/superAdmin-panel(\/|$)/.test(path),
           },
         ]
       : []),
@@ -62,14 +67,14 @@ const MainLayout = ({ children }) => {
             <div className="flex flex-row">
               {navItems.map(({ label, to, isActive }) => (
                 <Link
-                  key={label}
-                  to={to}
-                  className={`h-full w-full items-center md:px-8 px-4 py-4 text-sm font-medium hover:bg-primary-700 hover:text-white ${
-                    isActive ? "bg-primary-700 text-white" : ""
-                  }`}
-                >
-                  {label}
-                </Link>
+                key={label}
+                to={to}
+                className={`h-full w-auto uppercase tracking-widest items-center md:px-2 lg:px-4 text-center py-4 text-sm font-medium hover:bg-primary-700 whitespace-nowrap overflow-hidden block hover:text-white transition-all duration-200 ${
+                  isActive ? "bg-primary-700 text-white" : ""
+                }`}
+              >
+                {label}
+              </Link>
               ))}
             </div>
           </nav>

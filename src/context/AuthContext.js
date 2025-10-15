@@ -4,42 +4,49 @@ import { authAPI } from "../services/api/Auth.api";
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState({
+    userName: null,
+    role: null,
+    email: null,
+    userId: null,
+    fullName: null,
+    partnerId: null,
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // In case Refresh get user data again
   useEffect(() => {
-    if (user === null) {
+    const fetchMe = async() => {
+      setLoading(true);
+      const response = await authAPI.me();
+      console.log(response)
+      handleUserData(response);
+      setLoading(false);
+    }
+    if (user.userId === null) {
       const token = localStorage.getItem("token");
       if (token) {
-        setLoading(false);
-        authAPI.me().then((response) => {
-          setUser({
-            username: response.data.userName,
-            fullName: localStorage.getItem("fullName"),
-            role: response.data.roles,
-            email: response.data.email,
-            userId: response.data.userId,
-          });
-        });
+        fetchMe();
       }
     }
-  }, [user]);
+  }, []);
 
   // Mock authentication functions
   const login = async (data) => {
     setError("");
     try {
       const response = await authAPI.login(data);
-      setUser({
-        username: response.data.userName,
-        fullName: response.data.partnerData.fullName,
-        role: response.data.roles,
-        email: response.data.email,
-        userId: response.data.userId,
-      });
+      handleUserData(response);
       setLoading(false);
-      response.data.role !== "superAdmin" && localStorage.setItem("partnerId", response.data.partnerData.partnerId);
+      const isSuperAdmin = response.data.roles.some(
+        role => role.toLowerCase() === "superadmin"
+      );
+      if (isSuperAdmin) {
+        localStorage.setItem("partnerId", null);
+      } else {
+        localStorage.setItem("partnerId", response.data.partnerData.partnerId);
+      }
       localStorage.setItem("userId", response.data.userId);
       localStorage.setItem("userName", response.data.userName);
       localStorage.setItem("fullName", response.data.partnerData.fullName);
@@ -53,8 +60,55 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const handleUserData = (response) => {
+    console.log(response)
+    setUser({
+      userName: response.data.userName,
+      email: response.data.email,
+      userId: response.data.userId,
+    });
+    if (response.data.partnerData) {
+      setUser((prev) => ({
+        ...prev,
+        fullName: response.data.partnerData.fullName,
+        partnerId: response.data.partnerData.partnerId,
+      }));
+    }
+    if (response.data.roles) {
+      const isSuperAdmin = response.data.roles.some(
+        role => role.toLowerCase() === "superadmin"
+      );
+      if (
+        isSuperAdmin
+      ) {
+        console.log(response.data.partnerData);
+        localStorage.setItem("role", "superAdmin");
+        setUser((prev) => ({
+          ...prev,
+          partnerId: null,
+          role: "superAdmin",
+        }));
+      } else {
+        console.log(response.data.partnerData);
+        localStorage.setItem("role", "admin");
+        setUser((prev) => ({
+          ...prev,
+          partnerId: response.data.partnerData.partnerId,
+          role: "admin",
+        }));
+      }
+    }
+  };
+
   const logout = () => {
-    setUser(null);
+    setUser({
+      userName: null,
+      role: null,
+      email: null,
+      userId: null,
+      fullName: null,
+      partnerId: null,
+    });
     localStorage.removeItem("token");
     localStorage.removeItem("partnerId");
     localStorage.removeItem("userId");
@@ -68,10 +122,10 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     // Check for existing session
-    const savedUser = localStorage.getItem("user");
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
+    // const savedUser = localStorage.getItem("user");
+    // if (savedUser) {
+    //   setUser(JSON.parse(savedUser));
+    // }
     setLoading(false);
   }, []);
 
