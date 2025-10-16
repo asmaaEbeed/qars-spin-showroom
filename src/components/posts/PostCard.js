@@ -94,7 +94,13 @@ const PostCard = ({
           </div>
           <div className="absolute bottom-2 right-0 flex flex-col space-y-1 tracking-wider">
             {!id && !user.partnerId && (
-              <div className={`text-center px-3 py-1 rounded-l-full min-w-20 text-xs ${post.sourceKind === "Individual" ? "bg-blue-600 text-blue-50 border-blue-500" : "bg-primary-600 text-primary-50 border-primary-500"}`}>
+              <div
+                className={`text-center px-3 py-1 rounded-l-full min-w-20 text-xs ${
+                  post.sourceKind === "Individual"
+                    ? "bg-blue-600 text-blue-50 border-blue-500"
+                    : "bg-primary-600 text-primary-50 border-primary-500"
+                }`}
+              >
                 {post.sourceKind}
               </div>
             )}

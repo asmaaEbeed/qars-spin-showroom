@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import BgImage from "../../../assets/images/Profile_Background.jpg";
-import { Link } from "react-router-dom";
+import { Link, useActionData, useParams } from "react-router-dom";
 import { FiUpload, FiX } from "react-icons/fi";
 import { useRef } from "react";
 import PostDetailsModals from "../PostDetailsModals";
 import { FaImage } from "react-icons/fa";
+import { useAuth } from "../../../context/AuthContext";
 
 const PostHeader = ({
   currentPost,
@@ -19,6 +20,8 @@ const PostHeader = ({
 }) => {
   const fileInputRef = useRef(null);
   const [previewUrl, setPreviewUrl] = useState(null);
+  const { user } = useAuth();
+  const { id } = useParams();
 
   const handleLogoClick = () => {
     if (fileInputRef.current) {
@@ -113,52 +116,50 @@ const PostHeader = ({
           <div className="flex items-center gap-4 md:flex-row">
             <div className="flex-shrink-0">
               <div className="w-48 h-36 lg:w-64 lg:h-48 relative rounded-2xl overflow-hidden shadow-2xl border border-white/20">
-                
-                  <div className="flex-shrink-0 relative group">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      ref={fileInputRef}
-                      onChange={(e) => {
-                        const file = e.target.files[0];
-                        if (file) {
-                          setSelectedCover(file);
-                          // Open modal to confirm upload
-                          setModalType("uploadCover");
-                          setModalOpen(true);
-                        }
-                      }}
-                      className="hidden"
-                      id="cover-upload"
-                    />
-                    <div
-                      className={`w-48 h-36 lg:w-64 lg:h-48 rounded-2xl overflow-hidden shadow-2xl bg-white/20 backdrop-blur-sm border-2
+                <div className="flex-shrink-0 relative group">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    ref={fileInputRef}
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (file) {
+                        setSelectedCover(file);
+                        // Open modal to confirm upload
+                        setModalType("uploadCover");
+                        setModalOpen(true);
+                      }
+                    }}
+                    className="hidden"
+                    id="cover-upload"
+                  />
+                  <div
+                    className={`w-48 h-36 lg:w-64 lg:h-48 rounded-2xl overflow-hidden shadow-2xl bg-white/20 backdrop-blur-sm border-2
                                    border-dashed border-white/50 hover:border-white/80 cursor-pointer transition-colors duration-200
                                    
                                 `}
-                      onClick={handleLogoClick}
-                      style={{ position: "relative" }}
-                    >
-                      {currentPost?.rectangleImageUrl ? (
-                        <img
-                          src={currentPost?.rectangleImageUrl}
-                          alt="Partner Logo"
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex flex-col items-center justify-center text-white/60 hover:text-white/80 transition-colors">
-                          <FaImage className="h-8 w-8 mb-2" />
-                        </div>
-                      )}
+                    onClick={handleLogoClick}
+                    style={{ position: "relative" }}
+                  >
+                    {currentPost?.rectangleImageUrl ? (
+                      <img
+                        src={currentPost?.rectangleImageUrl}
+                        alt="Partner Logo"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex flex-col items-center justify-center text-white/60 hover:text-white/80 transition-colors">
+                        <FaImage className="h-8 w-8 mb-2" />
+                      </div>
+                    )}
 
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                          <span className="bg-white/90 text-black/80 rounded-full p-2">
-                            <FiUpload className="h-5 w-5" />
-                          </span>
-                        </div>
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <span className="bg-white/90 text-black/80 rounded-full p-2">
+                        <FiUpload className="h-5 w-5" />
+                      </span>
                     </div>
                   </div>
-                
+                </div>
               </div>
             </div>
 
@@ -216,6 +217,17 @@ const PostHeader = ({
                     </span>
                   )}
                 </div>
+                {!id && !user.partnerId && (
+                  <div
+                    className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${
+                      currentPost?.sourceKind === "Individual"
+                        ? "bg-blue-600 text-blue-50 border-blue-500"
+                        : "bg-primary-600 text-primary-50 border-primary-500"
+                    }`}
+                  >
+                    {currentPost?.sourceKind}
+                  </div>
+                )}
               </div>
             </div>
           </div>
