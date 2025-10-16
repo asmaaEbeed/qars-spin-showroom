@@ -5,7 +5,7 @@ const PostSearch = ({
   onFilterChange,
 }) => {
 
-  const { filters, setFilters, setClearFilter } = usePosts()
+  const { filters, setFilters } = usePosts()
   
   const [searchTerm, setSearchTerm] = useState("");
   const [searchBy, setSearchBy] = useState(0);
@@ -158,7 +158,6 @@ const PostSearch = ({
           <button
             type="button"
             onClick={() => {
-              setClearFilter(true)
               setFilters({
                 searchBy: 0,
                 searchTerm: "",

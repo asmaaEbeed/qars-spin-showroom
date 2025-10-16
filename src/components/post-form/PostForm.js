@@ -86,7 +86,7 @@ const PostForm = ({ onClose, post = null, setStep, step = 0 }) => {
       </div>
 
       <div className="flex justify-end space-x-3 p-4 sticky bottom-0 z-50 bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
-        <button
+        {!post &&<button
           type="submit"
           disabled={isSubmitting}
           value="publish"
@@ -96,10 +96,8 @@ const PostForm = ({ onClose, post = null, setStep, step = 0 }) => {
             ? post
               ? "Updating..."
               : "Creating..."
-            : post
-            ? "Update"
-            : "Publish & Next"}
-        </button>
+            :  "Publish & Next"}
+        </button>}
         <button
           type="submit"
           disabled={isSubmitting}

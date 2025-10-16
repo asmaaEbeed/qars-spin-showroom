@@ -36,12 +36,16 @@ const statusColors = {
   },
 };
 
-const PostCard = ({ post, onDelete, onEdit, handleStatusChange, handleChangePostStatus }) => {
+const PostCard = ({
+  post,
+  onDelete,
+  onEdit,
+  handleStatusChange,
+  handleChangePostStatus,
+}) => {
   const { user } = useAuth();
   const { onSendToReview } = usePosts();
-  const {id} = useParams();
-  
-
+  const { id } = useParams();
 
   const status = post.postStatus || "Draft";
   const statusStyle = statusColors[status] || statusColors.Draft;
@@ -53,13 +57,11 @@ const PostCard = ({ post, onDelete, onEdit, handleStatusChange, handleChangePost
     });
     if (response.Code === "OK") {
       toast.success(response.Desc);
-      handleStatusChange(post.postId, "Pending Approval")
+      handleStatusChange(post.postId, "Pending Approval");
     } else if (response.Code !== "CANCELLED") {
       toast.error("Failed to send post to review");
     }
   };
-
-
 
   return (
     <Link
@@ -89,6 +91,13 @@ const PostCard = ({ post, onDelete, onEdit, handleStatusChange, handleChangePost
             >
               {post.isSold ? "Sold" : "Available"}
             </p>
+          </div>
+          <div className="absolute bottom-2 right-0 flex flex-col space-y-1 tracking-wider">
+            {!id && !user.partnerId && (
+              <div className={`text-center px-3 py-1 rounded-l-full min-w-20 text-xs ${post.sourceKind === "Individual" ? "bg-blue-600 text-blue-50 border-blue-500" : "bg-primary-600 text-primary-50 border-primary-500"}`}>
+                {post.sourceKind}
+              </div>
+            )}
           </div>
         </div>
 
@@ -199,7 +208,7 @@ const PostCard = ({ post, onDelete, onEdit, handleStatusChange, handleChangePost
               >
                 <PencilIcon className="h-4 w-4" />
               </button>
-              {(post.postStatus === "Draft" && user.role !== "superAdmin")&& (
+              {post.postStatus === "Draft" && user.role !== "superAdmin" && (
                 <button
                   onClick={(e) => {
                     e.preventDefault();
@@ -212,34 +221,34 @@ const PostCard = ({ post, onDelete, onEdit, handleStatusChange, handleChangePost
                   <PaperAirplaneIcon className="h-4 w-4" />
                 </button>
               )}
-              {(post.postStatus === "Pending Approval" && user.role === "superAdmin" )&& (
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleChangePostStatus(post.postId, "Approved");
-                
-                  }}
-                  className="p-2 bg-green-600 text-white hover:bg-green-600 hover:text-white rounded-full transition-colors font-bold"
-                  title="Approve post"
-                >
-                  <CheckCircleIcon className="h-6 w-6" />
-                </button>
-              )}
-              {(post.postStatus === "Pending Approval" && user.role === "superAdmin" )&& (
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleChangePostStatus(post.postId, "Rejected");
-                
-                  }}
-                  className="p-2 bg-red-600 text-white hover:bg-red-600 hover:text-white rounded-full transition-colors font-bold"
-                  title="Reject post"
-                >
-                  <XCircleIcon className="h-6 w-6" />
-                </button>
-              )}
+              {post.postStatus === "Pending Approval" &&
+                user.role === "superAdmin" && (
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleChangePostStatus(post.postId, "Approved");
+                    }}
+                    className="p-2 bg-green-600 text-white hover:bg-green-600 hover:text-white rounded-full transition-colors font-bold"
+                    title="Approve post"
+                  >
+                    <CheckCircleIcon className="h-6 w-6" />
+                  </button>
+                )}
+              {post.postStatus === "Pending Approval" &&
+                user.role === "superAdmin" && (
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleChangePostStatus(post.postId, "Rejected");
+                    }}
+                    className="p-2 bg-red-600 text-white hover:bg-red-600 hover:text-white rounded-full transition-colors font-bold"
+                    title="Reject post"
+                  >
+                    <XCircleIcon className="h-6 w-6" />
+                  </button>
+                )}
               {/* <button
                 onClick={(e) => {
                   e.preventDefault();
@@ -255,7 +264,6 @@ const PostCard = ({ post, onDelete, onEdit, handleStatusChange, handleChangePost
           </div>
         </div>
       </div>
-      
     </Link>
   );
 };

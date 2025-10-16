@@ -57,7 +57,7 @@ const PostOverview = ({
                   onClick={() => setPostFormModal(true)}
                   className="h-full px-3 py-1.5 text-xs bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors"
                 >
-                  Modify Published Info
+                  Modify Info
                 </button>
                 {/* <button
                   onClick={() => setInternalInfoModal(true)}

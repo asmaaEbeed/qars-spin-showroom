@@ -35,7 +35,6 @@ const Posts = () => {
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize] = useState(10);
   const [editModalData, setEditModalData] = useState(null);
-  const [clearFilter, setClearFilter] = useState(false)
 
   useEffect(() => {
     setPostsList(posts)
@@ -44,15 +43,9 @@ const Posts = () => {
 
   useEffect(() => {
     if (loading || user.userId === null) return;
-
-    let computedStatus = null;
-    if (!id && !user?.partnerId) {
-      computedStatus = "Pending Approval"
-    }
-
     const params = {
+      ...filters,
       partnerId: id || user?.partnerId || null,
-      status: computedStatus,
       pageSize: pageSize,
       pageNumber: pageNumber,
     };
@@ -61,20 +54,7 @@ const Posts = () => {
 
   }, [id, user, loading, pageNumber, pageSize]);
 
-  useEffect(() => {
-    if (loading || user.userId === null) return;
-    let computedStatus = null;
-    // View posts from superAdmin role that not have partnerId or params id
-    if (!id && !user?.partnerId) {
-      computedStatus = "Pending Approval"
-      if (filters.status !== computedStatus && !clearFilter) {
-        setFilters({ status: computedStatus });
-      }
-    } else {
-      setFilters({ status: "" });
-    }
 
-  }, [clearFilter, id, user, loading])
 
   const handleFilterChange = async (newFilters) => {
     setPageNumber(1)
@@ -188,8 +168,6 @@ const Posts = () => {
                 <div className="px-4 py-3">
                   <PostSearch
                     onFilterChange={handleFilterChange}
-                    setClearFilter={setClearFilter}
-
                   />
                 </div>
               </div>
@@ -279,7 +257,7 @@ const Posts = () => {
                         className="inline-flex items-center px-6 py-3 border border-transparent text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 shadow-lg hover:shadow-xl transition-all duration-200"
                       >
                         <PlusIcon className="mr-2 h-5 w-5" />
-                        Create First Listing
+                        Create First Car
                       </button>
                     </div>
                   ) : (
