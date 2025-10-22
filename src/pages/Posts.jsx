@@ -22,6 +22,7 @@ const Posts = () => {
     setPostCreatedId,
     setPostCreatedCode,
     onChangePostStatus,
+    
   } = usePosts();
   const { user, loading } = useAuth();
   const { id } = useParams();

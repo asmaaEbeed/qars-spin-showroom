@@ -9,14 +9,17 @@ import {
     CameraIcon,
 } from "@heroicons/react/24/outline";
 import { usePosts } from "../../../context/PostsContext";
+import { useAuth } from '../../../context/AuthContext';
+import { useAddCar360Url } from '../../../pages/hooks/useCar360Request';
 
 const AddOnsStep = ({ currentPost = null, onClose, setStep }) => {
     const { postCreatedId } = usePosts();
+    const { user } = useAuth();
 
     // AddOns Request Types
     const addons = [
         {
-            title: "Request 360 Photo Session",
+            title: user.role === "superAdmin" ? "Add 360 Image URL" : "Request 360 Photo Session",
             description: "Submit a request to add an interactive 360° image view.",
             icon: <CameraIcon className="w-8 h-8 text-primary-600" />,
         },
@@ -36,7 +39,15 @@ const AddOnsStep = ({ currentPost = null, onClose, setStep }) => {
             icon: <StarIcon className="w-8 h-8 text-yellow-600" />,
         },
     ];
+    const handleAdd360 = useAddCar360Url(currentPost?.car.postId || postCreatedId);
 
+    const handleSubmitRequests = (addon) => {
+        if (addon.title === "Add 360 Image URL") {
+            handleAdd360(currentPost?.car)
+        } else {
+            handleModalSubmit(addon.title)
+        }
+    }
     const handleModalSubmit = async (type) => {
         try {
             const param = {
@@ -92,13 +103,15 @@ const AddOnsStep = ({ currentPost = null, onClose, setStep }) => {
     };
 
 
+
+
     return (
         <div>
             <div className="p-4 grid md:grid-cols-2 grid-cols-1 gap-4">
                 {addons.map((addon, idx) => (
                     <div
                         key={idx}
-                        onClick={() => handleModalSubmit(addon.title)}
+                        onClick={() => handleSubmitRequests(addon)}
                         className="flex items-start p-4 bg-white border rounded-xl shadow-sm hover:shadow-md transition cursor-pointer"
                     >
                         <div className="flex-shrink-0">{addon.icon}</div>

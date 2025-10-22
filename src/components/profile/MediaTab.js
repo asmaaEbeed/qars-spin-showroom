@@ -3,12 +3,15 @@ import { useEffect, useState } from "react";
 import ImageGallery from "../posts/details/ImageGallery";
 import { ShowroomProfileAPI } from "../../services/api/ShowroomProfile.api";
 import { toast } from "react-toastify";
+import { useParams } from "react-router-dom";
 
 const MediaTab = ({ partner }) => {
+  const { id } = useParams();
   const [postImgs, setPostImgs] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(null);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingDelete, setIsLoadingDelete] = useState(false);
   const [formData, setFormData] = useState({
     ...partner,
     images: partner?.gallery || [],
@@ -23,11 +26,25 @@ const MediaTab = ({ partner }) => {
     }
   }, [partner]);
 
-  const removeImage = (indexToRemove) => {
-    setFormData((prev) => ({
-      ...prev,
-      images: prev.images.filter((_, index) => index !== indexToRemove),
-    }));
+  const removeImage = async (image) => {
+    try {
+      setIsLoadingDelete(true);
+      const res = await ShowroomProfileAPI.deleteGalleryImage({
+        partnerId: partner.partnerId || id,
+        imageId: image.mediaId,
+      });
+      if (res.status === 200) {
+        setFormData((prev) => ({
+          ...prev,
+          images: prev.images.filter((img) => img.mediaId !== image.mediaId),
+        }));
+        toast.success(res.data.message);
+      }
+    } catch (error) {
+      toast.error(error.response.data.message || "Something went wrong");
+    } finally {
+      setIsLoadingDelete(false);
+    }
   };
 
   const handleImageUpload = async (e) => {
@@ -62,13 +79,13 @@ const MediaTab = ({ partner }) => {
         files
       );
       // Transform returned data to match expected format from fileUrl to mediaUrl
-      const transformed = res.data.map((item) => ({
-        ...item,
-        mediaUrl: item.fileUrl,
-      }));
+      // const transformed = res.data.map((item) => ({
+      //   ...item,
+      //   mediaUrl: item.fileUrl,
+      // }));
       setFormData((prev) => ({
         ...prev,
-        images: [...prev.images, ...transformed],
+        images: [...prev.images, ...res.data],
       }));
     } catch (error) {
       toast.error(error.response.data.message || "Something went wrong");
@@ -103,11 +120,15 @@ const MediaTab = ({ partner }) => {
                   />
                   <button
                     type="button"
-                    disabled
-                    onClick={() => removeImage(index)}
+                    disabled={isLoadingDelete}
+                    onClick={() => removeImage(image)}
                     className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                   >
-                    <XMarkIcon className="h-4 w-4" />
+                    {isLoadingDelete ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary-500 border-t-transparent mx-auto "></div>
+                    ) : (
+                      <XMarkIcon className="h-4 w-4" />
+                    )}
                   </button>
                 </div>
               ))}

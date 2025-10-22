@@ -61,5 +61,10 @@ export const ShowroomProfileAPI = {
       }
     );
   },
-
+  getGalleryImages: (params) =>
+    privateAxios.get(`/v1/PartnersManagement/${params}/photos/gallery`),
+  deleteGalleryImage: (params) =>
+    privateAxios.delete(
+      `/v1/PartnersManagement/partners/${params.partnerId}/gallery/${params.imageId}`
+    ),
 };

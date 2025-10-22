@@ -10,8 +10,17 @@ export default function AdminDashboard() {
 
 
   const handleViewAllPosts = () => {
-    // fetchPosts({ partnerId: null });
-    // setFilters({status: "Pending Approval"});
+
+    fetchPosts({ partnerId: null });
+    setFilters({
+      searchBy: 0,
+      searchTerm: "",
+      category: "",
+      status: "",
+      sortBy: 0,
+      year: "",
+      pinToTop: false,
+    });
     navigate("/admin/posts");
     localStorage.removeItem("partnerId")
   }

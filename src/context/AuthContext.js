@@ -20,7 +20,6 @@ export function AuthProvider({ children }) {
     const fetchMe = async() => {
       setLoading(true);
       const response = await authAPI.me();
-      console.log(response)
       handleUserData(response);
       setLoading(false);
     }
@@ -61,7 +60,6 @@ export function AuthProvider({ children }) {
   };
 
   const handleUserData = (response) => {
-    console.log(response)
     setUser({
       userName: response.data.userName,
       email: response.data.email,
@@ -81,7 +79,6 @@ export function AuthProvider({ children }) {
       if (
         isSuperAdmin
       ) {
-        console.log(response.data.partnerData);
         localStorage.setItem("role", "superAdmin");
         setUser((prev) => ({
           ...prev,
@@ -89,7 +86,6 @@ export function AuthProvider({ children }) {
           role: "superAdmin",
         }));
       } else {
-        console.log(response.data.partnerData);
         localStorage.setItem("role", "admin");
         setUser((prev) => ({
           ...prev,

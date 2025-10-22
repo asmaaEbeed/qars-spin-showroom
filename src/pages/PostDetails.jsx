@@ -9,13 +9,12 @@ import PostMedia from "../components/posts/details/PostMedia";
 import PostOffers from "../components/posts/details/PostOffers";
 import PostOverview from "../components/posts/details/PostOverview";
 
-import { useCar360Request } from "./hooks/useCar360Request";
+import { useCar360Request, useAddCar360Url } from "./hooks/useCar360Request";
 import { useCarContext } from "../context/CarContext";
 import { useCarOffers } from "./hooks/useCarOffers";
 import { usePosts } from "../context/PostsContext";
 import { useAuth } from "../context/AuthContext";
 import { toast } from "react-toastify";
-import { useCarProfile } from "./hooks/useCarProfile";
 
 const LoadingState = () => (
   <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-indigo-50 flex items-center justify-center">
@@ -51,6 +50,7 @@ const PostDetails = () => {
   const [selectedCover, setSelectedCover] = useState(null);
 
   const handle360Request = useCar360Request(postDetails?.car);
+  const handleAdd360 = useAddCar360Url(postDetails?.car?.postId);
   
   useEffect(() => {
     fetchCarProfile(code);
@@ -63,7 +63,6 @@ const PostDetails = () => {
 
 
   const handleSendToReview = async () => {
-    console.log(postDetails)
     const response = await onSendToReview({
       UserName: user.userName,
       Post_ID: postDetails?.car.postId,
@@ -157,6 +156,7 @@ const PostDetails = () => {
               setModalOpen={setModalOpen}
               setModalType={setModalType}
               handle360Request={handle360Request}
+              handleAdd360={handleAdd360}
               handleSendToReview={handleSendToReview}
               postStatus={postDetails?.car?.postStatus}
               role={user.role}

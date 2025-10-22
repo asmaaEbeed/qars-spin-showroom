@@ -14,7 +14,6 @@ export function usePostFormSubmit({
   const { setPostCreatedId, setPostCreatedCode, onSendToReview } = usePosts();
   const { user } = useAuth();
   const { id } = useParams();
-  console.log("from hook usepostform", id)
   const handleSubmit = async (e, formData, validateForm, setIsSubmitting) => {
     e.preventDefault();
     const action = e.nativeEvent.submitter.value;

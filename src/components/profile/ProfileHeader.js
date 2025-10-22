@@ -4,8 +4,10 @@ import { FiUpload, FiX } from "react-icons/fi";
 import Swal from "sweetalert2";
 import { dashboardAPI, ShowroomProfileAPI } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
+import { useParams } from "react-router-dom";
 
 const ProfileHeader = ({ partner }) => {
+  const { id } = useParams();
   const { uploadLogo } = useProfile();
   const { user } = useAuth();
   const fileInputRef = useRef(null);
@@ -121,7 +123,7 @@ const ProfileHeader = ({ partner }) => {
     if (user.userId === null) return;
     const fetchStats = async () => {
       try {
-        const res = await dashboardAPI.getTopCounters(user.partnerId);
+        const res = await dashboardAPI.getTopCounters(id || user.partnerId);
         setStats({
           visitsCount: res.data.visitsCount,
           activePosts: res.data.activePosts,

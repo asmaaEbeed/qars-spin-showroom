@@ -221,10 +221,10 @@ const PostCard = ({
                     e.stopPropagation();
                     handleSendToReview();
                   }}
-                  className="p-2 bg-blue-600 text-white hover:bg-blue-700 hover:text-white rounded-full transition-colors font-bold"
+                  className="p-2 bg-blue-500 text-white text-center hover:bg-blue-700 hover:text-white rounded-full transition-colors font-bold"
                   title="Send to review"
                 >
-                  <PaperAirplaneIcon className="h-4 w-4" />
+                  <PaperAirplaneIcon className="h-6 w-6" />
                 </button>
               )}
               {post.postStatus === "Pending Approval" &&
