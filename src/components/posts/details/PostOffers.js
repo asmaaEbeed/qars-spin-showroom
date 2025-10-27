@@ -95,7 +95,7 @@ const PostOffers = ({ currentPost }) => {
                           Mobile
                         </h3>
                         <p className="font-semibold text-secondary-800 text-sm">
-                          <Link
+                          <a
                             href={`tel:${offer.mobile}`}
                             onClick={(e) => {
                               if (!/Mobi|Android/i.test(navigator.userAgent)) {
@@ -108,7 +108,7 @@ const PostOffers = ({ currentPost }) => {
                             className="text-blue-600 hover:underline"
                           >
                             {offer.mobile}
-                          </Link>
+                          </a>
                           
                         </p>
                       </div>
