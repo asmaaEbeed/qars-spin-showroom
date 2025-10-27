@@ -84,7 +84,7 @@ export function useAddCar360Url(postId) {
     `,
       title: "Add 360° URL",
       showConfirmButton: true,
-      confirmButtonText: "Confirm Request",
+      confirmButtonText: "Confirm",
       confirmButtonColor: "#34c38f",
       showCancelButton: true,
       cancelButtonText: "Close",

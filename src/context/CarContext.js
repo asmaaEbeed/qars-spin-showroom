@@ -1,4 +1,10 @@
-import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { carAPI } from "../services/api";
 import { useParams } from "react-router-dom";
 
@@ -14,7 +20,7 @@ export const CarProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [specLoading, setSpecLoading] = useState(false);
 
-  const { code } = useParams()
+  const { code } = useParams();
 
   const fetchCarProfile = useCallback(async (code) => {
     try {
@@ -27,25 +33,25 @@ export const CarProvider = ({ children }) => {
       setIsLoading(false);
     }
   }, []);
-  
+
   // useEffect(() => {
   //     fetchCarProfile(code);
   // }, [code, fetchCarProfile]);
 
-    const fetchCarSpecification = async (postCode) => {
-      if(postCode === null){
-        return;
-      }
-      try {
-        setSpecLoading(true);
-        const response = await carAPI.getCarSpecs(postCode);
-        setSpecLoading(false);
-        setCarSpecs(response.data);
-      } catch (e) {
-        setSpecLoading(false);
-        console.log(e);
-      }
-    };
+  const fetchCarSpecification = useCallback(async (postCode) => {
+    if (postCode === null) {
+      return;
+    }
+    try {
+      setSpecLoading(true);
+      const response = await carAPI.getCarSpecs(postCode);
+      setSpecLoading(false);
+      setCarSpecs(response.data);
+    } catch (e) {
+      setSpecLoading(false);
+      console.log(e);
+    }
+  }, []);
 
   return (
     <CarContext.Provider

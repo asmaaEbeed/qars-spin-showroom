@@ -1,11 +1,11 @@
 // Reviewd
-import React, { useEffect, useState } from "react";
 import { formatDateTime } from "../../../utils/dateFormatter";
-import { carAPI } from "../../../services/api/carForSaleProfile.api";
 import { useCarContext } from "../../../context/CarContext";
 import { DocumentArrowUpIcon } from "@heroicons/react/24/outline";
 import xlsxExport from "../../../hooks/xlsxExport";
-
+import { Link } from "react-router-dom";
+import { formatNumber } from "chart.js/helpers";
+import { toast } from "react-toastify";
 
 const PostOffers = ({ currentPost }) => {
   const { carOffers, carOfferLoading } = useCarContext();
@@ -24,7 +24,7 @@ const PostOffers = ({ currentPost }) => {
   }
   const handleExportOffers = () => {
     xlsxExport(carOffers, `CarOffers_${currentPost.postCode}`);
-  }
+  };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -65,8 +65,12 @@ const PostOffers = ({ currentPost }) => {
       <div className="lg:col-span-2 bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden">
         <div className="flex justify-between bg-gradient-to-r from-primary-500/10 to-indigo-500/10 px-6 py-4 border-b border-secondary-100">
           <h2 className="text-lg font-bold text-secondary-800">Offers List</h2>
-          <button className="bg-primary-500 text-white px-4 py-2 rounded-lg" onClick={handleExportOffers}>
-            <DocumentArrowUpIcon className="w-5 h-5 inline" /> Export</button>
+          <button
+            className="bg-primary-500 text-white px-4 py-2 rounded-lg"
+            onClick={handleExportOffers}
+          >
+            <DocumentArrowUpIcon className="w-5 h-5 inline" /> Export
+          </button>
         </div>
         <div className="p-6">
           <div className="space-y-4">
@@ -77,18 +81,40 @@ const PostOffers = ({ currentPost }) => {
                     key={offer.offerId}
                     className="bg-primary-50 p-4 rounded-lg mb-2"
                   >
-                    <div className="">
-                      <p className="text-sm font-medium text-secondary-600 ">
-                        User Name
-                        <span className="font-semibold text-secondary-800 text-sm mx-2">
-                          {offer.userName}
-                        </span>
-                      </p>
-                    </div>
-                    <div className="bg-primary-50 py-2 rounded-lg flex justify-between ">
+                    <div className="bg-primary-50 py-2 rounded-lg grid grid-cols-2 justify-between gap-3 ">
                       <div className="">
                         <h3 className="text-sm font-medium text-secondary-600 ">
-                          Offer Price
+                          User Name
+                        </h3>
+                        <p className="font-semibold text-secondary-800 text-sm">
+                          {offer.fullName}
+                        </p>
+                      </div>
+                      <div className="">
+                        <h3 className="text-sm font-medium text-secondary-600 ">
+                          Mobile
+                        </h3>
+                        <p className="font-semibold text-secondary-800 text-sm">
+                          <Link
+                            href={`tel:${offer.mobile}`}
+                            onClick={(e) => {
+                              if (!/Mobi|Android/i.test(navigator.userAgent)) {
+                                e.preventDefault();
+                                navigator.clipboard.writeText(offer.mobile);
+                                toast.dismiss();
+                                toast.success("Phone number copied to clipboard!");
+                              }
+                            }}
+                            className="text-blue-600 hover:underline"
+                          >
+                            {offer.mobile}
+                          </Link>
+                          
+                        </p>
+                      </div>
+                      <div className="">
+                        <h3 className="text-sm font-medium text-secondary-600 flex items-center ">
+                          <p>Offer Price</p>
                         </h3>
                         <p className="font-semibold text-secondary-800 text-sm">
                           {offer.offerPrice}
@@ -99,10 +125,11 @@ const PostOffers = ({ currentPost }) => {
                           Offer Date
                         </h3>
                         <p className=" font-semibold text-secondary-800 text-sm">
-                          {formatDateTime(offer.offerDateTime)}
+                          {formatDateTime(offer.offerDateTime).formateDate}
                         </p>
                       </div>
                     </div>
+                    <div className="bg-primary-50 py-2 rounded-lg flex justify-between "></div>
                   </div>
                 ))
               ) : (
@@ -145,31 +172,31 @@ const PostOffers = ({ currentPost }) => {
               <div className="flex justify-between items-center">
                 <span className="text-secondary-600">Least Price:</span>
                 <span className="font-semibold text-secondary-800 text-sm">
-                  ${currentPost.leastPrice || "N/A"}
+                  ${formatNumber(currentPost.leastPrice) || "N/A"}
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-secondary-600">Highest Price:</span>
                 <span className="font-semibold text-secondary-800 text-sm">
-                  ${currentPost.highestPrice || "N/A"}
+                  ${formatNumber(currentPost.highestPrice) || "N/A"}
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-secondary-600">Avg Price:</span>
                 <span className="font-semibold text-secondary-800 text-sm">
-                  ${currentPost.avgPrice || "N/A"}
+                  ${formatNumber(currentPost.avgPrice) || "N/A"}
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-secondary-600">First Offer:</span>
                 <span className="font-semibold text-secondary-800 text-sm">
-                  {formatDateTime(currentPost.firstOffer) || "N/A"}
+                  {formatDateTime(currentPost.firstOffer).formateDate || "N/A"}
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-secondary-600">Latest Offer:</span>
                 <span className="font-semibold text-secondary-800 text-sm">
-                  {formatDateTime(currentPost.latestOffer) || "N/A"}
+                  {formatDateTime(currentPost.latestOffer).formateDate || "N/A"}
                 </span>
               </div>
             </div>

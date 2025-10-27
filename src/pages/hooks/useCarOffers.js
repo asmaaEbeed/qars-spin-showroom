@@ -6,7 +6,7 @@ export function useCarOffers(code) {
   const { setCarOffers, setCarOfferLoading } = useCarContext();
 
   useEffect(() => {
-    const fetchCarSpecification = async () => {
+    const fetchCarOffer = async () => {
       try {
         setCarOfferLoading(true);
         const response = await carAPI.getCarOffers(code);
@@ -17,6 +17,6 @@ export function useCarOffers(code) {
       }
     };
 
-    fetchCarSpecification();
+    fetchCarOffer();
   }, []);
 }
