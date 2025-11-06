@@ -22,6 +22,8 @@ import Apply from "./pages/Apply";
 import { CarProvider } from "./context/CarContext";
 import ShowRooms from "./pages/Admin/ShowRooms";
 import NotAuthorized from "./pages/NotAuthorized";
+import BigBanners from "./pages/Admin/banners/BigBanners";
+import { BigBannerProvider } from "./context/BannerContext";
 
 function App() {
   return (
@@ -173,6 +175,46 @@ function App() {
                     <Posts />
                   </ProtectedRoute>
                 </PostsProvider>
+              }
+            />
+            <Route
+              path="/admin/big-banners"
+              element={
+                <BigBannerProvider>
+                  <ProtectedRoute allowedRoles={["superAdmin"]}>
+                    <BigBanners />
+                  </ProtectedRoute>
+                </BigBannerProvider>
+              }
+            />
+            <Route
+              path="/admin/small-banners"
+              element={
+                <BigBannerProvider>
+                  <ProtectedRoute allowedRoles={["superAdmin"]}>
+                    <BigBanners />
+                  </ProtectedRoute>
+                </BigBannerProvider>
+              }
+            />
+            <Route
+              path="/admin/big-fillers"
+              element={
+                <BigBannerProvider>
+                  <ProtectedRoute allowedRoles={["superAdmin"]}>
+                    <BigBanners />
+                  </ProtectedRoute>
+                </BigBannerProvider>
+              }
+            />
+            <Route
+              path="/admin/small-fillers"
+              element={
+                <BigBannerProvider>
+                  <ProtectedRoute allowedRoles={["superAdmin"]}>
+                    <BigBanners />
+                  </ProtectedRoute>
+                </BigBannerProvider>
               }
             />
             <Route

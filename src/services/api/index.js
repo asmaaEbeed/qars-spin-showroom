@@ -4,3 +4,4 @@ export * from "./Dashboard.api";
 export * from "./ShowroomProfile.api";
 export * from "./Auth.api";
 export * from "./SuperAdmin.api";
+export * from "./admin/banners.api";

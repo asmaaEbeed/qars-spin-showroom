@@ -14,7 +14,7 @@ export function formatDateTime(dateStr, options = { type: "datetime" }) {
     hours = hours % 12;
     hours = hours ? hours : 12;
   
-    const formattedDate = `${month}-${day}-${year}`;
+    const formattedDate = `${year}-${month}-${day}`;
     const formattedTime = `${hours}:${minutes} ${ampm}`;
   
     switch (options.type) {

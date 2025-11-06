@@ -9,6 +9,7 @@ import { useAuth } from "../context/AuthContext";
 import { useParams } from "react-router-dom";
 import { FolderPlusIcon, FunnelIcon, PlusIcon } from "@heroicons/react/24/outline";
 import { toast } from "react-toastify";
+import LoadingState from "../components/common/LoadingState";
 
 const Posts = () => {
   const {
@@ -204,18 +205,7 @@ const Posts = () => {
                 {/* Content Area */}
                 <div className="p-6">
                   {loadingFetchPosts ? (
-                    <div className="flex flex-col items-center justify-center py-20">
-                      <div className="relative">
-                        <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary-200"></div>
-                        <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary-500 border-t-transparent absolute top-0"></div>
-                      </div>
-                      <p className="mt-6 text-lg font-medium text-secondary-600">
-                        Loading car listings...
-                      </p>
-                      <p className="text-secondary-500">
-                        Please wait while we fetch your data
-                      </p>
-                    </div>
+                    <LoadingState title="Posts" />
                   ) : error ? (
                     <div className="flex flex-col items-center justify-center py-20">
                       <div className="h-16 w-16 bg-red-100 rounded-2xl flex items-center justify-center mb-4">

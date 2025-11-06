@@ -3,10 +3,14 @@ import { useAuth } from "../../context/AuthContext";
 import { Link, useLocation, useParams } from "react-router-dom";
 import Logo from "../../assets/images/logo/Logo.svg";
 import { FaBars, FaTimes } from "react-icons/fa";
+import { IoMdArrowDropdown } from "react-icons/io";
+import { FiLogOut } from "react-icons/fi";
+import { ChevronDownIcon } from "@heroicons/react/24/solid";
 
 const MainLayout = ({ children }) => {
   const { user, logout } = useAuth();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [mobileSubMenu, setMobileSubMenu] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const path = useLocation().pathname;
   const { id } = useParams();
@@ -27,6 +31,39 @@ const MainLayout = ({ children }) => {
             to: `/admin/superAdmin-panel`,
             isActive: /^\/admin\/superAdmin-panel(\/|$)/.test(path),
           },
+          {
+            label: "Banners",
+            to: "#", // parent has no direct link
+            isActive:
+              path.includes("/big-banners") ||
+              path.includes("/small-banners") ||
+              path.includes("/big-fillers") ||
+              path.includes("/small-fillers"),
+
+            // Submenu Children
+            children: [
+              {
+                label: "Big Banners",
+                to: `/admin/big-banners`,
+                isActive: path.includes("/big-banners"),
+              },
+              {
+                label: "Small Banners",
+                to: `/admin/small-banners`,
+                isActive: path.includes("/small-banners"),
+              },
+              {
+                label: "Big Fillers",
+                to: `/admin/big-fillers`,
+                isActive: path.includes("/big-fillers"),
+              },
+              {
+                label: "Small Fillers",
+                to: `/admin/small-fillers`,
+                isActive: path.includes("/small-fillers"),
+              },
+            ],
+          },
         ]
       : []),
     {
@@ -34,6 +71,7 @@ const MainLayout = ({ children }) => {
       to: isSuperAdmin ? `/admin/dealer/${id}/dashboard` : "/dashboard",
       isActive: path.includes("/dashboard"),
     },
+
     {
       label: "Profile",
       to: isSuperAdmin ? `/admin/dealer/${id}/profile` : "/profile",
@@ -60,21 +98,58 @@ const MainLayout = ({ children }) => {
           </Link>
         </div>
         <div className="flex items-center shadow bg-primary-600 justify-between px-6 py-3 md:py-0 relative">
-          
-
           {/* Desktop Navigation */}
           <nav className="hidden md:flex h-full">
             <div className="flex flex-row">
-              {navItems.map(({ label, to, isActive }) => (
-                <Link
-                key={label}
-                to={to}
-                className={`h-full w-auto uppercase tracking-widest items-center md:px-2 lg:px-4 text-center py-4 text-sm font-medium hover:bg-primary-700 whitespace-nowrap overflow-hidden block hover:text-white transition-all duration-200 ${
-                  isActive ? "bg-primary-700 text-white" : ""
-                }`}
-              >
-                {label}
-              </Link>
+              {navItems.map((item) => (
+                <div key={item.label} className="relative group">
+                  {/* Parent Link */}
+                  <Link
+                    to={item.to}
+                    className={`h-full flex w-auto uppercase md:px-2 lg:px-4 text-center py-4 text-sm font-medium hover:bg-primary-700 whitespace-nowrap transition-all duration-200 tracking-widest ${
+                      item.isActive ? "bg-primary-700 text-white" : ""
+                    }`}
+                  >
+                    <span>{item.label}</span>
+                    {item.children && <IoMdArrowDropdown className="w-4 h-4" />}
+                  </Link>
+
+                  {/* ✅ Submenu (if children exist) */}
+                  {item.children && (
+                    <div className="absolute  left-0 top-full hidden group-hover:block transform origin-top transition-all duration-200 ease-out scale-y-0 group-hover:scale-y-100">
+                      <div className="mt-2 py-1.5 bg-white rounded-lg shadow-xl border border-gray-100 min-w-56">
+                        {item.children.map((child, index) => (
+                          <div
+                            key={child.label}
+                            className="px-1.5 py-0.5 transition-colors duration-150 ease-in-out hover:bg-primary-50 first:rounded-t-md last:rounded-b-md"
+                          >
+                            <Link
+                              to={child.to}
+                              className={`
+              relative flex items-center px-4 py-2.5 text-sm font-medium
+              transition-all duration-200 ease-out
+              ${
+                child.isActive
+                  ? "text-primary-600 bg-primary-50 border-r-4 border-primary-500"
+                  : "text-gray-700 hover:text-primary-600 hover:pl-5"
+              }`}
+                            >
+                              {child.icon && (
+                                <span className="mr-3 text-lg text-primary-500">
+                                  {child.icon}
+                                </span>
+                              )}
+                              {child.label}
+                              {!child.isActive && (
+                                <span className="absolute left-0 w-1 h-0 bg-primary-500 transition-all duration-200 rounded-r opacity-0 group-hover:opacity-100" />
+                              )}
+                            </Link>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
           </nav>
@@ -140,26 +215,81 @@ const MainLayout = ({ children }) => {
           </button>
 
           {/* Mobile Navigation Drawer */}
+          {/* Mobile Navigation Drawer */}
           {mobileMenuOpen && (
-            <div className="absolute top-full left-0 w-full bg-primary-700 shadow-md z-40 md:hidden">
-              <div className="flex flex-col">
-                {navItems.map(({ label, to }) => (
-                  <Link
-                    key={label}
-                    to={to}
-                    className="px-4 py-3 text-white hover:bg-primary-800"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    {label}
-                  </Link>
-                ))}
+            <div className="fixed inset-0 top-24 z-40 md:hidden bg-black/30 backdrop-blur-sm">
+              <div
+                className="bg-white shadow-xl rounded-b-lg overflow-hidden"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="divide-y divide-gray-100">
+                  {navItems.map((item) => (
+                    <div key={item.label} className="relative group">
+                      {item.children ? (
+                        <div className="border-b border-gray-100 last:border-b-0">
+                          <div className="flex items-center justify-between px-5 py-3.5 text-gray-800 font-medium" onClick={() => setMobileSubMenu(!mobileSubMenu)}>
+                            <span>{item.label}</span>
+                            <ChevronDownIcon className="w-4 h-4 text-gray-500 transition-transform duration-200 group-has-[.submenu-open]:rotate-180" />
+                          </div>
+                          <div className={mobileSubMenu ? "submenu bg-gray-50" : "hidden submenu bg-gray-50"}>
+                            {item.children.map((child) => (
+                              <Link
+                                key={child.label}
+                                to={child.to}
+                                onClick={() => setMobileMenuOpen(false)}
+                                className={`
+                        block px-5 py-3.5 text-sm text-gray-700 hover:bg-gray-100
+                        border-l-4 border-transparent
+                        ${
+                          child.isActive
+                            ? "border-primary-500 bg-primary-50 text-primary-600"
+                            : ""
+                        }
+                        transition-colors duration-200
+                      `}
+                              >
+                                <div className="flex items-center">
+                                  {child.icon && (
+                                    <span className="mr-3 text-primary-500">
+                                      {child.icon}
+                                    </span>
+                                  )}
+                                  {child.label}
+                                </div>
+                              </Link>
+                            ))}
+                          </div>
+                        </div>
+                      ) : (
+                        <Link
+                          to={item.to}
+                          onClick={() => setMobileMenuOpen(false)}
+                          className={`
+                  block px-5 py-3.5 text-gray-800 font-medium
+                  border-l-4 border-transparent
+                  hover:bg-gray-50
+                  ${
+                    item.isActive
+                      ? "border-primary-500 bg-primary-50 text-primary-600"
+                      : ""
+                  }
+                  transition-colors duration-200
+                `}
+                        >
+                          {item.label}
+                        </Link>
+                      )}
+                    </div>
+                  ))}
+                </div>
                 <button
                   onClick={() => {
                     logout();
                     setMobileMenuOpen(false);
                   }}
-                  className="px-4 py-3 text-left text-red-200 hover:bg-red-500 hover:text-white"
+                  className="w-full px-5 py-3.5 text-left text-red-600 font-medium hover:bg-red-50 transition-colors duration-200 flex items-center"
                 >
+                  <FiLogOut className="mr-2" />
                   Sign out
                 </button>
               </div>
@@ -201,6 +331,7 @@ const MainLayout = ({ children }) => {
           onClick={() => {
             setUserMenuOpen(false);
             setMobileMenuOpen(false);
+            setMobileSubMenu(false);
           }}
         />
       )}

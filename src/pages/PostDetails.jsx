@@ -15,17 +15,9 @@ import { useCarOffers } from "./hooks/useCarOffers";
 import { usePosts } from "../context/PostsContext";
 import { useAuth } from "../context/AuthContext";
 import { toast } from "react-toastify";
+import LoadingState from "../components/common/LoadingState";
 
-const LoadingState = () => (
-  <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-indigo-50 flex items-center justify-center">
-    <div className="text-center">
-      <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary-500 border-t-transparent mx-auto mb-4"></div>
-      <p className="text-lg font-medium text-secondary-600">
-        Loading car details...
-      </p>
-    </div>
-  </div>
-);
+
 
 const ModalWrapper = ({ children }) => (
   <div className="fixed inset-0 bg-secondary-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
@@ -100,13 +92,7 @@ const PostDetails = () => {
         }
   }
 
-  if (isLoading || !postDetails) {
-    return (
-      <MainLayout>
-        <LoadingState />
-      </MainLayout>
-    );
-  }
+ 
 
 
   const tabContent = {
@@ -126,8 +112,8 @@ const PostDetails = () => {
 
   return (
     <MainLayout>
-      {postDetails === null ? (
-        <LoadingState />
+      {isLoading ? (
+        <LoadingState title="Post"/>
       ) : (
         <>
 

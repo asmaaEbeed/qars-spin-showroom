@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { authAPI } from "../services/api/Auth.api";
+import { toast } from "react-toastify";
 
 const AuthContext = createContext(null);
 
@@ -18,10 +19,17 @@ export function AuthProvider({ children }) {
   // In case Refresh get user data again
   useEffect(() => {
     const fetchMe = async() => {
-      setLoading(true);
-      const response = await authAPI.me();
-      handleUserData(response);
-      setLoading(false);
+      try {
+        setLoading(true);
+        const response = await authAPI.me();
+        handleUserData(response);
+      } catch (error) {
+        console.log(error);
+        toast.error("Network error. Please check your connection.");
+        setLoading(false);
+      } finally {
+        setLoading(false);
+      }
     }
     if (user.userId === null) {
       const token = localStorage.getItem("token");
