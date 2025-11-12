@@ -133,11 +133,21 @@ const MediaTab = ({ partner }) => {
                   </button>
                 </div>
               ))}
-            </div>
-          )}
-          {isLoading && (
-            <div className=" bg-gradient-to-br from-primary-50 via-white to-indigo-50 flex items-center justify-center">
-              <LoadingState title="Images" />
+              {isLoading && (
+                <div className="h-32 bg-gradient-to-br from-primary-50 via-white to-indigo-50 flex items-center justify-center">
+                  <div
+                    className={`flex flex-col items-center justify-center py-4 h-full`}
+                  >
+                    <div className="relative">
+                      <div className="animate-spin rounded-full h-8 w-8 border-4 border-primary-200"></div>
+                      <div className="animate-spin rounded-full h-8 w-8 border-4 border-primary-500 border-t-transparent absolute top-0"></div>
+                    </div>
+                    <p className="mt-2 text-xs font-medium text-secondary-600 text-center">
+                      {`Loading Uploading...`}
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

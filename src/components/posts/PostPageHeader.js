@@ -36,7 +36,7 @@ const PostPageHeader = ({ setShowModal, id, user }) => {
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-3">
             <Link
-              to="/dashboard"
+              to={user.role === "superAdmin" ? "/admin/superAdmin-panel" : "/dashboard"}
               className="inline-flex items-center justify-center px-6 py-3 border border-secondary-200 text-sm font-medium rounded-xl text-secondary-700 bg-white/70 hover:bg-white hover:shadow-md transition-all duration-200"
             >
               <svg

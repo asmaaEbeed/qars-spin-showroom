@@ -1,7 +1,6 @@
 import { useCallback, useState } from "react";
 import { validateBannerRules } from "../utils/validateBannerRules";
 import { useBannerContext } from "../../../context/BannerContext";
-import { useBannerUpload } from "./useBannerUpload";
 
 export function useBannerForm(banner) {
   const [errors, setErrors] = useState({});

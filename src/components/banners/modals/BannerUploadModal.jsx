@@ -73,7 +73,7 @@ export default function BannerUploadModal({ open, setOpen, uploadSlot }) {
 
                 <button
                   onClick={onUploadClick}
-                  disabled={!uploadFile}
+                  disabled={!uploadFile || loadingUploadBigBanner}
                   className={`px-6 py-2 rounded-lg text-white shadow ${uploadFile
                       ? "bg-primary-600 hover:bg-primary-700"
                       : "bg-gray-300 cursor-not-allowed"

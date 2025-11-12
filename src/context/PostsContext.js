@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useCallback, useContext, useState } from "react";
 import { carAPI, managementAPI, superAdminAPI } from "../services/api";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
@@ -61,7 +61,7 @@ export function PostsProvider({ children }) {
     }
   };
 
-  const fetchCarsName = async () => {
+  const fetchCarsName = useCallback(async () => {
     setCarsNameListLoading(true);
     try {
       const res = await managementAPI.getInitCarData();
@@ -71,7 +71,7 @@ export function PostsProvider({ children }) {
     } finally {
       setCarsNameListLoading(false);
     }
-  };
+  }, []);
 
   const onSendToReview = async (data) => {
     const result = await Swal.fire({

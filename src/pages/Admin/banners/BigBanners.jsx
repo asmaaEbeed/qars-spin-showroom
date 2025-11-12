@@ -7,7 +7,6 @@ import BannerApproveModal from "../../../components/banners/modals/BannerApprove
 import MainLayout from "../../../components/layout/MainLayout";
 import BannersHeader from "../../../components/banners/BannersHeader";
 import { useBannerContext } from "../../../context/BannerContext";
-import { useBannerForm } from "../../../components/banners/hooks/useBannerForm";
 import { useLocation } from "react-router-dom";
 
 export default function BigBanners() {
@@ -18,8 +17,7 @@ export default function BigBanners() {
 
     const [uploadSlot, setUploadSlot] = useState("");
 
-    const { fetchBigBanner, editingBanner, setEditingBanner, setFormData, setBannerType, bannerType, filter } = useBannerContext();
-    const { resetForm } = useBannerForm();
+    const { fetchBigBanner, editingBanner, setEditingBanner, setFormData, resetBannerForm, setBannerType, handleApproveBanner, filter } = useBannerContext();
     const path = useLocation().pathname;
 
     useEffect(() => {
@@ -32,6 +30,7 @@ export default function BigBanners() {
         } else if(path.includes("small-fillers")) {
             setBannerType("smallFiller");
         }
+        
     }, [path, setBannerType]);
 
     useEffect(() => {
@@ -43,7 +42,7 @@ export default function BigBanners() {
 
     const handleOpenCreate = () => {
         setEditingBanner({});
-        resetForm()
+        resetBannerForm()
         setIsInfoOpen(true);
     };
 
@@ -86,9 +85,11 @@ export default function BigBanners() {
         // loadBanners();
     };
 
-    const confirmApprove = () => {
-        setIsApproveOpen(false);
-        // loadBanners();
+    const confirmApprove = async () => {
+        const res = await handleApproveBanner(editingBanner.bannerId, "Approved");
+        if(res.status === 200) {
+            setIsApproveOpen(false);
+        }
     };
 
     const handleSaveInfo = () => {

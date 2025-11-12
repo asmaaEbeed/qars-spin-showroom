@@ -48,7 +48,7 @@ export default function Dashboard() {
     setLoadingStats(true)
     try {
       let response
-      if(localStorage.getItem("role") === "superAdmin") {
+      if(user.role === "superAdmin") {
         if ((id !== "undefiend" || !id) && id) {
           response = await dashboardAPI.getTopCounters(id);
         }
@@ -96,7 +96,7 @@ export default function Dashboard() {
   }, [user]);
 
 
-  if (localStorage.getItem("role") === "superAdmin") {
+  if (user.role === "superAdmin") {
       if (!id || id === "undefined") return (<SelectShowroomHint />)
   
     }
@@ -107,9 +107,9 @@ export default function Dashboard() {
         <div className='bg-gradient-to-r from-primary-500/10 to-indigo-500/10 px-6 py-4 border-b border-secondary-100'>
           {!loadingWelcome ?
             <div>
-              <p className='text-xl font-semibold text-gray-900'>{welcomeMessage.greeting}, {localStorage.getItem("fullName")}!</p>
+              <p className='text-xl font-semibold text-gray-900'>{welcomeMessage.greeting}, {user.fullName}!</p>
               <h6 className='mt-2 text-lg font-semibold text-gray-600'>Manager Dashboard.</h6>
-              {id && localStorage.getItem("role") === "superAdmin" && <h6 className='mt-2 text-sm text-gray-600'>As a super admin you can manage all showrooms</h6>}
+              {id && user.role === "superAdmin" && <h6 className='mt-2 text-sm text-gray-600'>As a super admin you can manage all showrooms</h6>}
             </div> :
             <div className="text-center">
               <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary-500 border-t-transparent mx-auto mb-4"></div>

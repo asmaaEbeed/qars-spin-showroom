@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useProfile } from "../../context/ProfileContext";
-import { FiUpload, FiX } from "react-icons/fi";
+import { FiUpload,  } from "react-icons/fi";
 import Swal from "sweetalert2";
 import { dashboardAPI, ShowroomProfileAPI } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
@@ -8,7 +7,6 @@ import { useParams } from "react-router-dom";
 
 const ProfileHeader = ({ partner }) => {
   const { id } = useParams();
-  const { uploadLogo } = useProfile();
   const { user } = useAuth();
   const fileInputRef = useRef(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -52,7 +50,7 @@ const ProfileHeader = ({ partner }) => {
       );
 
       if (result.status === 200) {
-        setPartnerLogo(result.data.fileUrl);
+        setPartnerLogo(result.data.mediaUrl);
         await Swal.fire({
           icon: "success",
           title: "Upload Success",
@@ -74,48 +72,6 @@ const ProfileHeader = ({ partner }) => {
     }
   };
 
-  const handleRemoveLogo = async (e) => {
-    e.stopPropagation();
-
-    const result = await Swal.fire({
-      title: "Remove Logo",
-      text: "Are you sure you want to remove the logo?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#4f46e5",
-      cancelButtonColor: "#6b7280",
-      confirmButtonText: "Yes, remove it!",
-      cancelButtonText: "Cancel",
-    });
-
-    if (result.isConfirmed) {
-      try {
-        setIsUploading(true);
-        const result = await uploadLogo(null);
-        if (result.success) {
-          setPreviewUrl(null);
-          await Swal.fire({
-            icon: "success",
-            title: "Logo Removed",
-            text: "The logo has been removed successfully",
-            confirmButtonColor: "#4f46e5",
-          });
-        } else {
-          throw new Error(result.error || "Failed to remove logo");
-        }
-      } catch (error) {
-        console.error("Error removing logo:", error);
-        await Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: error.message || "An error occurred while removing the logo",
-          confirmButtonColor: "#4f46e5",
-        });
-      } finally {
-        setIsUploading(false);
-      }
-    }
-  };
 
   // Reviewed
 
@@ -135,7 +91,7 @@ const ProfileHeader = ({ partner }) => {
       }
     };
     fetchStats();
-  }, [user]);
+  }, [user, id]);
 
   return (
     <div className="relative overflow-hidden">

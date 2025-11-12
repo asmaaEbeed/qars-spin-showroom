@@ -15,11 +15,11 @@ const MainLayout = ({ children }) => {
   const path = useLocation().pathname;
   const { id } = useParams();
 
-  const isSuperAdmin = localStorage.getItem("role") === "superAdmin";
+  const isSuperAdmin = user.role === "superAdmin";
 
   // 🔹 Define nav items once
   const navItems = [
-    ...(localStorage.getItem("role") === "superAdmin"
+    ...(isSuperAdmin
       ? [
           // {
           //   label: "ShowRooms",

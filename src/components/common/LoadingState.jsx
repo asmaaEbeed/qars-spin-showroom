@@ -1,8 +1,8 @@
 import React from 'react'
 
-const LoadingState = ({title}) => {
+const LoadingState = ({title, className =""}) => {
     return (
-        <div className="flex flex-col items-center justify-center py-20 h-full">
+        <div className={`flex flex-col items-center justify-center py-20 h-full ${className}`}>
             <div className="relative">
                 <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary-200"></div>
                 <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary-500 border-t-transparent absolute top-0"></div>

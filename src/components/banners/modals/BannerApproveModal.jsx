@@ -1,11 +1,12 @@
 import React, { Fragment } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-
+import { useBannerContext } from "../../../context/BannerContext";
 export default function BannerApproveModal({
   open,
   setOpen,
   confirmApprove,
 }) {
+  const { loadingApproveBigBanner } = useBannerContext();
   return (
     <Transition appear show={open} as={Fragment}>
       <Dialog as="div" className="relative z-10" onClose={() => setOpen(false)}>
@@ -50,10 +51,14 @@ export default function BannerApproveModal({
                   </button>
 
                   <button
+                    disabled={loadingApproveBigBanner}
                     onClick={confirmApprove}
                     className="px-4 py-2 bg-green-600 text-white rounded"
                   >
-                    Confirm
+                    {loadingApproveBigBanner ? <>
+                      <span className="animate-spin inline-block h-4 w-4 border-2 rounded-full mx-2 border-white border-t-transparent"></span>
+                      Approving
+                    </> : "Confirm"}
                   </button>
                 </div>
               </Dialog.Panel>

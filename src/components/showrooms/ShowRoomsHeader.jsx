@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { FaBuilding, FaCarSide, FaPlus, FaStar } from "react-icons/fa";
+import { FaBuilding, FaCarSide } from "react-icons/fa";
 
 export const ShowRoomsHeader = ({ showrooms }) => {
 

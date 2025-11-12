@@ -90,7 +90,7 @@ const AddOnsStep = ({ currentPost = null, onClose, setStep }) => {
                 }).then(async (result) => {
                     if (result.isConfirmed) {
                         await carAPI.postCreateRequest(
-                            localStorage.getItem("userName"),
+                            user.userName,
                             param
                         );
                         toast.success("Your Request sent successfully");

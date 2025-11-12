@@ -21,6 +21,11 @@ export function AuthProvider({ children }) {
     const fetchMe = async() => {
       try {
         setLoading(true);
+        const token = localStorage.getItem("token");
+        if (!token) {
+          setLoading(false);
+          return;
+        }
         const response = await authAPI.me();
         handleUserData(response);
       } catch (error) {
@@ -46,19 +51,19 @@ export function AuthProvider({ children }) {
       const response = await authAPI.login(data);
       handleUserData(response);
       setLoading(false);
-      const isSuperAdmin = response.data.roles.some(
-        role => role.toLowerCase() === "superadmin"
-      );
-      if (isSuperAdmin) {
-        localStorage.setItem("partnerId", null);
-      } else {
-        localStorage.setItem("partnerId", response.data.partnerData.partnerId);
-      }
-      localStorage.setItem("userId", response.data.userId);
-      localStorage.setItem("userName", response.data.userName);
-      localStorage.setItem("fullName", response.data.partnerData.fullName);
+      // const isSuperAdmin = response.data.roles.some(
+      //   role => role.toLowerCase() === "superadmin"
+      // );
+      // if (isSuperAdmin) {
+      //   localStorage.setItem("partnerId", null);
+      // } else {
+      //   localStorage.setItem("partnerId", response.data.partnerData.partnerId);
+      // }
+      // localStorage.setItem("userId", response.data.userId);
+      // localStorage.setItem("userName", response.data.userName);
+      // localStorage.setItem("fullName", response.data.partnerData.fullName);
       localStorage.setItem("token", response.data.token);
-      localStorage.setItem("role", response.data.role);
+
     } catch (error) {
       setLoading(false);
       console.log(error.response.data.message);
@@ -68,40 +73,18 @@ export function AuthProvider({ children }) {
   };
 
   const handleUserData = (response) => {
+    const data = response.data;
+    const isSuperAdmin = data.roles?.some(role => role.toLowerCase() === "superadmin");
     setUser({
       userName: response.data.userName,
       email: response.data.email,
       userId: response.data.userId,
+      fullName: data.partnerData?.fullName || null,
+      partnerId: isSuperAdmin ? null : data.partnerData?.partnerId || null,
+      role: isSuperAdmin ? "superAdmin" : "admin",
     });
-    if (response.data.partnerData) {
-      setUser((prev) => ({
-        ...prev,
-        fullName: response.data.partnerData.fullName,
-        partnerId: response.data.partnerData.partnerId,
-      }));
-    }
-    if (response.data.roles) {
-      const isSuperAdmin = response.data.roles.some(
-        role => role.toLowerCase() === "superadmin"
-      );
-      if (
-        isSuperAdmin
-      ) {
-        localStorage.setItem("role", "superAdmin");
-        setUser((prev) => ({
-          ...prev,
-          partnerId: null,
-          role: "superAdmin",
-        }));
-      } else {
-        localStorage.setItem("role", "admin");
-        setUser((prev) => ({
-          ...prev,
-          partnerId: response.data.partnerData.partnerId,
-          role: "admin",
-        }));
-      }
-    }
+
+    
   };
 
   const logout = () => {
@@ -120,7 +103,6 @@ export function AuthProvider({ children }) {
     localStorage.removeItem("fullName");
     localStorage.removeItem("user");
     localStorage.removeItem("authUser");
-    localStorage.removeItem("role");
     // window.location.href = "/login";
   };
 

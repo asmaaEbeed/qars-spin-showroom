@@ -1,5 +1,4 @@
 import { FunnelIcon } from "@heroicons/react/24/outline";
-import React, { useState } from "react";
 import { MdDateRange } from "react-icons/md";
 import { TARGET_TYPE } from "./constants/bannersConstant";
 import { useBannerContext } from "../../context/BannerContext";

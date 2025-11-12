@@ -32,7 +32,7 @@ const BannersHeader = ({ handleOpenCreate }) => {
                             </svg>
                         </div>
                         <div>
-                            <h3 className="text-2xl font-semibold text-gray-800">{title} Management</h3>
+                            <h3 className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-secondary-800 to-primary-700 bg-clip-text text-transparent">{title} Management</h3>
                             <p className="text-sm text-gray-500 mt-1">
                                 Manage defined {title} <span className="font-medium text-gray-600">{size}</span>
                             </p>

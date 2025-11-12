@@ -1,14 +1,27 @@
 import {  PhotoIcon } from '@heroicons/react/24/outline'
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { FiUpload } from 'react-icons/fi';
 
 const UploadBannerImg = ({ viewFile, setUploadFile, slot }) => {
+    const [error, setError] = useState("");
     const fileInputRef = useRef(null);
+    const handleUploadFile = (e) => {
+        setError("");
+        const file = e.target.files?.[0] ?? null;
+        if(file.type !== "image/jpeg" &&
+             file.type !== "image/png" &&
+             file.type !== "image/bmp" &&
+             file.type !== "image/jpg" ) {
+            setError("Allowed file types are: .jpeg, .png, .bmp, .jpg");
+            return;
+        }
+        setUploadFile(file);
+    }
     return (
         <div className="space-y-6">
 
             {/* ✅ Preview Box */}
-            <div className="hover:cursor-pointer relative group rounded-xl border bg-gray-100 h-[180px] flex items-center justify-center shadow-inner overflow-hidden" onClick={() =>
+            <div className={`hover:cursor-pointer relative group rounded-xl border bg-gray-100 h-[180px] flex items-center justify-center shadow-inner overflow-hidden ${error ? "border-red-500" : ""}`} onClick={() =>
                 fileInputRef.current.click()
             }>
                 {/* Dark overlay */}
@@ -53,10 +66,10 @@ const UploadBannerImg = ({ viewFile, setUploadFile, slot }) => {
                     type="file"
                     accept="image/*"
                     className="hidden"
-                    onChange={(e) => setUploadFile(e.target.files?.[0] ?? null)}
+                    onChange={(e) => handleUploadFile(e)}
                 />
             </div>
-
+            {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
         </div>
     )
 }

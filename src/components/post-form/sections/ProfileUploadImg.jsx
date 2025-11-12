@@ -51,6 +51,7 @@ const ProfileUploadImg = ({ post = null, onClose, setStep }) => {
             return data;
         } catch (err) {
             console.error("Upload failed:", err);
+            toast.error("Upload failed");
             throw err;
         } finally {
             setIsLoadingAddImg(false);

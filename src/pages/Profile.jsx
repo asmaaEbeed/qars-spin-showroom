@@ -27,7 +27,7 @@ const Profile = () => {
     const fetchProfileDetails = async () => {
       setLoading(true);
       try {
-        if (localStorage.getItem("role") === "superAdmin") {
+        if (user.role === "superAdmin") {
           if (id !== "undefined") {
             const res = await ShowroomProfileAPI.getDetails(id);
             setProfileData(res.data);
@@ -43,7 +43,7 @@ const Profile = () => {
       }
     };
 
-    if (profileData === null && user.userId !== null) {
+    if (profileData === null && user.userId !== null && id) {
       fetchProfileDetails();
     }
   }, [id, profileData, user]);
@@ -83,7 +83,7 @@ const Profile = () => {
         </div>
       </MainLayout>
     );
-  if (localStorage.getItem("role") === "superAdmin") {
+  if (user.role === "superAdmin") {
     if (!id || id === "undefined") return (<SelectShowroomHint />)
 
   }

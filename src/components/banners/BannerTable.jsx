@@ -144,18 +144,18 @@ export default function BannerTable({ onEdit, onApprove, onUpload, handleOpenCre
                 <div className="flex-shrink-0 flex gap-2">
                   <button
                     onClick={() => onEdit(b)}
-                    className="p-2 text-primary-600  border border-primary-600 hover:text-white bg-primary-50 hover:bg-primary-500 rounded-lg transition-colors"
+                    className="flex items-center justify-center h-10  w-10 text-white bg-primary-400 hover:bg-primary-600 hover:text-white rounded-full transition-colors"
                     title="Edit Banner"
                   >
                     <PencilIcon className="h-5 w-5 " />
                   </button>
-                  <button
+                  {b.bannerStatus !== "Approved" && <button
                     onClick={() => onApprove(b)}
-                    className="p-2 fw-bold border border-green-500 text-green-500 hover:text-white bg-green-50 hover:bg-green-500 rounded-lg transition-colors"
+                    className="flex items-center justify-center h-10  w-10 text-white bg-green-600 hover:bg-green-700 hover:text-white rounded-full transition-colors"
                     title="Approve Banner"
                   >
-                    <CheckCircleIcon className="h-5 w-5" />
-                  </button>
+                    <CheckCircleIcon className="h-7 w-7" />
+                  </button>}
                 </div>
               </div>
               <hr />

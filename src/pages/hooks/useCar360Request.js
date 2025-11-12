@@ -4,8 +4,11 @@ import { toast } from "react-toastify";
 import Img360 from "../../assets/images/360-camera.png";
 import { carAPI } from "../../services/api/carForSaleProfile.api";
 import { superAdminAPI } from "../../services/api";
+import { useAuth } from "../../context/AuthContext";
 
 export function useCar360Request(car) {
+
+  const { user } = useAuth();
   return useCallback(async () => {
     if (!car) return;
 
@@ -56,7 +59,7 @@ export function useCar360Request(car) {
         }).then(async (result) => {
           if (result.isConfirmed) {
             await carAPI.postCreateRequest(
-              localStorage.getItem("userName"),
+              user.userName,
               param
             );
 

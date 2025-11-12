@@ -8,7 +8,6 @@ import {
 } from "react";
 import { bannerAPI } from "../services/api";
 import { toast } from "react-toastify";
-import { useBannerForm } from "../components/banners/hooks/useBannerForm";
 import { getDates } from "../utils/getDates";
 import { formatDateTime } from "../utils/dateFormatter";
 
@@ -25,6 +24,8 @@ export const BigBannerProvider = ({ children }) => {
 
   const [loadingUploadBigBanner, setLoadingUploadBigBanner] = useState(false);
   const [loadingAddBigBanner, setLoadingAddBigBanner] = useState(false);
+
+  const [loadingApproveBigBanner, setLoadingApproveBigBanner] = useState(false);
 
   const initialFilterValues = useMemo(() => {
     return {
@@ -43,7 +44,6 @@ export const BigBannerProvider = ({ children }) => {
   }, [initialFilterValues]);
 
   const initialValues = useMemo(() => {
-    console.log(formatDateTime(editingBanner?.startDate, { type: "date" }))
     return {
       bannerTitle: editingBanner?.bannerTitle || "",
       targetUrlPl: editingBanner?.targetUrlPl || "",
@@ -64,12 +64,10 @@ export const BigBannerProvider = ({ children }) => {
   const resetFilter = useCallback(() => setFilter(initialFilterValues), [initialFilterValues]);
 
   const fetchBigBanner = useCallback(async (params) => {
-    console.log("fetch")
     setLoadingBigBanner(true);
     setErrorBigBanner(null);
     try {
       const res = await bannerAPI.getBanners(params);
-      console.log(res)
       setBigBanners(res.data);
     } catch (e) {
       setErrorBigBanner(e);
@@ -114,7 +112,7 @@ export const BigBannerProvider = ({ children }) => {
     } catch (e) {
       setErrorBigBanner(e);
       console.log(e);
-      toast.error(e.response.data.message || "Something went worng!");
+      toast.error(e.response?.data?.message || "Something went worng!");
     } finally {
       setLoadingUploadBigBanner(false);
     }
@@ -134,9 +132,9 @@ export const BigBannerProvider = ({ children }) => {
       toast.success(res.data.message || "Banner added successfully!");
       return res;
     } catch (e) {
+      toast.error(e.response?.data?.title || "Something went worng!");
       setErrorBigBanner(e);
       console.log(e);
-      toast.error(e.response.data.title || "Something went worng!");
     } finally {
       setLoadingAddBigBanner(false);
     }
@@ -155,12 +153,35 @@ export const BigBannerProvider = ({ children }) => {
       return res;
     } catch (e) {
       setErrorBigBanner(e);
-      console.log(e);
       toast.error(e.response.data.title || "Something went worng!");
+      console.log(e);
     } finally {
       setLoadingAddBigBanner(false);
     }
   }, []);
+
+  const handleApproveBanner = useCallback(async (id, status) => {
+    setLoadingApproveBigBanner(true);
+    try {
+      const res = await bannerAPI.approveBanner(id, status);
+      
+      setBigBanners((prev) => prev.map((banner) => banner.bannerId === id ? { ...banner, bannerStatus: "Approved" } : banner));
+      // resetForm();
+      toast.success(res.data.message || "Banner approved successfully!");
+      return res;
+    } catch (e) {
+      setErrorBigBanner(e);
+      console.log(e);
+      toast.error(e.response.data.title || "Something went worng!");
+    } finally {
+      setLoadingApproveBigBanner(false);
+    }
+  }, []);
+
+  const resetBannerForm = useCallback(() => {
+    setEditingBanner(null);
+    setFormData(initialValues);
+  }, [initialValues]);
 
 
   const value = useMemo(
@@ -178,13 +199,16 @@ export const BigBannerProvider = ({ children }) => {
       handleEditBanner,
       formData,
       setFormData,
+      resetBannerForm,
       setUploadSlot,
       uploadSlot,
       bannerType,
       setBannerType,
       filter,
       setFilter,
-      resetFilter
+      resetFilter,
+      loadingApproveBigBanner,
+      handleApproveBanner
     }),
     [
       bigBanners,
@@ -200,13 +224,16 @@ export const BigBannerProvider = ({ children }) => {
       handleEditBanner,
       formData,
       setFormData,
+      resetBannerForm,
       setUploadSlot,
       uploadSlot,
       bannerType,
       setBannerType,
       filter,
       setFilter,
-      resetFilter
+      resetFilter,
+      loadingApproveBigBanner,
+      handleApproveBanner
     ]
   );
 

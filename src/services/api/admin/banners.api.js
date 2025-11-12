@@ -48,4 +48,7 @@ export const bannerAPI = {
   editBigBanner: (id, data) => {
     return privateAxios.put(`/v1/admin/Ads/${id}/UpdateBigBanner`, data);
   },
+  approveBanner: (id, status) => {
+    return privateAxios.put(`/v1/admin/Ads/update-Bannerstatus?BannerID=${id}&BannerStatus=${status}`);
+  },
 };

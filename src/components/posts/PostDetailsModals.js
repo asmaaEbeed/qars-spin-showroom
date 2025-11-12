@@ -3,6 +3,7 @@ import { carAPI } from "../../services/api";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
 import { useCarContext } from "../../context/CarContext";
+import { useAuth } from "../../context/AuthContext";
 import {
   // ClockIcon,
   XMarkIcon,
@@ -58,6 +59,7 @@ const PostDetailsModals = ({
   const [loading, setLoading] = useState(false);
 
   const { fetchCarProfile } = useCarContext();
+  const { user } = useAuth();
 
   const handleModalSubmit = async (type) => {
     // setLoading(true);
@@ -114,7 +116,7 @@ const PostDetailsModals = ({
         }).then(async (result) => {
           if (result.isConfirmed) {
             await carAPI.postCreateRequest(
-              localStorage.getItem("userName"),
+              user.userName,
               param
             );
             toast.success("Your Request sent successfully");
@@ -141,7 +143,6 @@ const PostDetailsModals = ({
         method: "POST",
         body: formData,
       });
-
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -155,8 +156,9 @@ const PostDetailsModals = ({
 
       return data;
     } catch (err) {
+      toast.error("Upload failed");
       console.error("Upload failed:", err);
-      throw err;
+      // throw err;
     } finally {
       setLoading(false);
     }

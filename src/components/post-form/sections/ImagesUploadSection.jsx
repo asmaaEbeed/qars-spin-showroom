@@ -1,5 +1,5 @@
 import { PhotoIcon, XMarkIcon } from '@heroicons/react/24/outline'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { usePosts } from '../../../context/PostsContext';
 import { carAPI } from '../../../services/api';
 import { toast } from 'react-toastify';
@@ -17,9 +17,9 @@ const ImagesUploadSection = ({ post = null, setStep, onClose }) => {
     const { postCreatedId } = usePosts();
 
 
-    const validationRoles = {
+    const validationRoles = useMemo(() => ({
         images: { required: true, maxCount: 15 },
-    }
+    }), []);
 
 
     // Prepare Image For View only
@@ -105,7 +105,7 @@ const ImagesUploadSection = ({ post = null, setStep, onClose }) => {
 
         setErrors(newErrors);
         return isValid;
-    }, [formData, post]);
+    }, [formData, post, validationRoles]);
 
 
     // Upload Images to Server

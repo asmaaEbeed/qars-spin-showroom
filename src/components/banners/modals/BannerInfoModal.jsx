@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from "react";
+import React, { Fragment } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useBannerForm } from "../hooks/useBannerForm";
@@ -6,6 +6,7 @@ import { useBannerContext } from "../../../context/BannerContext";
 import UploadBannerImg from "../UploadBannerImg";
 import { useBannerUpload } from "../hooks/useBannerUpload";
 import { TARGET_TYPE } from "../constants/bannersConstant";
+import { toast } from "react-toastify";
 
 
 
@@ -16,7 +17,7 @@ export default function BannerInfoModal({
 }) {
 
   const { errors, validateForm, handleBlur } = useBannerForm(editingBanner);
-  const { handleAddBanner, handleEditBanner, loadingAddBigBanner, formData, setFormData, BannerType } = useBannerContext();
+  const { handleAddBanner, handleEditBanner, loadingAddBigBanner, formData, setFormData, bannerType } = useBannerContext();
 
   const {
     viewFile: viewPl,
@@ -40,24 +41,31 @@ export default function BannerInfoModal({
     e.preventDefault();
     const isValid = validateForm(formData);
     if (!isValid) return;
-    const data = { ...formData, BannerType: BannerType }
+    const data = { ...formData, BannerType: bannerType }
     let res;
-    if (editingBanner?.bannerId) {
-      res = await handleEditBanner(editingBanner?.bannerId, data);
-    } else {
-      res = await handleAddBanner(data);
-    }
-    if (res.status === 200) {
-      if (uploadPl) {
-        await handleUploadPl(res.data.bannerId || editingBanner?.bannerId);
-        resetPl();
-      }
-      if (uploadSl) {
-        await handleUploadSl(res.data.bannerId || editingBanner?.bannerId);
-        resetSl();
-      }
-      setOpen(false);
 
+    try {
+
+      if (editingBanner?.bannerId) {
+
+        res = await handleEditBanner(editingBanner?.bannerId, data);
+      } else {
+        res = await handleAddBanner(data);
+      }
+      if (res.status === 200) {
+        if (uploadPl) {
+          await handleUploadPl(res.data.bannerId || editingBanner?.bannerId);
+          resetPl();
+        }
+        if (uploadSl) {
+          await handleUploadSl(res.data.bannerId || editingBanner?.bannerId);
+          resetSl();
+        }
+        setOpen(false);
+
+      }
+    } catch (e) {
+      toast.error(e.response?.data?.title || "Something went worng!");
     }
   }
 
