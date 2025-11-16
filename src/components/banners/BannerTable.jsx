@@ -13,6 +13,7 @@ import {
 import LoadingState from "../common/LoadingState";
 import { useBannerContext } from "../../context/BannerContext";
 import { formatDateTime } from "../../utils/dateFormatter";
+import { IoRefreshCircleOutline, IoReload } from "react-icons/io5";
 
 export default function BannerTable({ onEdit, onApprove, onUpload, handleOpenCreate }) {
 
@@ -149,12 +150,19 @@ export default function BannerTable({ onEdit, onApprove, onUpload, handleOpenCre
                   >
                     <PencilIcon className="h-5 w-5 " />
                   </button>
-                  {b.bannerStatus !== "Approved" && <button
+                  {b.bannerStatus !== "Approved" && b.endDate >= new Date().toISOString() && <button
                     onClick={() => onApprove(b)}
                     className="flex items-center justify-center h-10  w-10 text-white bg-green-600 hover:bg-green-700 hover:text-white rounded-full transition-colors"
                     title="Approve Banner"
                   >
                     <CheckCircleIcon className="h-7 w-7" />
+                  </button>}
+                  {b.endDate.split('T')[0] < new Date().toISOString().split('T')[0] && <button
+                    onClick={() => onEdit(b)}
+                    className="flex items-center justify-center h-10  w-10 text-white bg-blue-600 hover:bg-blue-700 hover:text-white rounded-full transition-colors"
+                    title="Republish Banner"
+                  >
+                    <IoReload className="h-6 w-6" />
                   </button>}
                 </div>
               </div>

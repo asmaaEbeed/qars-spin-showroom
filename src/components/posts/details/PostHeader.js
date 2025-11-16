@@ -197,6 +197,18 @@ const PostHeader = ({
                       {currentPost?.tag}
                     </span>
                   )}
+                  {currentPost?.isSold && (
+                    <span
+                      className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getTagBadge(
+                        "Sold"
+                      )}`}
+                    >
+                      {/* {currentPost.Tag === "New" && "Brand New"}
+                    {currentPost.Tag === "Inspected" && "Inspected"}
+                    {currentPost.Tag === "Sold" && "Sold"} */}
+                      {currentPost?.isSold && "Sold"}
+                    </span>
+                  )}
 
                   {currentPost?.pinToTop && (
                     <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-500 text-white">

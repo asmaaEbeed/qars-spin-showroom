@@ -3,9 +3,10 @@ import { validateBannerRules } from "../utils/validateBannerRules";
 import { useBannerContext } from "../../../context/BannerContext";
 
 export function useBannerForm(banner) {
+  const TODAY = new Date().toISOString().split('T')[0];
   const [errors, setErrors] = useState({});
 
-  const { formData, setEditingBanner } = useBannerContext();
+  const { formData, setEditingBanner, editingBanner } = useBannerContext();
   // const { reset } = useBannerUpload();
 
   const rules = validateBannerRules(!!banner);
@@ -22,9 +23,26 @@ export function useBannerForm(banner) {
         isValid = false;
       }
     });
+    // Handle start date validation in 3 cases
+
+    // In Case Expired And need to republish start date can't be less than today OR
+    // New banner start date can't be less than today
+    if (
+      (editingBanner?.bannerId && formData.startDate < TODAY && editingBanner.endDate < TODAY) ||
+      (!editingBanner?.bannerId && formData.startDate < TODAY)
+    ) {
+
+      newErrors.startDate = "Start date can't be less than today";
+      isValid = false;
+    }
+    // Check start date is less than end date
+    if(formData.startDate > formData.endDate){
+      newErrors.startDate = "Start date can't be greater than end date";
+      isValid = false;
+    }
     setErrors(newErrors);
     return isValid;
-  }, [formData, rules]);
+  }, [formData, rules, TODAY, editingBanner]);
 
   const handleBlur = useCallback(
     (field) => {
@@ -48,5 +66,5 @@ export function useBannerForm(banner) {
     // reset();
     setErrors({});
   };
-  return { rules, validateForm, errors, handleBlur, resetForm };
+  return { rules, validateForm, errors, handleBlur, resetForm, setErrors };
 }

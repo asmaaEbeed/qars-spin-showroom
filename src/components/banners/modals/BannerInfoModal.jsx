@@ -14,10 +14,18 @@ export default function BannerInfoModal({
   open,
   setOpen,
   editingBanner,
+  handleApprove
 }) {
 
+  const TODAY = new Date().toISOString().split('T')[0];
+
   const { errors, validateForm, handleBlur } = useBannerForm(editingBanner);
-  const { handleAddBanner, handleEditBanner, loadingAddBigBanner, formData, setFormData, bannerType } = useBannerContext();
+  const { handleAddBanner,
+    handleEditBanner,
+    loadingAddBigBanner,
+    formData,
+    setFormData,
+    bannerType } = useBannerContext();
 
   const {
     viewFile: viewPl,
@@ -41,6 +49,9 @@ export default function BannerInfoModal({
     e.preventDefault();
     const isValid = validateForm(formData);
     if (!isValid) return;
+
+
+
     const data = { ...formData, BannerType: bannerType }
     let res;
 
@@ -60,6 +71,9 @@ export default function BannerInfoModal({
         if (uploadSl) {
           await handleUploadSl(res.data.bannerId || editingBanner?.bannerId);
           resetSl();
+        }
+        if (editingBanner.bannerId && (editingBanner.endDate.split('T')[0] < new Date().toISOString().split('T')[0])) {
+          handleApprove(editingBanner);
         }
         setOpen(false);
 
@@ -107,7 +121,7 @@ export default function BannerInfoModal({
                 <div className="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-gray-50">
                   <div className="flex items-center justify-between">
                     <Dialog.Title className="text-xl font-semibold text-gray-900">
-                      {editingBanner?.bannerId ? "Edit Banner" : "Create New Banner"}
+                      {editingBanner?.bannerId ? ((editingBanner.endDate.split('T')[0] < new Date().toISOString().split('T')[0]) ? "Republish Banner" : "Edit Banner") : "Create New Banner"}
                     </Dialog.Title>
                     <button
                       onClick={() => setOpen(false)}
@@ -187,6 +201,7 @@ export default function BannerInfoModal({
                             Start Date <span className="text-red-500">*</span>
                           </label>
                           <input
+                            disabled={editingBanner?.bannerId && editingBanner.endDate >= TODAY}
                             id="input_start"
                             type="date"
                             value={formData.startDate}
@@ -334,7 +349,9 @@ export default function BannerInfoModal({
                       className="flex items-center justify-center gap-1 px-6 py-2.5 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-sm transition"
                     >
                       <div>{(loadingAddBigBanner || loadingPl || loadingSl) && <><span className="animate-spin inline-block rounded-full h-4 w-4 border-2 border-white border-t-transparent mx-auto"></span></>}</div>
-                      <div>{editingBanner?.bannerId ? "Update Banner" : "Create Banner"}</div>
+                      <div>{editingBanner?.bannerId ?
+                        ((editingBanner.endDate.split('T')[0] < new Date().toISOString().split('T')[0]) ?
+                          "Republish Banner" : "Update Banner") : "Create Banner"}</div>
                     </button>
                   </div>
                 </form>

@@ -17,20 +17,28 @@ export default function BigBanners() {
 
     const [uploadSlot, setUploadSlot] = useState("");
 
-    const { fetchBigBanner, editingBanner, setEditingBanner, setFormData, resetBannerForm, setBannerType, handleApproveBanner, filter } = useBannerContext();
+    const { fetchBigBanner,
+        editingBanner,
+        setEditingBanner,
+        setFormData,
+        resetBannerForm,
+        setBannerType,
+        handleApproveBanner,
+        filter } = useBannerContext();
+
     const path = useLocation().pathname;
 
     useEffect(() => {
         if (path.includes("big-banners")) {
             setBannerType("big");
-        } else if(path.includes("small-banners")) {
+        } else if (path.includes("small-banners")) {
             setBannerType("small");
-        } else if(path.includes("big-fillers")) {
+        } else if (path.includes("big-fillers")) {
             setBannerType("bigFiller");
-        } else if(path.includes("small-fillers")) {
+        } else if (path.includes("small-fillers")) {
             setBannerType("smallFiller");
         }
-        
+
     }, [path, setBannerType]);
 
     useEffect(() => {
@@ -41,7 +49,7 @@ export default function BigBanners() {
 
 
     const handleOpenCreate = () => {
-        setEditingBanner({});
+        setEditingBanner(null);
         resetBannerForm()
         setIsInfoOpen(true);
     };
@@ -87,7 +95,7 @@ export default function BigBanners() {
 
     const confirmApprove = async () => {
         const res = await handleApproveBanner(editingBanner.bannerId, "Approved");
-        if(res.status === 200) {
+        if (res.status === 200) {
             setIsApproveOpen(false);
         }
     };
@@ -128,6 +136,7 @@ export default function BigBanners() {
                         setOpen={setIsInfoOpen}
                         editingBanner={editingBanner}
                         handleSaveInfo={handleSaveInfo}
+                        handleApprove={handleApprove}
                     />
 
                     <BannerUploadModal
