@@ -8,6 +8,7 @@ import { ShowroomProfileAPI } from "../services/api";
 import { useParams } from "react-router-dom";
 import SelectShowroomHint from "../components/adminHint/SelectShowroomHint";
 import { useAuth } from "../context/AuthContext";
+import LoadingState from "../components/common/LoadingState";
 
 
 const Profile = () => {
@@ -26,7 +27,7 @@ const Profile = () => {
     const fetchProfileDetails = async () => {
       setLoading(true);
       try {
-        if (localStorage.getItem("role") === "superAdmin") {
+        if (user.role === "superAdmin") {
           if (id !== "undefined") {
             const res = await ShowroomProfileAPI.getDetails(id);
             setProfileData(res.data);
@@ -42,7 +43,7 @@ const Profile = () => {
       }
     };
 
-    if (profileData === null && user.userId !== null) {
+    if (profileData === null && user.userId !== null && id) {
       fetchProfileDetails();
     }
   }, [id, profileData, user]);
@@ -76,16 +77,13 @@ const Profile = () => {
         <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-indigo-50">
           <div className=" bg-gradient-to-br from-primary-50 via-white to-indigo-50 flex items-center justify-center">
             <div className="text-center h-[calc(100vh-100px)] flex flex-col items-center justify-center">
-              <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary-500 border-t-transparent mx-auto mb-4"></div>
-              <p className="text-lg font-medium text-secondary-600">
-                Loading car specifications...
-              </p>
+              <LoadingState title="Profile" />
             </div>
           </div>
         </div>
       </MainLayout>
     );
-  if (localStorage.getItem("role") === "superAdmin") {
+  if (user.role === "superAdmin") {
     if (!id || id === "undefined") return (<SelectShowroomHint />)
 
   }

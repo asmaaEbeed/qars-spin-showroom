@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import ImageGallery from "./ImageGallery";
 import { carAPI } from "../../../services/api/carForSaleProfile.api";
 import { toast } from "react-toastify";
+import LoadingState from "../../common/LoadingState";
 
 const PostMediaGallery = ({ currentPost = {} }) => {
   // Reviewd
@@ -37,7 +38,7 @@ const PostMediaGallery = ({ currentPost = {} }) => {
   const removeImage = async (mediaId) => {
     try {
       setIsLoadingDelete(true);
-      const data = await carAPI.postDeleteGalleryImg(mediaId); // لو الـ API بترجع JSON
+      await carAPI.postDeleteGalleryImg(mediaId); // لو الـ API بترجع JSON
       setFormData((prev) => ({
         ...prev,
         images: prev.images.filter((item) => item.mediaId !== mediaId),
@@ -45,7 +46,6 @@ const PostMediaGallery = ({ currentPost = {} }) => {
       toast.dismiss();
       toast.success("Image deleted successfully");
       setCurrentIndex(null);
-
     } catch (error) {
       console.error("Delete failed:", error);
       toast.error("Image delete failed");
@@ -89,7 +89,6 @@ const PostMediaGallery = ({ currentPost = {} }) => {
         setIsLoadingAdd(true);
         const response = await carAPI.postUploadGalleryImage(formData);
         if (response.Code === "OK") {
-
           toast.dismiss();
           toast.success(response.Desc);
           fetchCarMedia();
@@ -127,12 +126,7 @@ const PostMediaGallery = ({ currentPost = {} }) => {
           {/* Image preview grid */}
           {isLoading ? (
             <div className=" bg-gradient-to-br from-primary-50 via-white to-indigo-50 flex items-center justify-center">
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary-500 border-t-transparent mx-auto mb-4"></div>
-                <p className="text-lg font-medium text-secondary-600">
-                  Loading car Images...
-                </p>
-              </div>
+              <LoadingState title="car Images" className="h-32" />
             </div>
           ) : (
             formData.images.length > 0 && (
@@ -160,12 +154,18 @@ const PostMediaGallery = ({ currentPost = {} }) => {
                   </div>
                 ))}
                 {isLoadingAdd && (
-                  <div className=" bg-gradient-to-br from-primary-50 via-white to-indigo-50 flex items-center justify-center">
-                    <div className="text-center">
-                      <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary-500 border-t-transparent mx-auto mb-4"></div>
-                      <p className="text-sm font-medium text-secondary-600">
-                        Loading car Images...
+                  <div className="h-32 bg-gradient-to-br from-primary-50 via-white to-indigo-50 flex items-center justify-center">
+                    <div
+                      className={`flex flex-col items-center justify-center py-4 h-full`}
+                    >
+                      <div className="relative">
+                        <div className="animate-spin rounded-full h-8 w-8 border-4 border-primary-200"></div>
+                        <div className="animate-spin rounded-full h-8 w-8 border-4 border-primary-500 border-t-transparent absolute top-0"></div>
+                      </div>
+                      <p className="mt-2 text-xs font-medium text-secondary-600 text-center">
+                        {`Loading Uploading...`}
                       </p>
+                      
                     </div>
                   </div>
                 )}

@@ -4,6 +4,7 @@ import ImageGallery from "../posts/details/ImageGallery";
 import { ShowroomProfileAPI } from "../../services/api/ShowroomProfile.api";
 import { toast } from "react-toastify";
 import { useParams } from "react-router-dom";
+import LoadingState from "../common/LoadingState";
 
 const MediaTab = ({ partner }) => {
   const { id } = useParams();
@@ -132,16 +133,21 @@ const MediaTab = ({ partner }) => {
                   </button>
                 </div>
               ))}
-            </div>
-          )}
-          {isLoading && (
-            <div className=" bg-gradient-to-br from-primary-50 via-white to-indigo-50 flex items-center justify-center">
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary-500 border-t-transparent mx-auto mb-4"></div>
-                <p className="text-sm font-medium text-secondary-600">
-                  Loading car Images...
-                </p>
-              </div>
+              {isLoading && (
+                <div className="h-32 bg-gradient-to-br from-primary-50 via-white to-indigo-50 flex items-center justify-center">
+                  <div
+                    className={`flex flex-col items-center justify-center py-4 h-full`}
+                  >
+                    <div className="relative">
+                      <div className="animate-spin rounded-full h-8 w-8 border-4 border-primary-200"></div>
+                      <div className="animate-spin rounded-full h-8 w-8 border-4 border-primary-500 border-t-transparent absolute top-0"></div>
+                    </div>
+                    <p className="mt-2 text-xs font-medium text-secondary-600 text-center">
+                      {`Loading Uploading...`}
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -213,7 +219,7 @@ const MediaTab = ({ partner }) => {
 
                   <div className="w-full h-[500px] mt-4">
                     <iframe
-                      src={partner.spin360Url}
+                      src={partner.spin360Url ? partner.spin360Url : ""}
                       title="360° View"
                       className="w-full h-full rounded-2xl border-0"
                       allowFullScreen

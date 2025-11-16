@@ -49,7 +49,7 @@ const BannersCard = ({ partner, onUploadBanner, isUploading = false }) => {
         if (result.status === 200) {
           setPreviewUrls((prev) => ({
             ...prev,
-            [type]: result.data.fileUrl,
+            [type]: result.data.mediaUrl,
           }));
           await Swal.fire({
             icon: "success",

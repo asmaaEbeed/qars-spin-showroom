@@ -1,8 +1,9 @@
 import { PhotoIcon, XMarkIcon } from '@heroicons/react/24/outline'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { usePosts } from '../../../context/PostsContext';
 import { carAPI } from '../../../services/api';
 import { toast } from 'react-toastify';
+import LoadingState from '../../common/LoadingState';
 
 const ImagesUploadSection = ({ post = null, setStep, onClose }) => {
 
@@ -16,9 +17,9 @@ const ImagesUploadSection = ({ post = null, setStep, onClose }) => {
     const { postCreatedId } = usePosts();
 
 
-    const validationRoles = {
+    const validationRoles = useMemo(() => ({
         images: { required: true, maxCount: 15 },
-    }
+    }), []);
 
 
     // Prepare Image For View only
@@ -104,7 +105,7 @@ const ImagesUploadSection = ({ post = null, setStep, onClose }) => {
 
         setErrors(newErrors);
         return isValid;
-    }, [formData, post]);
+    }, [formData, post, validationRoles]);
 
 
     // Upload Images to Server
@@ -158,12 +159,7 @@ const ImagesUploadSection = ({ post = null, setStep, onClose }) => {
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-4">
                             {formData.images.map((image, index) => (
                                 isLoadingAddImg && currentFileUploading.name === formData.imagesFiles[index].name ? <div className=" bg-gradient-to-br from-primary-50 via-white to-indigo-50 flex items-center justify-center" key={index}>
-                                    <div className="text-center">
-                                        <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary-500 border-t-transparent mx-auto mb-4"></div>
-                                        <p className="text-lg font-medium text-secondary-600">
-                                            Loading car Images...
-                                        </p>
-                                    </div>
+                                    <LoadingState title="car Images" />
                                 </div> : <div key={index} className="relative group">
                                     <img
                                         src={image}

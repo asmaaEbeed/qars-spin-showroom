@@ -30,7 +30,7 @@ export function usePostFormSubmit({
           postId: post.postId,
         };
         await managementAPI.putUpdatePost(
-          { createdBy: localStorage.getItem("userName") },
+          { createdBy: user.userName },
           body
         );
         onClose();
@@ -47,7 +47,7 @@ export function usePostFormSubmit({
           warrantyIsAvailable: Boolean(formData.warrantyIsAvailable),
         };
         const params = {
-          createdBy: localStorage.getItem("userName"),
+          createdBy: user.userName,
           partnerId: user.partnerId || id,
         };
         const response = await managementAPI.postCreateRequest(params, body);
