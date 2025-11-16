@@ -27,4 +27,4 @@ export function formatDateTime(dateStr, options = { type: "datetime" }) {
         return `${formattedDate}, ${formattedTime}`;
     }
   }
-  
+}
