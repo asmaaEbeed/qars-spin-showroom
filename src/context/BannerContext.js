@@ -83,6 +83,7 @@ export const BigBannerProvider = ({ children }) => {
       if (slot === "pl") {
         const res = await bannerAPI.uploadBigBannerPl(id, uploadFile);
         if (res.status === 200) {
+          fetchBigBanner(filter);
           setBigBanners((prev) =>
             prev.map((banner) =>
               banner.bannerId === id
@@ -96,6 +97,7 @@ export const BigBannerProvider = ({ children }) => {
       } else {
         const res = await bannerAPI.uploadBigBannerSl(id, uploadFile);
         if (res.status === 200) {
+          fetchBigBanner(filter);
           
           setBigBanners((prev) =>
             prev.map((banner) =>
@@ -149,6 +151,7 @@ export const BigBannerProvider = ({ children }) => {
       };
       setBigBanners((prev) => prev.map((banner) => banner.bannerId === id ? { ...banner, ...newData } : banner));
       // resetForm();
+      fetchBigBanner(filter);
       toast.success(res.data.message || "Banner updated successfully!");
       return res;
     } catch (e) {
