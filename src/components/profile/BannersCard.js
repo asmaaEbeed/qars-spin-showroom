@@ -92,7 +92,9 @@ const BannersCard = ({ partner, onUploadBanner, isUploading = false }) => {
     getRootProps: getPrimaryRootProps,
     getInputProps: getPrimaryInputProps,
   } = useDropzone({
-    accept: "image/*",
+    accept: {
+    "image/*": []
+  },
     maxFiles: 1,
     onDrop: (files) => onDrop(files, "bannerEnUrl"),
     disabled: uploadingType === "bannerEnUrl" || isUploading,
@@ -102,7 +104,9 @@ const BannersCard = ({ partner, onUploadBanner, isUploading = false }) => {
     getRootProps: getSecondaryRootProps,
     getInputProps: getSecondaryInputProps,
   } = useDropzone({
-    accept: "image/*",
+    accept: {
+    "image/*": []
+  },
     maxFiles: 1,
     onDrop: (files) => onDrop(files, "bannerArUrl"),
     disabled: uploadingType === "bannerArUrl" || isUploading,

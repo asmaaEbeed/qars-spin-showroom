@@ -33,6 +33,7 @@ const Profile = () => {
             setProfileData(res.data);
           }
         } else {
+          console.log(user.partnerId)
           const res = await ShowroomProfileAPI.getDetails(user.partnerId);
           setProfileData(res.data);
         }
@@ -43,7 +44,7 @@ const Profile = () => {
       }
     };
 
-    if (profileData === null && user.userId !== null && id) {
+    if (profileData === null && user.userId !== null) {
       fetchProfileDetails();
     }
   }, [id, profileData, user]);
@@ -85,7 +86,6 @@ const Profile = () => {
     );
   if (user.role === "superAdmin") {
     if (!id || id === "undefined") return (<SelectShowroomHint />)
-
   }
   return (
     <MainLayout>
