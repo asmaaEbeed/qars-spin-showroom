@@ -14,7 +14,7 @@ const InternalInfo = ({ formData, setFormData, errors, handleBlur }) => {
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Owner Name *
+              Owner Name <span className="text-red-500">*</span>
             </label>
             <div className="mt-1 relative rounded-md shadow-sm">
               <input
@@ -38,7 +38,7 @@ const InternalInfo = ({ formData, setFormData, errors, handleBlur }) => {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Owner Mobile *
+              Owner Mobile <span className="text-red-500">*</span>
             </label>
             <div className="mt-1 relative rounded-md shadow-sm">
               <input
@@ -68,7 +68,7 @@ const InternalInfo = ({ formData, setFormData, errors, handleBlur }) => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Chassis Number *
+              Chassis Number
             </label>
             <div className="mt-1 relative rounded-md shadow-sm">
               <input
@@ -95,7 +95,7 @@ const InternalInfo = ({ formData, setFormData, errors, handleBlur }) => {
           {/* Plate Number */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Plate Number *
+              Plate Number
             </label>
             <div className="mt-1 relative rounded-md shadow-sm">
               <input

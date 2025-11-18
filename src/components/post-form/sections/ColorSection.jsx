@@ -59,7 +59,7 @@ const ColorSection = ({ formData, setFormData, errors, handleBlur }) => {
                 {/* Exterior Color */}
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Exterior Color
+                        Exterior Color <span className="text-red-500">*</span>
                     </label>
                     <div className="flex items-center">
                         {/* <div>
@@ -145,7 +145,7 @@ const ColorSection = ({ formData, setFormData, errors, handleBlur }) => {
                 {/* Interior Color */}
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Interior Color
+                        Interior Color <span className="text-red-500">*</span>
                     </label>
                     <div className="flex items-center">
                         {/* <input

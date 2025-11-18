@@ -47,7 +47,7 @@ const BasicInfoSection = ({ formData, setFormData, errors, handleBlur }) => {
                 <div className="grid grid-cols-3 gap-4 mb-4">
                     <div>
                         <label className="block text-xs font-medium text-gray-700 mb-1">
-                            Car Name *
+                            Car Name <span className="text-red-500">*</span>
                         </label>
                         
                         {carsNameListLoading ? <p className='border p-2'>Loading...</p> :<Select
@@ -95,7 +95,7 @@ const BasicInfoSection = ({ formData, setFormData, errors, handleBlur }) => {
                     {/* Category */}
                     <div>
                         <label className="block text-xs font-medium text-gray-700 mb-1">
-                            Category *
+                            Category <span className="text-red-500">*</span>
                         </label>
                         <select
                             value={formData.categoryId}
@@ -123,7 +123,7 @@ const BasicInfoSection = ({ formData, setFormData, errors, handleBlur }) => {
                     {/* Year */}
                     <div>
                         <label className="block text-xs font-medium text-gray-700 mb-1">
-                            Year
+                            Year <span className="text-red-500">*</span>
                         </label>
                         <input
                             type="number"

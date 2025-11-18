@@ -6,7 +6,7 @@ const PriceSection = ({ formData, setFormData, errors, handleBlur }) => {
             <div className="grid grid-cols-2 gap-4 bg-gray-50 shadow-md border p-4 my-4 rounded-lg">
                 <div >
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Asking Price *
+                        Asking Price <span className="text-red-500">*</span>
                     </label>
                     <div className="mt-1 relative rounded-md shadow-sm">
                         <div className="absolute inset-y-0 right-10 pl-3 flex items-center pointer-events-none">
@@ -34,7 +34,7 @@ const PriceSection = ({ formData, setFormData, errors, handleBlur }) => {
 
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Minimum Price *
+                        Minimum Price <span className="text-red-500">*</span>
                     </label>
                     <div className="mt-1 relative rounded-md shadow-sm">
                         <div className="absolute inset-y-0 right-10 pl-3 flex items-center pointer-events-none">
