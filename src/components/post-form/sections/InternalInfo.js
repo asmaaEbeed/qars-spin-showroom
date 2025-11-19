@@ -72,7 +72,7 @@ const InternalInfo = ({ formData, setFormData, errors, handleBlur }) => {
             </label>
             <div className="mt-1 relative rounded-md shadow-sm">
               <input
-                type="number"
+                type="text"
                 value={formData.chassisNumber}
                 onChange={(e) =>
                   setFormData({ ...formData, chassisNumber: e.target.value })
