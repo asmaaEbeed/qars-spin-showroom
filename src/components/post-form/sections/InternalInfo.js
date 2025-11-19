@@ -81,8 +81,7 @@ const InternalInfo = ({ formData, setFormData, errors, handleBlur }) => {
                 className={`w-full px-3 py-2 border ${
                   errors.chassisNumber ? "border-red-500" : "border-gray-300"
                 } rounded-md focus:ring-primary-500 focus:border-primary-500 pr-9`}
-                placeholder="0"
-                min="0"
+                placeholder="Chassis Number"
               />
             </div>
             {errors.chassisNumber && (

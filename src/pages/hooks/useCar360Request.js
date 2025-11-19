@@ -70,13 +70,11 @@ export function useCar360Request(car) {
     } catch (e) {
       console.error(e);
     }
-  }, [car]);
+  }, [car, user]);
 }
 
-export function useAddCar360Url(postId) {
-  return useCallback(async () => {
-    if (!postId) return;
-    const result = await Swal.fire({
+const handleAdd360UrlSwal = async () => {
+  const result = await Swal.fire({
       iconHtml: `
       <svg xmlns="http://www.w3.org/2000/svg" 
         fill="none" viewBox="0 0 24 24" 
@@ -103,6 +101,14 @@ export function useAddCar360Url(postId) {
       },
     });
 
+    return result;
+}
+
+export function useAddCar360Url(postId) {
+  return useCallback(async () => {
+    if (!postId) return;
+    const result = await handleAdd360UrlSwal();
+
     if (result.isConfirmed) {
       try {
         Swal.showLoading();
@@ -110,7 +116,7 @@ export function useAddCar360Url(postId) {
           postId: postId,
           view360Link: encodeURIComponent(result.value),
         };
-        const res = await superAdminAPI.edit360Link(params);
+        const res = await superAdminAPI.edit360LinkForPost(params);
         if (res.status === 200) {
           toast.success(res.data.message);
           Swal.close();
@@ -122,4 +128,30 @@ export function useAddCar360Url(postId) {
       }
     }
   }, [postId]);
+}
+
+export function useAddPartner360Url(partnerId) {
+  return useCallback(async () => {
+    if (!partnerId) return;
+    const result = await handleAdd360UrlSwal();
+
+    if (result.isConfirmed) {
+      try {
+        Swal.showLoading();
+        const params = {
+          partnerId: partnerId,
+          view360Link: encodeURIComponent(result.value),
+        };
+        const res = await superAdminAPI.edit360LinkForShowroom(params);
+        if (res.status === 200) {
+          toast.success(res.data.message);
+          Swal.close();
+        }
+      } catch (e) {
+        console.error(e);
+        toast.error("Something went wrong");
+        Swal.close();
+      }
+    }
+  }, [partnerId]);
 }

@@ -1,13 +1,16 @@
-import { PhotoIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { CameraIcon, PhotoIcon, PlusIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
 import ImageGallery from "../posts/details/ImageGallery";
 import { ShowroomProfileAPI } from "../../services/api/ShowroomProfile.api";
 import { toast } from "react-toastify";
 import { useParams } from "react-router-dom";
-import LoadingState from "../common/LoadingState";
+import { useAuth } from "../../context/AuthContext";
+import { useAddPartner360Url } from "../../pages/hooks/useCar360Request";
 
 const MediaTab = ({ partner }) => {
   const { id } = useParams();
+    const { user } = useAuth();
+  
   const [postImgs, setPostImgs] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(null);
   const [errors, setErrors] = useState({});
@@ -94,6 +97,9 @@ const MediaTab = ({ partner }) => {
       setIsLoading(false);
     }
   };
+
+  const handleAdd360Profile = useAddPartner360Url(partner.partnerId);
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
       <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden">
@@ -189,8 +195,22 @@ const MediaTab = ({ partner }) => {
       </div>
 
       <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden">
-        <div className="bg-gradient-to-r from-primary-500/10 to-indigo-500/10 px-6 py-4 border-b border-secondary-100">
+        <div className="flex items-center justify-between bg-gradient-to-r from-primary-500/10 to-indigo-500/10 px-6 py-4 border-b border-secondary-100">
           <h2 className="text-xl font-bold text-secondary-800">360° View</h2>
+          {user.role === "superAdmin" && (
+            <div className="relative">
+              <button
+                onClick={() => {
+                  handleAdd360Profile();
+                }}
+                className="flex relative items-center bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors md:text-md text-sm md:px-4 px-1 py-2"
+              >
+                <CameraIcon className="h-6 w-6 mx-1" />
+                <PlusIcon className="h-3 w-3 text-indigo-700 absolute  bg-indigo-100 rounded-full hover:bg-indigo-200 " />
+                Add 360°
+              </button>
+            </div>
+          )}
         </div>
         <div className="p-6">
           <div className="relative w-full h-96 rounded-2xl overflow-hidden">
