@@ -2,11 +2,9 @@ import React, {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useState,
 } from "react";
 import { carAPI } from "../services/api";
-import { useParams } from "react-router-dom";
 
 // 1️⃣ Create Context
 const CarContext = createContext();
@@ -19,8 +17,6 @@ export const CarProvider = ({ children }) => {
   const [carDetails, setCarDetails] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [specLoading, setSpecLoading] = useState(false);
-
-  const { code } = useParams();
 
   const fetchCarProfile = useCallback(async (code) => {
     try {

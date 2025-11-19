@@ -1,6 +1,11 @@
-import { FaBuilding, FaCarSide } from "react-icons/fa";
+import { FaBuilding, FaCarSide, FaPlus } from "react-icons/fa";
+import { useState } from "react";
+import { PlusCircleIcon } from "@heroicons/react/24/outline";
+import AddShowRoomModal from "./AddShowRoomModal";
 
 export const ShowRoomsHeader = ({ showrooms }) => {
+
+  const [showModal, setShowModal] = useState(false);
 
   // === Statistics Calculation ===
   const totalShowrooms = showrooms.length;
@@ -26,7 +31,7 @@ export const ShowRoomsHeader = ({ showrooms }) => {
 
         {/* Action Buttons */}
         <div className="flex sm:flex-row gap-3">
-          <div className="grid grid-cols-2 sm:grid-cols-2 gap-2 my-6">
+          <div className="grid grid-cols-3 sm:grid-cols-3 gap-2 my-6">
             {/* Total Showrooms */}
             <div className="bg-white rounded-2xl shadow p-3 flex items-center gap-2">
               <FaBuilding className="text-primary-500 text-3xl" />
@@ -45,21 +50,22 @@ export const ShowRoomsHeader = ({ showrooms }) => {
               </div>
             </div>
             
-            {/* <button
+            <button
               onClick={() => {
                 setShowModal(true);
 
               }}
-              className="bg-primary-500 hover:bg-primary-600 text-white rounded-2xl shadow p-3 flex items-center gap-2"
+              className="bg-primary-500 hover:bg-primary-600 text-white rounded-2xl shadow p-3 text-center items-center gap-2 h-auto"
             >
-              <FaPlus className="w-4 h-4" />
-              <p className="text-xs md:text-sm lg:text-md font-semibold">Add New ShowRoom</p>
-            </button> */}
+              <PlusCircleIcon className="w-8 h-8 m-auto" />
+              <p className="text-xs md:text-sm lg:text-md font-semibold">New ShowRoom</p>
+            </button>
           </div>
 
         </div>
 
       </div>
     </div>
+    <AddShowRoomModal open={showModal} setOpen={setShowModal} />
   </div>
 }
