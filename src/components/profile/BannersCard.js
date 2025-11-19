@@ -92,7 +92,9 @@ const BannersCard = ({ partner, onUploadBanner, isUploading = false }) => {
     getRootProps: getPrimaryRootProps,
     getInputProps: getPrimaryInputProps,
   } = useDropzone({
-    accept: "image/*",
+    accept: {
+    "image/*": []
+  },
     maxFiles: 1,
     onDrop: (files) => onDrop(files, "bannerEnUrl"),
     disabled: uploadingType === "bannerEnUrl" || isUploading,
@@ -102,7 +104,9 @@ const BannersCard = ({ partner, onUploadBanner, isUploading = false }) => {
     getRootProps: getSecondaryRootProps,
     getInputProps: getSecondaryInputProps,
   } = useDropzone({
-    accept: "image/*",
+    accept: {
+    "image/*": []
+  },
     maxFiles: 1,
     onDrop: (files) => onDrop(files, "bannerArUrl"),
     disabled: uploadingType === "bannerArUrl" || isUploading,
@@ -123,7 +127,7 @@ const BannersCard = ({ partner, onUploadBanner, isUploading = false }) => {
         <h4 className="text-sm font-medium text-secondary-700 mb-3">{label}</h4>
         <div
           {...dropzoneProps}
-          className={`relative border-2 border-dashed rounded-lg overflow-hidden h-40 flex flex-col items-center justify-center transition-colors ${
+          className={`cursor-pointer relative border-3 border-dashed rounded-lg overflow-hidden h-40 flex flex-col items-center justify-center transition-colors ${
             isUploadingThis
               ? "border-primary-400 bg-primary-50"
               : "border-gray-300 hover:border-primary-300 bg-gray-50"

@@ -6,7 +6,7 @@ const MileageInfoSection = ({ formData, setFormData, errors, handleBlur }) => {
             <div className="grid grid-cols-2 gap-4 bg-gray-50 shadow-md border p-4 my-4 rounded-lg">
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Mileage *
+                        Mileage <span className="text-red-500">*</span>
                     </label>
                     <div className="mt-1 relative rounded-md shadow-sm">
                         <input
@@ -36,7 +36,7 @@ const MileageInfoSection = ({ formData, setFormData, errors, handleBlur }) => {
                 {/* Warranty */}
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Warranty *
+                        Warranty <span className="text-red-500">*</span>
                     </label>
                     <select
                         value={formData.warrantyIsAvailable}

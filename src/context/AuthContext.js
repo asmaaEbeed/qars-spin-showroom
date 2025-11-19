@@ -42,7 +42,7 @@ export function AuthProvider({ children }) {
         fetchMe();
       }
     }
-  }, []);
+  }, [user.userId]);
 
   // Mock authentication functions
   const login = async (data) => {
