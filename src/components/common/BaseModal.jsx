@@ -2,7 +2,7 @@ import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 
-export default function BaseModal({ open, setOpen, title, children, actions }) {
+export default function BaseModal({ open, setOpen, title, children, actions, className = "" }) {
   return (
     <Transition appear show={open} as={Fragment}>
       <Dialog as="div" className="relative z-50" onClose={() => setOpen(false)}>
@@ -28,10 +28,10 @@ export default function BaseModal({ open, setOpen, title, children, actions }) {
             leaveFrom="opacity-100 scale-100"
             leaveTo="opacity-0 scale-95"
           >
-            <Dialog.Panel className="w-full max-w-xl transform overflow-hidden rounded-2xl bg-white text-left align-middle shadow-xl transition-all">
+            <Dialog.Panel className={`w-full transform overflow-hidden rounded-2xl bg-white text-left align-middle shadow-xl transition-all max-w-3xl ${className}`}>
               {title && (
                 <Dialog.Title className="flex justify-between items-center p-4 bg-primary text-white rounded-t-lg">
-                  <h2 className="text-lg font-semibold">{title}</h2>
+                  <div className="text-lg font-semibold">{title}</div>
                   <button
                     type="button"
                     className="ml-3 -mx-1.5 p-1.5 rounded-md hover:bg-gray-100 text-white hover:text-gray-700 transition-colors"
