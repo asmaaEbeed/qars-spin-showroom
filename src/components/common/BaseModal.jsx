@@ -1,7 +1,8 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 
-export default function BaseModal({ open, setOpen, title, children, actions }) {
+export default function BaseModal({ open, setOpen, title, children, actions, className = "" }) {
   return (
     <Transition appear show={open} as={Fragment}>
       <Dialog as="div" className="relative z-50" onClose={() => setOpen(false)}>
@@ -14,7 +15,7 @@ export default function BaseModal({ open, setOpen, title, children, actions }) {
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-black/30" />
+          <div className="fixed inset-0 bg-black/60" />
         </Transition.Child>
 
         <div className="fixed inset-0 flex items-center justify-center p-4">
@@ -27,14 +28,22 @@ export default function BaseModal({ open, setOpen, title, children, actions }) {
             leaveFrom="opacity-100 scale-100"
             leaveTo="opacity-0 scale-95"
           >
-            <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+            <Dialog.Panel className={`w-full transform overflow-hidden rounded-2xl bg-white text-left align-middle shadow-xl transition-all max-w-3xl ${className}`}>
               {title && (
-                <Dialog.Title className="text-lg font-semibold text-gray-900 mb-3">
-                  {title}
+                <Dialog.Title className="flex justify-between items-center p-4 bg-primary text-white rounded-t-lg">
+                  <div className="text-lg font-semibold">{title}</div>
+                  <button
+                    type="button"
+                    className="ml-3 -mx-1.5 p-1.5 rounded-md hover:bg-gray-100 text-white hover:text-gray-700 transition-colors"
+                    aria-label="Close"
+                    onClick={() => setOpen(false)}
+                  >
+                    <XMarkIcon className="w-5 h-5" />
+                  </button>
                 </Dialog.Title>
               )}
 
-              <div className="mb-4">{children}</div>
+              <div>{children}</div>
 
               {actions && (
                 <div className="flex justify-end gap-3 mt-4">

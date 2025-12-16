@@ -14,12 +14,12 @@ export const carAPI = {
     privateAxios.put(`/v1/CarForSale/${params}/specs`, data),
   getCarRequests: (params) =>
     privateAxios.get(
-      `/v1/CarForSale/GetRequests?postId=${params.postId}&RequestType=${params.RequestType}&RequestFrom=${params.RequestFrom}`
+      `/v1/QarsRequests/Get-Request?postId=${params.postId}&RequestType=${params.RequestType}&RequestFrom=${params.RequestFrom}`
     ),
   putCarInfo: (params, data) =>
     privateAxios.put(`/v1/CarForSale/${params}/internal-info`, data),
-  postCreateRequest: (params, data) =>
-    privateAxios.post(`/v1/CarForSale/CreateRequest?createdBy=${params}`, data),
+  postCreateRequest: (data) =>
+    privateAxios.post(`/v1/QarsRequests/CreateRequest`, data),
   postUploadGalleryImage: async (formData) => {
     try {
       const response = await fetch(`${url}/UploadPostGalleryPhoto`, {

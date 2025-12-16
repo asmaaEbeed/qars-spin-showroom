@@ -1,4 +1,3 @@
-import React from "react";
 import { useAuth } from "../../context/AuthContext";
 import NotAuthorized from "../../pages/NotAuthorized";
 import { Navigate } from "react-router-dom";

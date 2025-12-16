@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PostSpecifications from "./PostSpecifications";
 import PublishedOverview from "./post-overview-components/PublishedOverview";
 import InternalInformation from "./post-overview-components/InternalInformation";
 import PostCreateEditModal from "../PostCreateEditModal";
 import { usePosts } from "../../../context/PostsContext";
+import { useParams } from "react-router-dom";
+import { useAuth } from "../../../context/AuthContext";
 // import InternalInfoModal from "../InternalInfoModal";
 
 const PostOverview = ({
@@ -13,10 +15,19 @@ const PostOverview = ({
   setSelectedCover,
 }) => {
   const [postFormModal, setPostFormModal] = useState(false);
- 
 
   const [activeTab, setActiveTab] = useState("Published OverView");
-  const { setPostCreatedCode, setPostCreatedId } = usePosts();
+
+  const { id } = useParams();
+  const { user } = useAuth();
+  const { setPostCreatedCode, setPostCreatedId, fetchShowroomInitData } =
+    usePosts();
+
+  // Fetch Showroom Init Data to set in owner name, mobile and email
+  useEffect(() => {
+    if (id) fetchShowroomInitData(id);
+    else if (user.partnerId) fetchShowroomInitData(user.partnerId);
+  }, [id, fetchShowroomInitData, user]);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -53,7 +64,7 @@ const PostOverview = ({
                   </label>
                 </div>
                 <button
-                disabled={currentPost === null}
+                  disabled={currentPost === null}
                   onClick={() => setPostFormModal(true)}
                   className="h-full px-3 py-1.5 text-xs bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors"
                 >
@@ -106,7 +117,11 @@ const PostOverview = ({
       <PostSpecifications currentPost={currentPost} />
       {postFormModal && (
         <PostCreateEditModal
-          onClose={() => {setPostFormModal(false); setPostCreatedId(""); setPostCreatedCode("");}}
+          onClose={() => {
+            setPostFormModal(false);
+            setPostCreatedId("");
+            setPostCreatedCode("");
+          }}
           post={currentPost}
         />
       )}

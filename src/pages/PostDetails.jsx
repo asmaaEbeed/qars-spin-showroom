@@ -9,7 +9,7 @@ import PostMedia from "../components/posts/details/PostMedia";
 import PostOffers from "../components/posts/details/PostOffers";
 import PostOverview from "../components/posts/details/PostOverview";
 
-import { useCar360Request, useAddCar360Url } from "./hooks/useCar360Request";
+import {  useAddCar360Url } from "./hooks/useCar360Request";
 import { useCarContext } from "../context/CarContext";
 import { useCarOffers } from "./hooks/useCarOffers";
 import { usePosts } from "../context/PostsContext";
@@ -41,7 +41,7 @@ const PostDetails = () => {
   const [postDetails, setPostDetails] = useState(null);
   const [selectedCover, setSelectedCover] = useState(null);
 
-  const handle360Request = useCar360Request(postDetails?.car);
+  // const handle360Request = useCar360Request(postDetails?.car);
   const handleAdd360 = useAddCar360Url(postDetails?.car?.postId);
   
   useEffect(() => {
@@ -141,12 +141,13 @@ const PostDetails = () => {
               setActiveTab={setActiveTab}
               setModalOpen={setModalOpen}
               setModalType={setModalType}
-              handle360Request={handle360Request}
+              // handle360Request={handle360Request}
               handleAdd360={handleAdd360}
               handleSendToReview={handleSendToReview}
               postStatus={postDetails?.car?.postStatus}
               role={user.role}
               handleChangePostStatus={handleChangePostStatus}
+              currentPost={postDetails?.car}
             />
           </div>}
 

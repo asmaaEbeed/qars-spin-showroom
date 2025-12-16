@@ -12,6 +12,8 @@ export function AuthProvider({ children }) {
     userId: null,
     fullName: null,
     partnerId: null,
+    isApproved: null,
+    partnerStatus: null
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -30,7 +32,7 @@ export function AuthProvider({ children }) {
         handleUserData(response);
       } catch (error) {
         console.log(error);
-        toast.error("Network error. Please check your connection.");
+        toast.error(error.message || "Network error. Please check your connection.");
         setLoading(false);
       } finally {
         setLoading(false);
@@ -51,17 +53,6 @@ export function AuthProvider({ children }) {
       const response = await authAPI.login(data);
       handleUserData(response);
       setLoading(false);
-      // const isSuperAdmin = response.data.roles.some(
-      //   role => role.toLowerCase() === "superadmin"
-      // );
-      // if (isSuperAdmin) {
-      //   localStorage.setItem("partnerId", null);
-      // } else {
-      //   localStorage.setItem("partnerId", response.data.partnerData.partnerId);
-      // }
-      // localStorage.setItem("userId", response.data.userId);
-      // localStorage.setItem("userName", response.data.userName);
-      // localStorage.setItem("fullName", response.data.partnerData.fullName);
       localStorage.setItem("token", response.data.token);
 
     } catch (error) {
@@ -82,12 +73,15 @@ export function AuthProvider({ children }) {
       fullName: data.partnerData?.fullName || null,
       partnerId: isSuperAdmin ? null : data.partnerData?.partnerId || null,
       role: isSuperAdmin ? "superAdmin" : "admin",
+      isApproved: data.isApproved,
+      partnerStatus: data.partnrtStatus
     });
 
     
   };
 
   const logout = () => {
+    setError("");
     setUser({
       userName: null,
       role: null,
@@ -95,6 +89,8 @@ export function AuthProvider({ children }) {
       userId: null,
       fullName: null,
       partnerId: null,
+      isApproved: null,
+      partnerStatus: null
     });
     localStorage.removeItem("token");
     localStorage.removeItem("partnerId");
@@ -123,6 +119,7 @@ export function AuthProvider({ children }) {
         login,
         logout,
         error,
+        setError
       }}
     >
       {children}

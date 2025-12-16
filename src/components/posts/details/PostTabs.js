@@ -1,6 +1,5 @@
 import {
   CameraIcon,
-  ChatBubbleOvalLeftEllipsisIcon,
   CheckCircleIcon,
   PaperAirplaneIcon,
   PlusIcon,
@@ -9,22 +8,44 @@ import {
   XCircleIcon,
 } from "@heroicons/react/24/outline";
 import { CurrencyDollarIcon } from "@heroicons/react/24/solid";
-import React from "react";
+import React, { useState } from "react";
+import PostRequestMenu from "../PostRequestMenu";
+import SelectCurrencyModal from "../../../pages/payment/SelectCurrencyModal";
+import { usePaymentContext } from "../../../context/PaymentContext";
+import { useHandlePostRequest } from "../hook/handlePostRequest";
+import { useAuth } from "../../../context/AuthContext";
 
 const PostTabs = ({
   activeTab,
   setActiveTab,
   setModalOpen,
   setModalType,
-  handle360Request,
+  // handle360Request,
   handleAdd360,
   handleSendToReview,
   postStatus,
   role,
   handleChangePostStatus,
+  currentPost,
 }) => {
+  const { user } = useAuth();
+  const [selectCurrencyOpen, setSelectCurrencyOpen] = useState(false);
   const handleTabChange = (tabName) => {
     setActiveTab(tabName);
+  };
+
+  const { onGetQarsServices } = usePaymentContext();
+  const postId = currentPost?.postId;
+  const { handleSubmitRequest } = useHandlePostRequest(setSelectCurrencyOpen);
+
+  const handle360Request = async (type) => {
+    // Get All Service Price
+    try {
+      const res= await onGetQarsServices();
+      handleSubmitRequest(type, postId, res.request360);
+    } catch (e) {
+      console.log(e);
+    }
   };
   return (
     <div className="bg-white/90 backdrop-blur-sm shadow-lg border-b border-white/20 sticky top-16 z-40">
@@ -70,54 +91,26 @@ const PostTabs = ({
 
           {/* Action Buttons */}
           <div className="flex items-center space-x-1 lg:border-t-0 border-t lg:py-0 py-2  lg:mt-0 mt-2">
-            <div className="relative">
-              <button
-                onClick={() => {
-                  setModalType("requests");
-                  setModalOpen(true);
-                }}
-                className="flex items-center bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors md:text-md text-sm md:px-4 px-1 py-2"
-              >
-                <ChatBubbleOvalLeftEllipsisIcon className="h-6 w-6 mr-1" />
-                Requests
-              </button>
-            </div>
             {/* <div className="relative">
-              <button
-                onClick={() => {
-                  setModalType("status");
-                  setModalOpen(true);
-                }}
-                className="flex items-center bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors md:text-md text-sm md:px-4 px-1 py-2"
-              >
-                <svg
-                  className="h-6 w-6 mr-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-                Status
-              </button>
+              {user.role !== "superAdmin" && <PostRequestMenu
+                currentPost={currentPost}
+                setSelectCurrencyOpen={setSelectCurrencyOpen}
+              />}
             </div> */}
 
-            {role !== "superAdmin" && <div className="relative">
-              <button
-                onClick={() => {
-                  handle360Request();
-                }}
-                className="flex items-center bg-primary-100 text-primary-700 rounded-lg hover:bg-primary-200 transition-colors md:text-md text-sm md:px-4 px-1 py-2"
-              >
-                <CameraIcon className="h-6 w-6 mx-1" />
-                Request 360°
-              </button>
-            </div>}
+            {/* {role !== "superAdmin" && (
+              <div className="relative">
+                <button
+                  onClick={() => {
+                    handle360Request("Request 360 Photo Session");
+                  }}
+                  className="flex items-center bg-primary-100 text-primary-700 rounded-lg hover:bg-primary-200 transition-colors md:text-md text-sm md:px-4 px-1 py-2"
+                >
+                  <CameraIcon className="h-6 w-6 mx-1" />
+                  Request 360°
+                </button>
+              </div>
+            )} */}
             {role === "superAdmin" && (
               <div className="relative">
                 <button
@@ -177,6 +170,12 @@ const PostTabs = ({
           </div>
         </div>
       </div>
+      {selectCurrencyOpen && (
+        <SelectCurrencyModal
+          open={selectCurrencyOpen}
+          setOpen={setSelectCurrencyOpen}
+        />
+      )}
     </div>
   );
 };

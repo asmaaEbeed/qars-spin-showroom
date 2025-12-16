@@ -11,7 +11,7 @@ export function usePostFormSubmit({
   code,
   onClose,
 }) {
-  const { setPostCreatedId, setPostCreatedCode, onSendToReview } = usePosts();
+  const { setPostCreatedId, setPostCreatedCode, onSendToReview, filters } = usePosts();
   const { user } = useAuth();
   const { id } = useParams();
   const handleSubmit = async (e, formData, validateForm, setIsSubmitting) => {
@@ -35,7 +35,7 @@ export function usePostFormSubmit({
         );
         onClose();
         if (code) fetchCarProfile(code);
-        else fetchPosts({ partnerId: (user.partnerId || id) });
+        else fetchPosts({ ...filters, partnerId: (user.partnerId || id) });
         toast.success("Post updated successfully");
       } else {
         // create post
@@ -43,7 +43,7 @@ export function usePostFormSubmit({
         // const { images, imagesFiles, ...dataPrepare } = formData;
         const body = {
           ...dataPrepare,
-          CombinedModelNamePl: dataPrepare.carNamePl,
+          // CombinedModelNamePl: dataPrepare.carNamePl,
           warrantyIsAvailable: Boolean(formData.warrantyIsAvailable),
         };
         const params = {
@@ -63,7 +63,7 @@ export function usePostFormSubmit({
             toast.error("Failed to send post to review");
           }
         }
-        fetchPosts({ partnerId: user.partnerId || id });
+        fetchPosts({ ...filters, partnerId: user.partnerId || id });
         setPostCreatedId(response.data.postId);
 
         setPostCreatedCode(response.data.postCode);

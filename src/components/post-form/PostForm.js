@@ -12,6 +12,7 @@ import { usePostForm } from "./hooks/usePostForm";
 import { usePostFormSubmit } from "./hooks/usePostFormSubmit";
 import TechDescriptionSection from "./sections/TechDescriptionSection";
 import InternalInfo from "./sections/InternalInfo";
+import OwnerInfo from "./sections/OwnerInfo";
 
 const PostForm = ({ onClose, post = null, setStep, step = 0 }) => {
   const {
@@ -21,12 +22,15 @@ const PostForm = ({ onClose, post = null, setStep, step = 0 }) => {
     postCreatedId,
     setPostCreatedId,
     setPostCreatedCode,
+    showroomInitData,
+    fetchCarsMakes,
+    carsMakesList,
   } = usePosts();
   const { fetchCarProfile } = useCarContext();
   const { code } = useParams();
 
   const { formData, setFormData, errors, setErrors, validateForm, handleBlur } =
-    usePostForm(post);
+    usePostForm(post, showroomInitData);
   const { handleSubmit } = usePostFormSubmit({
     post,
     fetchPosts,
@@ -39,7 +43,8 @@ const PostForm = ({ onClose, post = null, setStep, step = 0 }) => {
 
   useEffect(() => {
     if (carsNameList.length === 0) fetchCarsName();
-  }, [carsNameList, fetchCarsName]);
+    if(carsMakesList.length === 0) fetchCarsMakes();
+  }, [carsNameList, fetchCarsName, fetchCarsMakes, carsMakesList]);
 
   // Move To next Step after Create new Post
   useEffect(() => {
@@ -48,7 +53,7 @@ const PostForm = ({ onClose, post = null, setStep, step = 0 }) => {
     } else if (postCreatedId !== "" && step === 1) {
       setStep(2);
     }
-  }, [postCreatedId, setStep, step]);
+  }, [postCreatedId, setStep, step, onClose]);
 
   const handleClose = () => {
     onClose();
@@ -82,22 +87,25 @@ const PostForm = ({ onClose, post = null, setStep, step = 0 }) => {
         <TechDescriptionSection
           {...{ formData, setFormData, errors, handleBlur, setErrors }}
         />
+        <OwnerInfo {...{ formData, setFormData, errors, handleBlur }} />
         <InternalInfo {...{ formData, setFormData, errors, handleBlur }} />
       </div>
 
       <div className="flex justify-end space-x-3 p-4 sticky bottom-0 z-50 bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
-        {!post &&<button
-          type="submit"
-          disabled={isSubmitting}
-          value="publish"
-          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-        >
-          {isSubmitting
-            ? post
-              ? "Updating..."
-              : "Creating..."
-            :  "Publish & Next"}
-        </button>}
+        {!post && (
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            value="publish"
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+          >
+            {isSubmitting
+              ? post
+                ? "Updating..."
+                : "Creating..."
+              : "Publish & Next"}
+          </button>
+        )}
         <button
           type="submit"
           disabled={isSubmitting}
