@@ -1,49 +1,44 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import BaseModal from '../../common/BaseModal'
-import { Switch } from '@headlessui/react';
-import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
 import SwitchSelect from '../../common/SwitchSelect';
+import { useParams } from 'react-router-dom';
+import { useShowroomContext } from '../../../context/ShowroomContext';
 
 const AddShowroomUserModal = ({ open, setOpen }) => {
-    const [formData, setFormData] = useState({
+    const { id } = useParams();
+    const [loading, setLoading] = useState(false)
+
+    const { addNewShowroomUser } = useShowroomContext()
+
+    const initialFormData = {
         email: "",
         mobile: "",
         fullName: "",
         jobTitle: "",
-        roles: [
-            {
-                id: "1",
-                name: "createPosts",
-                value: true
-            },
-            {
-                id: "2",
-                name: "dashboardReports",
-                value: false
-            },
-            {
-                id: "3",
-                name: "approvePosts",
-                value: true
-            },
-            {
-                id: "4",
-                name: "billingPayments",
-                value: false
-            }
-        ],
-    });
-    const onSubmit = (e) => {
+        approvePosts: true,
+        createPosts: true,
+        dashboardReports: true,
+        billingPayments: true,
+        partnerId: id
+    }
+    const [formData, setFormData] = useState(initialFormData);
+    const onSubmit = async (e) => {
         e.preventDefault();
-        console.log(formData);
+        try {
+            setLoading(true);
+            const res = await addNewShowroomUser(formData);
+            console.log(res);
+            if (res.status === 200 || res.status === 201) {
+                setFormData(initialFormData);
+                setOpen(false);
+            }
+        } catch (e) {
+            console.log(e);
+        } finally {
+            setLoading(false);
+        }
     }
 
-    const handleSwitchRole = (e, id) => {
-        setFormData(prev => ({
-            ...prev,
-            roles: prev.roles.map(r => r.id === id ? { ...r, value: e } : r)
-        }))
-    }
     return (
         <BaseModal title="Create New User" open={open} setOpen={setOpen}>
             <form className=" space-y-6" onSubmit={(e) => onSubmit(e)}>
@@ -139,7 +134,7 @@ const AddShowroomUserModal = ({ open, setOpen }) => {
 
                         </div>
                     </div>
-                    
+
                     {/* Roles */}
                     <div>
                         <div className="flex items-center gap-4 mt-8 mb-6">
@@ -156,13 +151,22 @@ const AddShowroomUserModal = ({ open, setOpen }) => {
                             <span className="text-red-500">*</span>
                         </div>
                         <div className="grid md:grid-cols-2">
-                            {formData.roles.map(role =>
-                                <div className='flex gap-5 mb-3' key={role.name}>
-                                    <SwitchSelect role={role} handleOnChange={handleSwitchRole} />
-                                    <p>{role.name}</p>
-                                </div>
-                            )
-                            }
+                            <div className='flex gap-5 mb-3'>
+                                <SwitchSelect value={formData.approvePosts} handleOnChange={(e) => { setFormData({ ...formData, approvePosts: e }) }} />
+                                <p>Approve Posts</p>
+                            </div>
+                            <div className='flex gap-5 mb-3'>
+                                <SwitchSelect value={formData.createPosts} handleOnChange={(e) => { setFormData({ ...formData, createPosts: e }) }} />
+                                <p>Create Posts</p>
+                            </div>
+                            <div className='flex gap-5 mb-3'>
+                                <SwitchSelect value={formData.dashboardReports} handleOnChange={(e) => { setFormData({ ...formData, dashboardReports: e }) }} />
+                                <p>Dashboard Reports</p>
+                            </div>
+                            <div className='flex gap-5 mb-3'>
+                                <SwitchSelect value={formData.billingPayments} handleOnChange={(e) => { setFormData({ ...formData, billingPayments: e }) }} />
+                                <p>Billing Payments</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -170,16 +174,18 @@ const AddShowroomUserModal = ({ open, setOpen }) => {
                 <div className="flex justify-end space-x-3 p-4 sticky bottom-0 z-50 bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
                     <button
                         type="button"
-                        onClick={() => { setOpen(false); }}
+                        onClick={() => { setFormData(initialFormData); setOpen(false); }}
                         className="px-6 py-2.5 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors duration-200"
                     >
                         Cancel
                     </button>
                     <button
+                        disabled={loading}
                         type="submit"
-                        className="px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors duration-200"
+                        className="flex px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors duration-200"
                     >
-                        Save
+                        {loading && <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mx-2"></div>}
+                        <p>{!loading ? "Save" : "Saving..."}</p>
                     </button>
                 </div>
             </form>

@@ -1,7 +1,5 @@
-import React, { useState } from "react";
-import BgImage from "../../../assets/images/Profile_Background.jpg";
-import { Link, useActionData, useParams } from "react-router-dom";
-import { FiUpload, FiX } from "react-icons/fi";
+import { Link, useParams } from "react-router-dom";
+import { FiUpload } from "react-icons/fi";
 import { useRef } from "react";
 import PostDetailsModals from "../PostDetailsModals";
 import { FaImage } from "react-icons/fa";
@@ -19,7 +17,6 @@ const PostHeader = ({
   selectedCover,
 }) => {
   const fileInputRef = useRef(null);
-  const [previewUrl, setPreviewUrl] = useState(null);
   const { user } = useAuth();
   const { id } = useParams();
 
@@ -167,11 +164,11 @@ const PostHeader = ({
             <div className="flex-1 min-w-0">
               <div className="space-y-4">
                 <div>
-                  <h1 className="text-3xl lg:text-4xl font-bold text-white mb-2">
-                    {currentPost?.categoryNamePl}
-                  </h1>
-                  <p className="text-xl text-white/80">
+                  <h1 className="text-3xl font-bold text-white/80">
                     {currentPost?.carNamePl}
+                  </h1>
+                  <p className="text-lg lg:text-2xl text-white mb-2">
+                    {currentPost?.categoryNamePl}
                   </p>
                 </div>
 

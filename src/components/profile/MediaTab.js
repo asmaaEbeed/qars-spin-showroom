@@ -1,4 +1,9 @@
-import { CameraIcon, PhotoIcon, PlusIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import {
+  CameraIcon,
+  PhotoIcon,
+  PlusIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
 import ImageGallery from "../posts/details/ImageGallery";
 import { ShowroomProfileAPI } from "../../services/api/ShowroomProfile.api";
@@ -9,8 +14,8 @@ import { useAddPartner360Url } from "../../pages/hooks/useCar360Request";
 
 const MediaTab = ({ partner }) => {
   const { id } = useParams();
-    const { user } = useAuth();
-  
+  const { user } = useAuth();
+
   const [postImgs, setPostImgs] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(null);
   const [errors, setErrors] = useState({});
@@ -20,6 +25,13 @@ const MediaTab = ({ partner }) => {
     ...partner,
     images: partner?.gallery || [],
   });
+  const [spin360Url, setSpin360Url] = useState("");
+
+  useEffect(() => {
+    if (partner.spin360Url) {
+      setSpin360Url(partner.spin360Url);
+    }
+  }, [partner]);
 
   const validationRules = {
     images: { required: true, maxCount: 100 },
@@ -200,8 +212,11 @@ const MediaTab = ({ partner }) => {
           {user.role === "superAdmin" && (
             <div className="relative">
               <button
-                onClick={() => {
-                  handleAdd360Profile();
+                onClick={async () => {
+                  const res = await handleAdd360Profile();
+                  if (res.state === "success") {
+                    setSpin360Url(res.value);
+                  }
                 }}
                 className="flex relative items-center bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors md:text-md text-sm md:px-4 px-1 py-2"
               >
@@ -239,7 +254,7 @@ const MediaTab = ({ partner }) => {
 
                   <div className="w-full h-[500px] mt-4">
                     <iframe
-                      src={partner.spin360Url ? partner.spin360Url : ""}
+                      src={spin360Url ? spin360Url : ""}
                       title="360° View"
                       className="w-full h-full rounded-2xl border-0"
                       allowFullScreen

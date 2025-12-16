@@ -1,33 +1,44 @@
 import React, { useEffect, useState } from "react";
-import { UserIcon, LockClosedIcon } from "@heroicons/react/24/outline";
+import { UserIcon, LockClosedIcon, XCircleIcon } from "@heroicons/react/24/outline";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import Logo from "../assets/images/logo/Logo.svg";
 
 export default function Login() {
-  const { login, error, user } = useAuth();
+  const { login, error, user, setError } = useAuth();
   const navigate = useNavigate();
-  const [email , setEmail] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
+    setError("");
+    if (user.userId && !user.isApproved) {
+      localStorage.removeItem("token");
+      setError("Your account is Suspended. Please contact Support.");
+      return;
+    }
+    if (user.userId && user.partnerStatus === "Suspended") {
+      localStorage.removeItem("token");
+      setError("Your showroom account is Suspended. Please contact Qarsspin Support.");
+      return;
+    }
     if (user.userId) {
-      if(user.role === "superAdmin"){
+      if (user.role === "superAdmin") {
         navigate("/admin/superAdmin-panel");
-      }else{
+      } else {
         navigate("/dashboard");
       }
     }
-  }, [user, navigate]);
+  }, [user, navigate, setError]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-       await login({email, password, applicationName: "qarsspinpartnersportal"});
+      await login({ email, password, applicationName: "qarsspinpartnersportal" });
     } catch (err) {
       console.log(err);
     } finally {
@@ -36,12 +47,16 @@ export default function Login() {
   };
 
   return (
-    <div style={{
-      backgroundImage: 'url("/images/auth-bg.jpg")',
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-    }} className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      
+    <div className="relative min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <img
+        src="/images/auth-bg.jpg"
+        alt=""
+        aria-hidden="true"
+        fetchpriority="high"
+        loading="eager"
+        decoding="async"
+        className="absolute inset-0 w-full h-full object-cover"
+      />
       {/* <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23f0b957' fill-opacity='0.03'%3E%3Cpath d='m40 40c0-11.046-8.954-20-20-20s-20 8.954-20 20 8.954 20 20 20 20-8.954 20-20zm-40 0c0-11.046 8.954-20 20-20s20 8.954 20 20-8.954 20-20 20-20-8.954-20-20z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-30"></div> */}
 
       <div className="relative max-w-md w-full space-y-8">
@@ -63,17 +78,7 @@ export default function Login() {
               <div className="rounded-lg bg-red-50 border border-red-200 p-4 mb-4">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
-                    <svg
-                      className="h-5 w-5 text-red-400"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
+                    <XCircleIcon className="h-5 w-5 text-red-400" />
                   </div>
                   <div className="ml-3">
                     <p className="text-sm font-medium text-red-800">{error}</p>

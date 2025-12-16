@@ -1,7 +1,4 @@
-import React from 'react'
-import Swal from 'sweetalert2';
-import { carAPI } from '../../../services/api';
-import { toast } from 'react-toastify';
+import React, { useState } from 'react'
 import {
     TagIcon,
     CheckBadgeIcon,
@@ -11,35 +8,46 @@ import {
 import { usePosts } from "../../../context/PostsContext";
 import { useAuth } from '../../../context/AuthContext';
 import { useAddCar360Url } from '../../../pages/hooks/useCar360Request';
+import SelectCurrencyModal from '../../../pages/payment/SelectCurrencyModal';
+import { useHandlePostRequest } from '../../posts/hook/handlePostRequest';
+import { usePaymentContext } from '../../../context/PaymentContext';
 
 const AddOnsStep = ({ currentPost = null, onClose, setStep }) => {
     const { postCreatedId } = usePosts();
     const { user } = useAuth();
-
+    const [selectCurrencyOpen, setSelectCurrencyOpen] = useState(false);
+    const { onGetQarsServices } = usePaymentContext();
     // AddOns Request Types
     const addons = [
         {
             title: user.role === "superAdmin" ? "Add 360 Image URL" : "Request 360 Photo Session",
             description: "Submit a request to add an interactive 360° image view.",
             icon: <CameraIcon className="w-8 h-8 text-primary-600" />,
+            view: true
         },
         {
             title: "Request New Tag",
             description: "Suggest a new tag to categorize and organize content better.",
             icon: <TagIcon className="w-8 h-8 text-indigo-600" />,
+            view: user.role !== "superAdmin"
         },
         {
             title: "Request Inspected Tag",
             description: "Ask for a tag to be reviewed and verified for accuracy.",
             icon: <CheckBadgeIcon className="w-8 h-8 text-green-600" />,
+            view: user.role !== "superAdmin"
+
         },
         {
             title: "Request to Feature a Post",
             description: "Highlight a post to gain more visibility and engagement.",
             icon: <StarIcon className="w-8 h-8 text-yellow-600" />,
+            view: user.role !== "superAdmin"
+
         },
     ];
     const handleAdd360 = useAddCar360Url(currentPost?.car.postId || postCreatedId);
+    const { handleSubmitRequest } = useHandlePostRequest(setSelectCurrencyOpen);
 
     const handleSubmitRequests = (addon) => {
         if (addon.title === "Add 360 Image URL") {
@@ -50,56 +58,12 @@ const AddOnsStep = ({ currentPost = null, onClose, setStep }) => {
     }
     const handleModalSubmit = async (type) => {
         try {
-            const param = {
-                postId: currentPost !== null ? currentPost?.postId : postCreatedId,
-                RequestType: type,
-                RequestFrom: "Partner",
-            };
-
-            const response = await carAPI.getCarRequests(param);
-            const data = response.data;
-
-            if (data.length > 0) {
-                const status = data[0].requestStatus;
-                if (status === "Completed" || status === "Pending") {
-                    await Swal.fire({
-                        icon: status === "Completed" ? "success" : "warning",
-                        title: `Your Request ${status}!`,
-                        html: `You sent request for ${type} is ${status.toLowerCase()}.`,
-                        showConfirmButton: false,
-                        confirmButtonText: "Confirm Request",
-                        confirmButtonColor: "#34c38f",
-                        showCancelButton: true,
-                        cancelButtonText: "Close",
-                        cancelButtonColor: "#f46a6a",
-                    })
-                }
-            } else {
-                await Swal.fire({
-                    icon: "question",
-                    title: "It's Offer Time!",
-                    html: `
-              ${type} <b style="color: #34c38f; font-weight: 600; font-size: 20px;">FREE</b>
-              <p style="margin-top: 21px; font-size: 20px; font-weight: 600;">It's a limited Offer!</p>
-            `,
-                    confirmButtonText: "Confirm Request",
-                    confirmButtonColor: "#34c38f",
-                    showCancelButton: true,
-                    cancelButtonText: "Close",
-                    cancelButtonColor: "#f46a6a",
-                }).then(async (result) => {
-                    if (result.isConfirmed) {
-                        await carAPI.postCreateRequest(
-                            user.userName,
-                            param
-                        );
-                        toast.success("Your Request sent successfully");
-                    }
-                });
-            }
+            const res = await onGetQarsServices();
+            handleSubmitRequest(type, postCreatedId, res.request360);
         } catch (e) {
-            console.error(e);
+            console.log(e);
         }
+
     };
 
 
@@ -109,7 +73,7 @@ const AddOnsStep = ({ currentPost = null, onClose, setStep }) => {
         <div>
             <div className="p-4 grid md:grid-cols-2 grid-cols-1 gap-4">
                 {addons.map((addon, idx) => (
-                    <div
+                    addon.view ? <div
                         key={idx}
                         onClick={() => handleSubmitRequests(addon)}
                         className="flex items-start p-4 bg-white border rounded-xl shadow-sm hover:shadow-md transition cursor-pointer"
@@ -121,7 +85,7 @@ const AddOnsStep = ({ currentPost = null, onClose, setStep }) => {
                             </h3>
                             <p className="text-xs text-gray-500">{addon.description}</p>
                         </div>
-                    </div>
+                    </div> : <div key={idx}></div>
                 ))}
             </div>
             <div className="flex mt-4 justify-end space-x-3 p-4 sticky bottom-0 z-50 bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
@@ -134,6 +98,7 @@ const AddOnsStep = ({ currentPost = null, onClose, setStep }) => {
                 </button>
 
             </div>
+            <SelectCurrencyModal open={selectCurrencyOpen} setOpen={setSelectCurrencyOpen} />
         </div>
     )
 }

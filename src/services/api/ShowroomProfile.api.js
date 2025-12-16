@@ -67,4 +67,6 @@ export const ShowroomProfileAPI = {
     privateAxios.delete(
       `/v1/PartnersManagement/partners/${params.partnerId}/gallery/${params.imageId}`
     ),
+  getShowroomInitData: (id) =>
+    privateAxios.get(`/v1/admin/Partners/${id}/GetPartnerByID`),
 };

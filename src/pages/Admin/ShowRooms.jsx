@@ -1,13 +1,21 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import React, { useEffect } from 'react'
 import MainLayout from '../../components/layout/MainLayout'
 import { ShowRoomsHeader } from '../../components/showrooms/ShowRoomsHeader'
-import { FaSearch } from 'react-icons/fa'
+import { FaImage, FaSearch } from 'react-icons/fa'
 import { useNavigate } from 'react-router-dom'
 import { FaChartColumn } from 'react-icons/fa6'
-import { superAdminAPI } from '../../services/api/SuperAdmin.api'
 import Pagination from '../../components/layout/Pagination'
 import { usePosts } from '../../context/PostsContext'
+import { AdminPartnerAPI } from '../../services/api'
+import { toast } from 'react-toastify'
+
+const PARTNER_STATUS_COLOR = {
+  Approved: "bg-green-500",
+  "Under Preparation": "bg-indigo-300",
+  "Waiting Approval": "bg-blue-500",
+  Suspended: "bg-red-500"
+}
 
 const ShowRooms = () => {
   const navigate = useNavigate();
@@ -20,14 +28,21 @@ const ShowRooms = () => {
 
   const { fetchPosts } = usePosts();
 
+  const fetchShowrooms = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const res = await AdminPartnerAPI.getAllShowRooms();
+      setShowrooms(res.data);
+    } catch (e) {
+      toast.error("Something went wrong");
+      console.log(e);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [])
   useEffect(() => {
-    setIsLoading(true)
-    localStorage.removeItem("partnerId");
-    superAdminAPI.getAllShowRooms().then((response) => {
-      setShowrooms(response.data);
-      setIsLoading(false)
-    });
-  }, []);
+    if (!showrooms.length) fetchShowrooms();
+  }, [showrooms, fetchShowrooms]);
 
   // === Filter by partnerName ===
   const filteredShowrooms = showrooms.filter((s) =>
@@ -78,14 +93,22 @@ const ShowRooms = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {currentShowrooms.map((showroom, index) => (
-                <div key={index} className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
+                <div key={index} className={`bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden ${showroom.pinToTop && 'border-2 border-yellow-400 rounded-b-xl'}`}>
                   {/* Cover Image */}
-                  <div className="h-48 bg-gray-200">
-                    <img
+                  <div className="relative h-48 bg-gray-200">
+                    {showroom.pinToTop && <div className='absolute w-[155px] h-[30px] top-7 left-[-33px] z-10 bg-gradient-to-r from-amber-300 to-amber-600 text-white  flex items-center justify-center font-medium -rotate-45 shadow-xl '>
+                      Featured</div>}
+                    <div className={`absolute top-4 right-0 z-10 ${PARTNER_STATUS_COLOR[showroom.partnerStatus]} text-white px-2 py-1 rounded-l-full text-xs font-medium`}>
+                      {showroom.partnerStatus}
+                    </div>
+                    {showroom.coverPhotoUrl ? <img
                       src={showroom.coverPhotoUrl}
                       alt={`${showroom.partnerName} cover`}
                       className="w-full h-full object-cover"
-                    />
+                    /> : <div className="w-full h-full bg-gray-200 flex flex-col items-center justify-center">
+                      <FaImage className="w-8 h-8 text-gray-400" />
+                      <p className="text-gray-500 mt-2 text-sm font-medium">No cover photo</p>
+                    </div>}
                   </div>
 
                   {/* Content */}

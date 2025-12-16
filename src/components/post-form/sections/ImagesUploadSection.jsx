@@ -159,7 +159,7 @@ const ImagesUploadSection = ({ post = null, setStep, onClose }) => {
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-4">
                             {formData.images.map((image, index) => (
                                 isLoadingAddImg && currentFileUploading.name === formData.imagesFiles[index].name ? <div className=" bg-gradient-to-br from-primary-50 via-white to-indigo-50 flex items-center justify-center" key={index}>
-                                    <LoadingState title="car Images" />
+                                    <LoadingState title="car Images" className='h-[200px]' />
                                 </div> : <div key={index} className="relative group">
                                     <img
                                         src={image}

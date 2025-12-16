@@ -1,4 +1,3 @@
-import React, { useEffect } from "react";
 import {
   ClockIcon,
   PencilIcon,
@@ -227,7 +226,8 @@ const PostCard = ({
                   <PaperAirplaneIcon className="h-6 w-6" />
                 </button>
               )}
-              {post.postStatus === "Pending Approval" &&
+              {(post.postStatus === "Pending Approval" ||
+                post.postStatus === "Draft") &&
                 user.role === "superAdmin" && (
                   <button
                     onClick={(e) => {
@@ -241,7 +241,8 @@ const PostCard = ({
                     <CheckCircleIcon className="h-6 w-6" />
                   </button>
                 )}
-              {post.postStatus === "Pending Approval" &&
+              {(post.postStatus === "Pending Approval" ||
+                post.postStatus === "Draft") &&
                 user.role === "superAdmin" && (
                   <button
                     onClick={(e) => {

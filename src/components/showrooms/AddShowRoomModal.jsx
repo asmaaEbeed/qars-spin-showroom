@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import BaseModal from '../common/BaseModal'
 import { getDates } from '../../utils/getDates';
+import { AdminPartnerAPI, superAdminAPI } from '../../services/api';
+import { toast } from 'react-toastify';
 
 const SHOWROOM_KIND = [
   "Car Showroom",
@@ -13,26 +15,41 @@ const SHOWROOM_KIND = [
 ];
 
 const COUNTRIES = [
-  "Qatar",
-  "Saudi Arabia",
-  "Bahrain",
-  "UAE",
-  "Oman",
-  "Kuwait",
+  { value: "QA", label: "Qatar" },
+  { value: "SA", label: "Saudi Arabia" },
+  { value: "BH", label: "Bahrain" },
+  { value: "AE", label: "UAE" },
+  { value: "OM", label: "Oman" },
+  { value: "KW", label: "Kuwait" },
 ]
 
 const AddShowRoomModal = ({ open, setOpen }) => {
 
   const [formData, setFormData] = useState({
-    country: "Qatar",
-    kind: "Car Showroom",
-    partner_name_pl: "",
-    partner_name_sl: "",
-    joinDate: getDates().today,
+    countryCode: "QA",
+    partnerKind: "Car Showroom",
+    partnerNamePl: "",
+    partnerNameSl: "",
+    joiningDate: getDates().today,
   });
-  const onSubmit = (e) => {
+  const [loading, setLoading] = useState(false);
+
+  const onSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
+    try {
+      setLoading(true);
+      const response = await AdminPartnerAPI.createNewPartner(formData);
+      console.log(response)
+      if (response.status === 200 || response.status === 201) {
+        AdminPartnerAPI.getAllShowRooms()
+        toast.success("Partner added successfully");
+        setOpen(false);
+      }
+    } catch (error) {
+      toast.error(error.response.data.title || "Failed to add partner");
+    } finally {
+      setLoading(false);
+    }
   }
   return (
     <BaseModal title="Add ShowRoom" open={open} setOpen={setOpen}>
@@ -50,12 +67,12 @@ const AddShowRoomModal = ({ open, setOpen }) => {
               </label>
               <select
                 id="country"
-                value={formData.country}
+                value={formData.countryCode}
                 className={`w-full focus-visible:outline-none px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm text-gray-900 bg-white`}
-                onChange={(e) => { setFormData({ ...formData, country: e.target.value }) }}
+                onChange={(e) => { setFormData({ ...formData, countryCode: e.target.value }) }}
               >
                 {COUNTRIES.map((type) => (
-                  <option key={type} value={type}>{type}</option>
+                  <option key={type.value} value={type.value}>{type.label}</option>
                 ))}
               </select>
 
@@ -70,9 +87,9 @@ const AddShowRoomModal = ({ open, setOpen }) => {
               </label>
               <select
                 id="input_target"
-                value={formData.kind}
+                value={formData.partnerKind}
                 className={`w-full focus-visible:outline-none px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm text-gray-900 bg-white`}
-                onChange={(e) => { setFormData({ ...formData, kind: e.target.value }) }}
+                onChange={(e) => { setFormData({ ...formData, partnerKind: e.target.value }) }}
               >
                 {SHOWROOM_KIND.map((type) => (
                   <option key={type} value={type}>{type}</option>
@@ -93,8 +110,8 @@ const AddShowRoomModal = ({ open, setOpen }) => {
               required
               id="partner_name_pl"
               type="text"
-              value={formData.partner_name_pl}
-              onChange={(e) => { setFormData({ ...formData, partner_name_pl: e.target.value }) }}
+              value={formData.partnerNamePl}
+              onChange={(e) => { setFormData({ ...formData, partnerNamePl: e.target.value }) }}
               className={`w-full focus-visible:outline-none px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm text-gray-900 bg-white`}
             />
 
@@ -112,8 +129,8 @@ const AddShowRoomModal = ({ open, setOpen }) => {
               required
               id="partner_name_sl"
               type="text"
-              value={formData.partner_name_sl}
-              onChange={(e) => { setFormData({ ...formData, partner_name_sl: e.target.value }) }}
+              value={formData.partnerNameSl}
+              onChange={(e) => { setFormData({ ...formData, partnerNameSl: e.target.value }) }}
               className={`w-full focus-visible:outline-none px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm text-gray-900 bg-white`}
             />
 
@@ -129,8 +146,8 @@ const AddShowRoomModal = ({ open, setOpen }) => {
             <input
               id="joinDate"
               type="date"
-              value={formData.joinDate}
-              onChange={(e) => setFormData({ ...formData, joinDate: e.target.value })}
+              value={formData.joiningDate}
+              onChange={(e) => setFormData({ ...formData, joiningDate: e.target.value })}
               className={`w-full focus-visible:outline-none px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm text-gray-900`}
             />
 
@@ -147,9 +164,11 @@ const AddShowRoomModal = ({ open, setOpen }) => {
           </button>
           <button
             type="submit"
-            className="px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors duration-200"
+            disabled={loading}
+            className="flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors duration-200"
           >
-            Save
+            {loading && <div className="animate-spin rounded-full h-6 w-6 border-b-2 mx-2 border-white"></div>}
+            {loading ? "Saving..." : "Save"}
           </button>
         </div>
       </form>

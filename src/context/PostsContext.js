@@ -1,6 +1,10 @@
-import React, { createContext, useCallback, useContext, useState } from "react";
-import { carAPI, managementAPI, superAdminAPI } from "../services/api";
-import { toast } from "react-toastify";
+import { createContext, useCallback, useContext, useState } from "react";
+import {
+  carAPI,
+  managementAPI,
+  ShowroomProfileAPI,
+  superAdminAPI,
+} from "../services/api";
 import Swal from "sweetalert2";
 // Post kind constants
 
@@ -9,7 +13,7 @@ const PostsContext = createContext(null);
 export function PostsProvider({ children }) {
   const [posts, setPosts] = useState([]);
   const [loadingFetchPosts, setLoadingFetchPosts] = useState(false);
-  const [error, setError] = useState("");
+  const [error] = useState("");
   const [selectedPost, setSelectedPost] = useState(null);
   const [carsNameList, setCarsNameList] = useState([]);
   const [carsNameListLoading, setCarsNameListLoading] = useState(false);
@@ -22,11 +26,19 @@ export function PostsProvider({ children }) {
     year: "",
     pinToTop: false,
   });
-  const [postLogs, setPostLogs] = useState([]);
-  const [notifications, setNotifications] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
   const [postCreatedId, setPostCreatedId] = useState("");
   const [postCreatedCode, setPostCreatedCode] = useState("");
+  const [showroomInitData, setShowroomInitData] = useState(null);
+
+  const [carsMakesList, setCarsMakesList] = useState([]);
+  const [carsMakesLoading, setCarsMakesLoading] = useState(false);
+
+  const [carsClassList, setCarsClassList] = useState([]);
+  const [carsClassLoading, setCarsClassLoading] = useState(false);
+
+  const [carsModelList, setCarsModelList] = useState([])
+  const [carsModelLoading, setCarsModelLoading] = useState(false)
 
   // Update Specification for post Reviewed after AI
   const updateSpecification = async (postId, specId, updatedSpec) => {
@@ -49,7 +61,7 @@ export function PostsProvider({ children }) {
     );
   };
 
-  const fetchPosts = async (params) => {
+  const fetchPosts = useCallback(async (params) => {
     try {
       setLoadingFetchPosts(true);
       const response = await managementAPI.GetCars(params);
@@ -59,7 +71,7 @@ export function PostsProvider({ children }) {
     } catch (e) {
       console.log(e);
     }
-  };
+  }, []);
 
   const fetchCarsName = useCallback(async () => {
     setCarsNameListLoading(true);
@@ -70,6 +82,51 @@ export function PostsProvider({ children }) {
       console.log(e);
     } finally {
       setCarsNameListLoading(false);
+    }
+  }, []);
+
+  const fetchCarsMakes = useCallback(async () => {
+    setCarsMakesLoading(true);
+    try {
+      const res = await managementAPI.getCarMakes();
+      setCarsMakesList(res.data);
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setCarsMakesLoading(false);
+    }
+  }, []);
+
+  const fetchCarsClass = useCallback(async (id) => {
+    setCarsClassLoading(true);
+    try {
+      const res = await managementAPI.getClassByMakeId(id);
+      setCarsClassList(res.data);
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setCarsClassLoading(false);
+    }
+  }, []);
+
+    const fetchCarsModel = useCallback(async (makeId, classId) => {
+    setCarsModelLoading(true);
+    try {
+      const res = await managementAPI.getCarModels(makeId, classId);
+      setCarsModelList(res.data);
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setCarsModelLoading(false);
+    }
+  }, []);
+
+  const fetchShowroomInitData = useCallback(async (id) => {
+    try {
+      const res = await ShowroomProfileAPI.getShowroomInitData(id);
+      setShowroomInitData(res.data);
+    } catch (e) {
+      console.log(e);
     }
   }, []);
 
@@ -102,11 +159,10 @@ export function PostsProvider({ children }) {
 
   // Accept or Reject, ...
   const onChangePostStatus = async (data) => {
-  
     const result = await Swal.fire({
       icon: `${data.state === "Approved" ? "success" : "error"}`,
       title: `${data.state} Post`,
-      input: data.state === "Rejected" ? 'text' : undefined,
+      input: data.state === "Rejected" ? "text" : undefined,
       inputPlaceholder: "Enter reason for rejection",
       text: `Are you sure you want to ${data.state} this post?`,
       showConfirmButton: true,
@@ -116,11 +172,12 @@ export function PostsProvider({ children }) {
       cancelButtonText: "Close",
       cancelButtonColor: "#f46a6a",
       preConfirm: (value) => {
-        if (data.state === "Rejected" && !value) {   // ✅ match same property
-          Swal.showValidationMessage('Please enter a value');
+        if (data.state === "Rejected" && !value) {
+          // ✅ match same property
+          Swal.showValidationMessage("Please enter a value");
         }
         return value;
-      }
+      },
     });
 
     if (result.isConfirmed) {
@@ -149,10 +206,10 @@ export function PostsProvider({ children }) {
     setSelectedPost,
     filters,
     setFilters,
-    postLogs,
-    notifications,
     fetchPosts,
     fetchCarsName,
+    showroomInitData,
+    fetchShowroomInitData,
     carsNameList,
     carsNameListLoading,
     totalPages,
@@ -164,6 +221,22 @@ export function PostsProvider({ children }) {
     updateSpecification,
     onSendToReview,
     onChangePostStatus,
+    // Car Makes
+    fetchCarsMakes,
+    carsMakesList,
+    carsMakesLoading,
+
+    // Car Class
+    fetchCarsClass,
+    carsClassList,
+    carsClassLoading,
+    setCarsClassList,
+
+    // Cars Model
+    fetchCarsModel,
+    carsModelList,
+    carsModelLoading,
+    setCarsModelList
   };
 
   return (

@@ -1,9 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
-import { FiUpload,  } from "react-icons/fi";
+import { FiUpload } from "react-icons/fi";
 import Swal from "sweetalert2";
 import { dashboardAPI, ShowroomProfileAPI } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
 import { useParams } from "react-router-dom";
+
+const PARTNER_STATUS_COLOR = {
+  Approved: "bg-green-500",
+  "Under Preparation": "bg-indigo-300",
+  "Waiting Approval": "bg-blue-500",
+  Suspended: "bg-red-500",
+};
 
 const ProfileHeader = ({ partner }) => {
   const { id } = useParams();
@@ -72,7 +79,6 @@ const ProfileHeader = ({ partner }) => {
     }
   };
 
-
   // Reviewed
 
   useEffect(() => {
@@ -101,6 +107,11 @@ const ProfileHeader = ({ partner }) => {
         style={{ backgroundImage: `url('${partnerLogoUrl}')` }}
       ></div>
       <div className="absolute inset-0 bg-gradient-to-r z-10 from-secondary-900/90 to-black-600/90"></div>
+      {partner.isFeatured && (
+        <div className="absolute w-[155px] h-[30px] top-7 left-[-33px] z-10 bg-gradient-to-r from-amber-300 to-amber-600 text-white  flex items-center justify-center font-medium -rotate-45 shadow-xl ">
+          Feature
+        </div>
+      )}
 
       {/* Content */}
       <div className="relative max-w-7xl mx-auto px-6 py-16 z-20">
@@ -182,30 +193,16 @@ const ProfileHeader = ({ partner }) => {
                   <h1 className="text-3xl lg:text-4xl font-bold text-white">
                     {partner.partnerNameEn}
                   </h1>
-                  {partner.isFeatured && (
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-500 text-white">
-                      <svg
-                        className="h-4 w-4 mr-1"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
-                        />
-                      </svg>
-                      Featured
-                    </span>
-                  )}
                 </div>
                 <p className="text-xl text-white/80 mb-3">
                   {partner.partnerNameAr}
                 </p>
-                <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-green-500 text-white">
-                  <span className="w-2 h-2 bg-white rounded-full mr-2"></span>
+                <span
+                  className={`inline-flex items-center px-2 py-2 rounded-full text-sm font-medium text-white ${
+                    PARTNER_STATUS_COLOR[partner.partnerStatus]
+                  }`}
+                >
+                  <span className="w-2 h-2 bg-white rounded-full mr-1"></span>
                   {partner.partnerStatus}
                 </span>
               </div>

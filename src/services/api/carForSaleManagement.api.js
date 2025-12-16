@@ -1,8 +1,6 @@
 import { prepareQueryParams } from "../../utils/prepareQueryParams";
 import { privateAxios } from "../config/axios.config";
 
-
-
 export const managementAPI = {
   GetCars: (params) => {
     const keyMap = {
@@ -29,6 +27,15 @@ export const managementAPI = {
       data
     ),
   getInitCarData: () => privateAxios.get("/v1/CarForSaleManagement/init-data"),
+
+  getCarMakes: () => privateAxios.get("/v1/CarForSaleManagement/GetMakes"),
+  getClassByMakeId: (id) =>
+    privateAxios.get(`/v1/CarForSaleManagement/GetClasses-bymake/${id}`),
+  getCarModels: (makeId, classId) =>
+    privateAxios.get(
+      `/v1/CarForSaleManagement/GetModels-byclassmake?classId=${classId}&makeId=${makeId}`
+    ),
+
   putUpdatePost: (params, data) =>
     privateAxios.put(
       `/v1/CarForSaleManagement/UpdateCarForSale?updatedBy=${params.createdBy}`,

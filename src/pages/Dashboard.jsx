@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, startTransition, Suspense, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import StatisticsWidget from '../components/dashboard/StatisticsWidget';
 import Chart from '../components/dashboard/Chart';
@@ -8,7 +8,7 @@ import SelectShowroomHint from '../components/adminHint/SelectShowroomHint';
 import { useParams } from 'react-router-dom';
 
 export default function Dashboard() {
-  const {id} = useParams();
+  const { id } = useParams();
   const { user } = useAuth()
   const [loadingWelcome, setLoadingWelcome] = useState(false)
   const [loadingStats, setLoadingStats] = useState(false)
@@ -31,7 +31,7 @@ export default function Dashboard() {
     values: [],
   });
 
-  const fetchWelcome = async () => {
+  const fetchWelcome = useCallback(async () => {
     setLoadingWelcome(true)
     try {
 
@@ -42,18 +42,18 @@ export default function Dashboard() {
       console.error('Error fetching welcome message:', error);
       setLoadingWelcome(false)
     }
-  }
+  }, [])
 
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     setLoadingStats(true)
     try {
       let response
-      if(user.role === "superAdmin") {
+      if (user.role === "superAdmin") {
         if ((id !== "undefiend" || !id) && id) {
           response = await dashboardAPI.getTopCounters(id);
         }
       } else {
-       response = await dashboardAPI.getTopCounters(user.partnerId);
+        response = await dashboardAPI.getTopCounters(user.partnerId);
       }
       setStats({
         visits: response.data.visitsCount,
@@ -66,40 +66,42 @@ export default function Dashboard() {
       console.error('Error fetching dashboard data:', error);
       setLoadingStats(false)
     }
-  };
+  }, []);
 
-  const monthlyState = async () => {
+  const monthlyState = useCallback(async () => {
     setLoadingMonthlyState(true)
     try {
-      const response = await dashboardAPI.monthlyStats(user.partnerId);
-      setVisitsData({
-        labels: response.data.labels,
-        values: response.data.visitsData,
+      const response = await dashboardAPI.monthlyStats(user.partnerId || id);
+      startTransition(() => {
+        setVisitsData({
+          labels: response.data.labels,
+          values: response.data.visitsData,
+        })
+        setFollowersData({
+          labels: response.data.labels,
+          values: response.data.followersData,
+        })
+        setLoadingMonthlyState(false)
       })
-      setFollowersData({
-        labels: response.data.labels,
-        values: response.data.followersData,
-      })
-      setLoadingMonthlyState(false)
     } catch (error) {
       console.error('Error fetching monthly stats:', error);
       setLoadingMonthlyState(false)
     }
-  }
+  }, [setVisitsData, setFollowersData, user.partnerId, id])
 
   useEffect(() => {
-    if(user.userId !== null){
+    if (user.userId !== null) {
       fetchWelcome()
       fetchStats();
       monthlyState();
     }
-  }, [user]);
+  }, [user, fetchWelcome, fetchStats, monthlyState]);
 
 
   if (user.role === "superAdmin") {
-      if (!id || id === "undefined") return (<SelectShowroomHint />)
-  
-    }
+    if (!id || id === "undefined") return (<SelectShowroomHint />)
+
+  }
 
   return (
     <MainLayout>
@@ -111,9 +113,9 @@ export default function Dashboard() {
               <h6 className='mt-2 text-lg font-semibold text-gray-600'>Manager Dashboard.</h6>
               {id && user.role === "superAdmin" && <h6 className='mt-2 text-sm text-gray-600'>As a super admin you can manage all showrooms</h6>}
             </div> :
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary-500 border-t-transparent mx-auto mb-4"></div>
-
+            <div className="space-y-3">
+              <div className="h-6 w-64 bg-gray-200 rounded animate-pulse" />
+              <div className="h-5 w-40 bg-gray-200 rounded animate-pulse" />
             </div>
           }
         </div>
@@ -163,11 +165,19 @@ export default function Dashboard() {
                     <h3 className="text-lg font-medium text-gray-900">Followers By Month (Last 12 Months)</h3>
                     <div className="mt-4">
 
-                      {loadingMonthlyState ? <div className='h-28'><div className="animate-spin rounded-full h-5 w-5 border-2 border-primary-500 border-t-transparent mx-auto mb-4"></div></div> : <Chart
-                        title="Followers"
-                        data={followersData}
-                        type="line"
-                      />}
+                      {loadingMonthlyState ?
+                        <div className='h-28'>
+                          <div className="animate-spin rounded-full h-5 w-5 border-2 border-primary-500 border-t-transparent mx-auto mb-4"></div>
+                        </div> :
+                        <Suspense fallback={<div>Loading chart...</div>}>
+
+                          <Chart
+                            title="Followers"
+                            data={followersData}
+                            type="line"
+                          />
+                        </Suspense>
+                      }
                     </div>
                   </div>
                 </div>

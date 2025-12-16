@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { usePosts } from "../context/PostsContext";
 import MainLayout from "../components/layout/MainLayout";
 import PostCard from "../components/posts/PostCard";
@@ -23,7 +23,7 @@ const Posts = () => {
     setPostCreatedId,
     setPostCreatedCode,
     onChangePostStatus,
-    
+    fetchShowroomInitData
   } = usePosts();
   const { user, loading } = useAuth();
   const { id } = useParams();
@@ -43,19 +43,28 @@ const Posts = () => {
   }, [posts])
 
 
+  // Fetch Showroom Init Data to set in owner name, mobile and email
   useEffect(() => {
-    if (loading || user.userId === null) return;
-    const params = {
-      ...filters,
-      partnerId: id || user?.partnerId || null,
-      pageSize: pageSize,
-      pageNumber: pageNumber,
-    };
+    if (id) fetchShowroomInitData(id)
+    else if (user.partnerId) fetchShowroomInitData(user.partnerId)
+  }, [id, fetchShowroomInitData, user]);
 
-    fetchPosts(params);
 
-  }, [id, user, loading, pageNumber, pageSize]);
+  const queryParams = useMemo(() => ({
+    ...filters,
+    partnerId: id || user?.partnerId || null,
+    pageSize,
+    pageNumber,
+  }), [filters, id, user?.partnerId, pageSize, pageNumber]);
 
+  useEffect(() => {
+    if (loading || !user?.userId) return;
+
+    const timeout = setTimeout(() => {
+      fetchPosts(queryParams);
+    }, 300);
+    return () => clearTimeout(timeout);
+  }, [queryParams, loading, user?.userId, fetchPosts]);
 
 
   const handleFilterChange = async (newFilters) => {
@@ -139,7 +148,7 @@ const Posts = () => {
           )
         );
       } else {
-        setPostsList(prev => prev.filter(p => p.car.postId !== res?.data?.post_ID))
+        setPostsList(prev => prev.map(p => p.car.postId === res?.data?.post_ID ? { ...p, car: { ...p.car, postStatus: state } } : p))
       }
     } else if (res?.Code !== "CANCELLED") {
       toast.error("Failed to change post status");

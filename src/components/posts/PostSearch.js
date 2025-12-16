@@ -1,18 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { usePosts } from "../../context/PostsContext";
 
-const PostSearch = ({
-  onFilterChange,
-}) => {
+const PostSearch = ({ onFilterChange }) => {
+  const { filters, setFilters } = usePosts();
 
-  const { filters, setFilters } = usePosts()
-  
   const [searchTerm, setSearchTerm] = useState("");
   const [searchBy, setSearchBy] = useState(0);
   const [status, setStatus] = useState("");
   const [sortBy, setSortBy] = useState(0);
   const [pinToTop, setPinToTop] = useState(false);
-
 
   useEffect(() => {
     setSearchTerm(filters.searchTerm);
@@ -20,7 +16,7 @@ const PostSearch = ({
     setStatus(filters.status);
     setSortBy(filters.sortBy);
     setPinToTop(filters.pinToTop);
-  }, [filters])
+  }, [filters]);
 
   const handleFilter = () => {
     onFilterChange({
@@ -28,7 +24,7 @@ const PostSearch = ({
       searchTerm,
       status,
       pinToTop,
-      sortBy
+      sortBy,
     });
   };
 
@@ -166,7 +162,9 @@ const PostSearch = ({
                 sortBy: 0,
                 year: "",
                 pinToTop: false,
-              })
+                pageSize: 10,
+                pageNumber: 1,
+              });
             }}
             className="w-full px-3 py-2 text-xs font-medium hover:text-secondary-600 text-white bg-secondary-100 hover:bg-secondary-200 rounded-md focus:outline-none focus:ring-1 focus:ring-secondary-500 transition-all duration-200"
           >
