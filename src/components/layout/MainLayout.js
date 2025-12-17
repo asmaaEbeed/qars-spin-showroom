@@ -191,7 +191,7 @@ const MainLayout = ({ children }) => {
                   <p className="text-sm font-medium text-secondary-900">
                     {user?.fullName}
                   </p>
-                  <p className="text-xs text-secondary-500">Partner Account</p>
+                  <p className="text-xs text-secondary-500">{user.role === "superAdmin" ? "Qars Spin" : "Partner"} Account</p>
                 </div>
                 <button
                   onClick={() => {
