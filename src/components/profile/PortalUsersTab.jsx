@@ -8,12 +8,10 @@ import { useParams } from 'react-router-dom';
 const PortalUsersTab = () => {
   const [open, setOpen] = useState(false);
   const { id } = useParams()
-  const { getPartnerUsers, partnerUsers } = useShowroomContext()
+  const { getPartnerUsers } = useShowroomContext()
   useEffect(() => {
-    if (id && partnerUsers.length < 1) {
       getPartnerUsers(id)
-    }
-  }, [id, getPartnerUsers, partnerUsers])
+  }, [id, getPartnerUsers])
   return (
     <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden h-full">
       <div className="flex justify-between items-center bg-gradient-to-r from-primary-500/10 to-indigo-500/10 px-6 py-4 border-b border-secondary-100">

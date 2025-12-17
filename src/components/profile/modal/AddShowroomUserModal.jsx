@@ -8,7 +8,7 @@ const AddShowroomUserModal = ({ open, setOpen }) => {
     const { id } = useParams();
     const [loading, setLoading] = useState(false)
 
-    const { addNewShowroomUser } = useShowroomContext()
+    const { addNewShowroomUser, getPartnerUsers } = useShowroomContext()
 
     const initialFormData = {
         email: "",
@@ -30,6 +30,7 @@ const AddShowroomUserModal = ({ open, setOpen }) => {
             console.log(res);
             if (res.status === 200 || res.status === 201) {
                 setFormData(initialFormData);
+                getPartnerUsers(id);
                 setOpen(false);
             }
         } catch (e) {
