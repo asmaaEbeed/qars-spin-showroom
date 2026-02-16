@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { authAPI } from "../services/api/Auth.api";
 import { toast } from "react-toastify";
 
@@ -70,7 +70,7 @@ export function AuthProvider({ children }) {
       userName: response.data.userName,
       email: response.data.email,
       userId: response.data.userId,
-      fullName: data.partnerData?.fullName || null,
+      fullName: data.partnerData?.fullName || data.fullName || null ,
       partnerId: isSuperAdmin ? null : data.partnerData?.partnerId || null,
       role: isSuperAdmin ? "superAdmin" : "admin",
       isApproved: data.isApproved,
@@ -80,7 +80,7 @@ export function AuthProvider({ children }) {
     
   };
 
-  const logout = () => {
+  const logout = useCallback(() => {
     setError("");
     setUser({
       userName: null,
@@ -100,7 +100,7 @@ export function AuthProvider({ children }) {
     localStorage.removeItem("user");
     localStorage.removeItem("authUser");
     // window.location.href = "/login";
-  };
+  }, [])
 
   useEffect(() => {
     // Check for existing session

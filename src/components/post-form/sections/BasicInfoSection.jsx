@@ -106,7 +106,7 @@ const BasicInfoSection = ({ formData, setFormData, errors, handleBlur }) => {
                     <div>
                         <label className="block text-xs font-medium text-gray-700 mb-1">
                             Car Classes 
-                            {/* <span className="text-red-500">*</span> */}
+                            <span className="text-red-500">*</span>
                         </label>
                         {carsClassLoading ? <p className='border p-2'>Loading...</p> : <Select
                             options={carsClassList}
@@ -157,7 +157,7 @@ const BasicInfoSection = ({ formData, setFormData, errors, handleBlur }) => {
                     <div>
                         <label className="block text-xs font-medium text-gray-700 mb-1">
                             Car Model 
-                            {/* <span className="text-red-500">*</span> */}
+                            <span className="text-red-500">*</span>
                         </label>
                         {carsModelLoading ? <p className='border p-2'>Loading...</p> : <Select
                             options={carsModelList}

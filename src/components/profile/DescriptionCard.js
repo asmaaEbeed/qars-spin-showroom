@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useEffect } from 'react';
 
 const DescriptionCard = ({ partner, isEditing, onEdit, onSave, onCancel, loading, formData, setFormData }) => {
 
@@ -10,7 +10,7 @@ const DescriptionCard = ({ partner, isEditing, onEdit, onSave, onCancel, loading
         descriptionAr: partner.descriptionAr || ''
       });
     }
-  }, [partner]);
+  }, [partner,setFormData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

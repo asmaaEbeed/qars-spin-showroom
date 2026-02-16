@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { ClipboardDocumentListIcon, BuildingOfficeIcon } from "@heroicons/react/24/outline";
 import MainLayout from "../../components/layout/MainLayout";
-import superAdminBg from "../../assets/images/superadmin-bg.avif"
+import superAdminBg from "../../assets/images/superadmin-bg.jpg"
 import { usePosts } from "../../context/PostsContext";
 
 export default function AdminDashboard() {

@@ -1,6 +1,5 @@
 import { EnvelopeIcon, MapPinIcon } from "@heroicons/react/24/outline";
 import { FaWhatsapp } from "react-icons/fa";
-import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FiPhone } from "react-icons/fi";
 

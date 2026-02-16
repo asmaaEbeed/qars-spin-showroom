@@ -1,4 +1,4 @@
-import { FaBuilding, FaCarSide, FaPlus } from "react-icons/fa";
+import { FaBuilding, FaCarSide } from "react-icons/fa";
 import { useState } from "react";
 import { PlusCircleIcon } from "@heroicons/react/24/outline";
 import AddShowRoomModal from "./AddShowRoomModal";

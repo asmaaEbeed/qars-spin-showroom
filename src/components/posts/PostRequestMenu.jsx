@@ -13,8 +13,14 @@ const PostRequestMenu = ({ currentPost, setSelectCurrencyOpen }) => {
         // Get All Service Price
         try {
             const res = await onGetQarsServices();
-            const price = type === "Request to Feature a Post" && res.requestFeature
-            handleSubmitRequest(type, postId, price);
+            if (type === "Request New Tag" || type === "Request Inspected Tag") {
+                handleSubmitRequest(type, postId, 0, 0);
+            } else {
+                sessionStorage.setItem("postCode", currentPost?.postCode)
+
+                const price = type === "Request to Feature a Post" && res.requestFeaturePrice
+                handleSubmitRequest(type, postId, price, res.requestFeatureId);
+            }
         } catch (e) {
             console.log(e);
         }

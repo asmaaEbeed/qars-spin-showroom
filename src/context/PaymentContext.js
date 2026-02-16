@@ -14,23 +14,26 @@ export const PaymentProvider = ({ children }) => {
   const [initiateData, setInitiateData] = useState({});
   const [paymentMethod, setPaymentMethod] = useState([]);
   const [paymentMethodLoading, setPaymentMethodLoading] = useState(false);
+  const [masterOrderId, setMasterOrderId] = useState("");
   const [paymentExecuteLoading, setPaymentExecuteLoading] = useState(false);
   const [servicesPrice, setServicesPrice] = useState({
-    requestFeature: 0,
-    request360: 0,
+    requestFeaturePrice: 0,
+    request360Price: 0,
   });
   const [requestType, setRequestType] = useState({type: "", price: ""});
 
   const { showroomInitData } = usePosts();
 
   const onPaymentInitiate = useCallback(
-    async (type, price) => {
+    async (type, price, serviceId, postId) => {
       const mobile = showroomInitData.contactPhone
         .trim() // remove spaces at start/end
         .replace(/^\s*\+/, "00") // replace + even if preceded by spaces
         .replace(/[^\d]/g, ""); // remove non-digits
       setRequestType({type, price});
       const body = {
+        postId: postId,
+        qarsServiceIds: [serviceId],
         amount: price,
         customerName: showroomInitData.partnerNamePl,
         email: showroomInitData.notificationEmail,
@@ -43,7 +46,8 @@ export const PaymentProvider = ({ children }) => {
       try {
         setPaymentMethodLoading(true);
         const res = await PaymentApi.initiatePayment(body);
-        setPaymentMethod(res.data.Data.PaymentMethods);
+        setPaymentMethod(res.data.myFatoorahRawJson.Data.PaymentMethods);
+        setMasterOrderId(res.data.masterOrderId);
         return res;
       } catch (e) {
         console.log(e);
@@ -56,9 +60,10 @@ export const PaymentProvider = ({ children }) => {
 
   const onPaymentExecute = useCallback(async (data) => {
     const body = {
-      ...data,
+      // ...data,
+      ordermasterId: data.masterOrderId,
       paymentMethodId: data.PaymentMethodId,
-      returnUrl: `${process.env.REACT_APP_PAYMENT_RETURN_URL}?status=success`,
+      returnUrl: `${process.env.REACT_APP_PAYMENT_RETURN_URL}`,
     };
     try {
       setPaymentExecuteLoading(true);
@@ -74,19 +79,21 @@ export const PaymentProvider = ({ children }) => {
   const onGetQarsServices = useCallback(async () => {
     try {
       const res = await PaymentApi.getQarsServices();
-      let servicesPrices = { requestFeature: 0, request360: 0 };
+      let servicesPrices;
       res.data.map(
         (service) =>
           service.qarsServiceType === "Partner" &&
-          (service.qarsServiceName === "Request to feature"
+          (service.qarsServiceName === "Request to Feature a Post"
             ? (servicesPrices = {
                 ...servicesPrices,
-                requestFeature: service.qarsServicePrice,
+                requestFeaturePrice: service.qarsServicePrice,
+                requestFeatureId: service.qarsServiceId,
               })
-            : service.qarsServiceName === "Request to 360" &&
+            : service.qarsServiceName === "Request 360 Photo Session" &&
               (servicesPrices = {
                 ...servicesPrices,
-                request360: service.qarsServicePrice,
+                request360Price: service.qarsServicePrice,
+                request360Id: service.qarsServiceId,
               }))
       );
       setServicesPrice(servicesPrices);
@@ -102,6 +109,7 @@ export const PaymentProvider = ({ children }) => {
       onPaymentInitiate,
       paymentMethod,
       paymentMethodLoading,
+      masterOrderId,
       paymentExecuteLoading,
       onPaymentExecute,
       onGetQarsServices,
@@ -113,6 +121,7 @@ export const PaymentProvider = ({ children }) => {
       onPaymentInitiate,
       paymentMethod,
       paymentMethodLoading,
+      masterOrderId,
       paymentExecuteLoading,
       onPaymentExecute,
       onGetQarsServices,

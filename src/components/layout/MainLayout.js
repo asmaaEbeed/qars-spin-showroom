@@ -64,6 +64,11 @@ const MainLayout = ({ children }) => {
               },
             ],
           },
+          {
+            label: "Requests",
+            to: `/admin/requests`,
+            isActive: /^\/admin\/requests(\/|$)/.test(path),
+          },
         ]
       : []),
     {
@@ -186,13 +191,21 @@ const MainLayout = ({ children }) => {
             </button>
 
             {userMenuOpen && (
-              <div className="absolute right-0 top-full mt-2 w-56 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 py-2 z-50">
-                <div className="px-4 py-3 border-b border-secondary-100">
+              <div className="absolute right-0 top-full mt-2 w-56 overflow-hidden bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 py-2 z-50">
+                <div className="px-3 py-4 bg-primary-50 border-b border-color-white">
                   <p className="text-sm font-medium text-secondary-900">
                     {user?.fullName}
                   </p>
-                  <p className="text-xs text-secondary-500">{user.role === "superAdmin" ? "Qars Spin" : "Partner"} Account</p>
+                  <p className="text-xs text-secondary-500">
+                    {user.role === "superAdmin" ? "Qars Spin" : "Partner"}{" "}
+                    Account
+                  </p>
                 </div>
+                {!isSuperAdmin && (
+                  <div className="px-4 py-3 border-b border-secondary-50 text-secondary-500 hover:bg-gray-50">
+                    <Link to="/user-requests">My Requests</Link>
+                  </div>
+                )}
                 <button
                   onClick={() => {
                     logout();
@@ -227,11 +240,20 @@ const MainLayout = ({ children }) => {
                     <div key={item.label} className="relative group">
                       {item.children ? (
                         <div className="border-b border-gray-100 last:border-b-0">
-                          <div className="flex items-center justify-between px-5 py-3.5 text-gray-800 font-medium" onClick={() => setMobileSubMenu(!mobileSubMenu)}>
+                          <div
+                            className="flex items-center justify-between px-5 py-3.5 text-gray-800 font-medium"
+                            onClick={() => setMobileSubMenu(!mobileSubMenu)}
+                          >
                             <span>{item.label}</span>
                             <ChevronDownIcon className="w-4 h-4 text-gray-500 transition-transform duration-200 group-has-[.submenu-open]:rotate-180" />
                           </div>
-                          <div className={mobileSubMenu ? "submenu bg-gray-50" : "hidden submenu bg-gray-50"}>
+                          <div
+                            className={
+                              mobileSubMenu
+                                ? "submenu bg-gray-50"
+                                : "hidden submenu bg-gray-50"
+                            }
+                          >
                             {item.children.map((child) => (
                               <Link
                                 key={child.label}

@@ -66,7 +66,7 @@ export default function Dashboard() {
       console.error('Error fetching dashboard data:', error);
       setLoadingStats(false)
     }
-  }, []);
+  }, [id, user.partnerId, user.role]);
 
   const monthlyState = useCallback(async () => {
     setLoadingMonthlyState(true)

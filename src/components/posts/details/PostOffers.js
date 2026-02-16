@@ -5,7 +5,6 @@ import { DocumentArrowUpIcon } from "@heroicons/react/24/outline";
 import xlsxExport from "../../../hooks/xlsxExport";
 import LoadingState from "../../common/LoadingState";
 
-import { Link } from "react-router-dom";
 import { formatNumber } from "chart.js/helpers";
 import { toast } from "react-toastify";
 

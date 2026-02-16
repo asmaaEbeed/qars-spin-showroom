@@ -13,7 +13,7 @@ import { useHandlePostRequest } from '../../posts/hook/handlePostRequest';
 import { usePaymentContext } from '../../../context/PaymentContext';
 
 const AddOnsStep = ({ currentPost = null, onClose, setStep }) => {
-    const { postCreatedId } = usePosts();
+    const { postCreatedId, postCreatedCode } = usePosts();
     const { user } = useAuth();
     const [selectCurrencyOpen, setSelectCurrencyOpen] = useState(false);
     const { onGetQarsServices } = usePaymentContext();
@@ -56,14 +56,27 @@ const AddOnsStep = ({ currentPost = null, onClose, setStep }) => {
             handleModalSubmit(addon.title)
         }
     }
+
     const handleModalSubmit = async (type) => {
         try {
             const res = await onGetQarsServices();
-            handleSubmitRequest(type, postCreatedId, res.request360);
+            if (type === "Request New Tag" || type === "Request Inspected Tag") {
+                handleSubmitRequest(type, postCreatedId, 0, 0);
+            } else {
+                console.log(postCreatedCode)
+                sessionStorage.setItem("postCode", postCreatedCode)
+                if (type === "Request 360 Photo Session") {
+                    const price = type === "Request 360 Photo Session" && res.request360Price
+                    handleSubmitRequest(type, postCreatedId, price, res.request360Id);
+                } else {
+
+                    const price = type === "Request to Feature a Post" && res.requestFeaturePrice
+                    handleSubmitRequest(type, postCreatedId, price, res.requestFeatureId);
+                }
+            }
         } catch (e) {
             console.log(e);
         }
-
     };
 
 

@@ -13,7 +13,7 @@ import {
 import LoadingState from "../common/LoadingState";
 import { useBannerContext } from "../../context/BannerContext";
 import { formatDateTime } from "../../utils/dateFormatter";
-import { IoRefreshCircleOutline, IoReload } from "react-icons/io5";
+import { IoReload } from "react-icons/io5";
 
 export default function BannerTable({ onEdit, onApprove, onUpload, handleOpenCreate }) {
 

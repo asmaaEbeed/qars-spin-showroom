@@ -42,7 +42,9 @@ const PostTabs = ({
     // Get All Service Price
     try {
       const res= await onGetQarsServices();
-      handleSubmitRequest(type, postId, res.request360);
+      console.log(res)
+      sessionStorage.setItem("postCode", currentPost?.postCode)
+      handleSubmitRequest(type, postId, res.request360Price, res.request360Id);
     } catch (e) {
       console.log(e);
     }
@@ -91,14 +93,14 @@ const PostTabs = ({
 
           {/* Action Buttons */}
           <div className="flex items-center space-x-1 lg:border-t-0 border-t lg:py-0 py-2  lg:mt-0 mt-2">
-            {/* <div className="relative">
+            <div className="relative">
               {user.role !== "superAdmin" && <PostRequestMenu
                 currentPost={currentPost}
                 setSelectCurrencyOpen={setSelectCurrencyOpen}
               />}
-            </div> */}
+            </div>
 
-            {/* {role !== "superAdmin" && (
+            {role !== "superAdmin" && (
               <div className="relative">
                 <button
                   onClick={() => {
@@ -110,7 +112,7 @@ const PostTabs = ({
                   Request 360°
                 </button>
               </div>
-            )} */}
+            )}
             {role === "superAdmin" && (
               <div className="relative">
                 <button
