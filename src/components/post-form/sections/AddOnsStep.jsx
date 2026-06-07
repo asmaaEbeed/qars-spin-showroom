@@ -25,19 +25,19 @@ const AddOnsStep = ({ currentPost = null, onClose, setStep }) => {
             icon: <CameraIcon className="w-8 h-8 text-primary-600" />,
             view: true
         },
-        {
-            title: "Request New Tag",
-            description: "Suggest a new tag to categorize and organize content better.",
-            icon: <TagIcon className="w-8 h-8 text-indigo-600" />,
-            view: user.role !== "superAdmin"
-        },
-        {
-            title: "Request Inspected Tag",
-            description: "Ask for a tag to be reviewed and verified for accuracy.",
-            icon: <CheckBadgeIcon className="w-8 h-8 text-green-600" />,
-            view: user.role !== "superAdmin"
+        // {
+        //     title: "Request New Tag",
+        //     description: "Suggest a new tag to categorize and organize content better.",
+        //     icon: <TagIcon className="w-8 h-8 text-indigo-600" />,
+        //     view: user.role !== "superAdmin"
+        // },
+        // {
+        //     title: "Request Inspected Tag",
+        //     description: "Ask for a tag to be reviewed and verified for accuracy.",
+        //     icon: <CheckBadgeIcon className="w-8 h-8 text-green-600" />,
+        //     view: user.role !== "superAdmin"
 
-        },
+        // },
         {
             title: "Request to Feature a Post",
             description: "Highlight a post to gain more visibility and engagement.",

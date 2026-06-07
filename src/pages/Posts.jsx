@@ -35,7 +35,6 @@ const Posts = () => {
   const [postsList, setPostsList] = useState([]);
   // For Pagination
   const [pageNumber, setPageNumber] = useState(1);
-  const [pageSize] = useState(10);
   const [editModalData, setEditModalData] = useState(null);
 
   useEffect(() => {
@@ -51,15 +50,12 @@ const Posts = () => {
 
 
   const queryParams = useMemo(() => ({
-    ...filters,
+    // ...filters,
     partnerId: id || user?.partnerId || null,
-    pageSize,
-    pageNumber,
-  }), [filters, id, user?.partnerId, pageSize, pageNumber]);
+  }), [ id, user?.partnerId]);
 
   useEffect(() => {
     if (loading || !user?.userId) return;
-
     const timeout = setTimeout(() => {
       fetchPosts(queryParams);
     }, 300);
@@ -71,7 +67,13 @@ const Posts = () => {
     setPageNumber(1)
     setFilters((prev) => ({
       ...prev,
-      ...newFilters,
+      partnerId: id || user.partnerId,
+      // status: "Approved",
+      SearchType: newFilters.searchBy,
+      SearchTerm: newFilters.searchTerm,
+      Status: newFilters.status,
+      PinToTop: newFilters.pinToTop ? 1 : 0,
+      SortBy: newFilters.sortBy,
     }));
 
     const params = {
@@ -101,19 +103,31 @@ const Posts = () => {
       sortBy: 0,
       year: "",
       pinToTop: false,
+      pageSize: 10,
+      pageNumber: 1,
     })
     const params = {
       partnerId: id || user.partnerId,
-      status: "Approved",
+      // status: "Approved",
       PageNumber: pageNumber,
     };
     fetchPosts(params)
   };
 
 
-  const handlePrev = () => { if (pageNumber > 1) setPageNumber((prev) => prev - 1); };
+  const handlePrev = () => {
+    if (pageNumber > 1) {
+      setPageNumber((prev) => prev - 1);
+      fetchPosts({ ...filters, partnerId: id || user?.partnerId, pageNumber: pageNumber - 1 })
+    }
+  };
 
-  const handleNext = () => { if (pageNumber < totalPages) setPageNumber((prev) => prev + 1); };
+  const handleNext = () => {
+    if (pageNumber < totalPages) {
+      setPageNumber((prev) => prev + 1);
+      fetchPosts({ ...filters, partnerId: id || user?.partnerId, pageNumber: pageNumber + 1 })
+    }
+  };
 
   // Handle Change from draft to pending Approval
   const handleStatusChange = (postId, newStatus) => {

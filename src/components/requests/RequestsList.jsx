@@ -9,6 +9,7 @@ import { useAddCar360Url } from '../../pages/hooks/useCar360Request'
 import { PlusCircleIcon } from '@heroicons/react/24/outline'
 import { formatDateTime } from '../../utils/dateFormatter'
 import Pagination from '../layout/Pagination'
+import { BsArrowClockwise, BsClockHistory } from 'react-icons/bs'
 
 const RequestsList = ({ isUser = false }) => {
     const { requests, loadingRequests } = useRequestContext()
@@ -39,7 +40,7 @@ const RequestsList = ({ isUser = false }) => {
         {
             accessorKey: "postCode",
             header: "Post Code",
-            cell: ({ row }) => <PostCode data={row.original}  />
+            cell: ({ row }) => <PostCode data={row.original} />
         },
         // {
         //     accessorKey: "id",
@@ -209,19 +210,38 @@ const PostCode = ({ data }) => {
 }
 
 const Status = ({ data }) => {
+    const { updateRequestStatus, requestStatusLoading } = useRequestContext();
+
+    const handleChangeStatus = (newStatus) => {
+        // TODO: Implement status change logic
+        updateRequestStatus(data.id, newStatus);
+
+    }
 
     const status = data.status
-    return <span className={`text-xs font-semibold text-white px-2 py-1 rounded-full ${status === "Pending" ? "bg-yellow-500" : "bg-green-500"}`}>{status}</span>
+    return <div className={`text-xs font-semibold flex justify-between gap-2 content-center items-center text-white px-2 py-1 rounded-full 
+     ${status === "Pending" ? "bg-yellow-500" : status === "In-Progress" ? "bg-blue-400" : "bg-green-500 justify-center place-self-center"}`}>
+        <span>{status}</span>
+        {status === "Pending" &&
+            <button disabled={requestStatusLoading} className='bg-yellow-600 rounded-full p-1 group' title='change to in-progress' onClick={() => handleChangeStatus("In-Progress")}>
+                <BsClockHistory style={{ strokeWidth: 0.5 }} className='w-4 h-4 font-semibold group-hover:scale-125 transition-transform' />
+            </button>}
+        {status === "In-Progress" &&
+            <button disabled={requestStatusLoading} className='bg-blue-600 rounded-full p-1 group' title='change to Pending' onClick={() => handleChangeStatus("Pending")}>
+
+                <BsArrowClockwise style={{ strokeWidth: 0.5 }} className='w-4 h-4 font-semibold group-hover:scale-125 transition-transform' />
+            </button>}
+    </div>
 }
 
 const Button360 = ({ data }) => {
     const handleAdd360 = useAddCar360Url(data.postId);
-    const { updateRequestStatus } = useRequestContext();
+    const { updateRequestStatusView } = useRequestContext();
 
     const onAdd360Click = async () => {
         const enteredUrl = await handleAdd360();
         if (enteredUrl) {
-            updateRequestStatus(data.id, "Completed");
+            updateRequestStatusView(data.id, "Completed");
         }
     }
     if (data.requestType === "Request 360 Photo Session" || data.requestType === "Request to 360") {

@@ -7,13 +7,15 @@ import {
   Squares2X2Icon,
   XCircleIcon,
 } from "@heroicons/react/24/outline";
-import { CurrencyDollarIcon } from "@heroicons/react/24/solid";
+import { ChevronDownIcon, CurrencyDollarIcon, PauseCircleIcon } from "@heroicons/react/24/solid";
 import React, { useState } from "react";
 import PostRequestMenu from "../PostRequestMenu";
 import SelectCurrencyModal from "../../../pages/payment/SelectCurrencyModal";
 import { usePaymentContext } from "../../../context/PaymentContext";
 import { useHandlePostRequest } from "../hook/handlePostRequest";
 import { useAuth } from "../../../context/AuthContext";
+import { Menu } from "@headlessui/react";
+import { POST_STATUS } from "../constants/post-constants";
 
 const PostTabs = ({
   activeTab,
@@ -33,6 +35,7 @@ const PostTabs = ({
   const handleTabChange = (tabName) => {
     setActiveTab(tabName);
   };
+  console.log(postStatus);
 
   const { onGetQarsServices } = usePaymentContext();
   const postId = currentPost?.postId;
@@ -41,9 +44,9 @@ const PostTabs = ({
   const handle360Request = async (type) => {
     // Get All Service Price
     try {
-      const res= await onGetQarsServices();
-      console.log(res)
-      sessionStorage.setItem("postCode", currentPost?.postCode)
+      const res = await onGetQarsServices();
+      console.log(res);
+      sessionStorage.setItem("postCode", currentPost?.postCode);
       handleSubmitRequest(type, postId, res.request360Price, res.request360Id);
     } catch (e) {
       console.log(e);
@@ -94,12 +97,15 @@ const PostTabs = ({
           {/* Action Buttons */}
           <div className="flex items-center space-x-1 lg:border-t-0 border-t lg:py-0 py-2  lg:mt-0 mt-2">
             <div className="relative">
-              {user.role !== "superAdmin" && <PostRequestMenu
-                currentPost={currentPost}
-                setSelectCurrencyOpen={setSelectCurrencyOpen}
-              />}
+              {user.role !== "superAdmin" && (
+                <PostRequestMenu
+                  currentPost={currentPost}
+                  setSelectCurrencyOpen={setSelectCurrencyOpen}
+                />
+              )}
             </div>
 
+{/* Not superAdmin: Request 360 */}
             {role !== "superAdmin" && (
               <div className="relative">
                 <button
@@ -113,6 +119,8 @@ const PostTabs = ({
                 </button>
               </div>
             )}
+
+            {/* Super Admin Add 360 */}
             {role === "superAdmin" && (
               <div className="relative">
                 <button
@@ -128,7 +136,7 @@ const PostTabs = ({
               </div>
             )}
 
-            {postStatus === "Draft" && (
+            {postStatus === POST_STATUS.DRAFT && (
               <div className="relative">
                 <button
                   onClick={() => {
@@ -141,7 +149,7 @@ const PostTabs = ({
                 </button>
               </div>
             )}
-            {postStatus === "Pending Approval" && role === "superAdmin" && (
+            {postStatus === POST_STATUS.PENDING_APPROVAL && role === "superAdmin" && (
               <button
                 onClick={(e) => {
                   e.preventDefault();
@@ -155,19 +163,105 @@ const PostTabs = ({
                 Approve
               </button>
             )}
-            {postStatus === "Pending Approval" && role === "superAdmin" && (
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  handleChangePostStatus("Rejected");
-                }}
-                className="flex items-center bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors md:text-md text-sm md:px-4 px-1 py-2"
-                title="Reject post"
-              >
-                <XCircleIcon className="h-6 w-6" />
-                Reject
-              </button>
+            {postStatus === POST_STATUS.PENDING_APPROVAL && role === "superAdmin" && (
+              <div>
+                <Menu>
+                  <Menu.Button
+                    // onClick={(e) => {
+                    //   e.preventDefault();
+                    //   e.stopPropagation();
+                    //   handleChangePostStatus("Rejected");
+                    // }}
+                    className="flex items-center bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors md:text-md text-sm md:px-4 px-1 py-2"
+                    title="Reject post"
+                  >
+                    <XCircleIcon className="h-6 w-6" />
+                    Reject
+                    <ChevronDownIcon className="h-6 w-6" />
+                  </Menu.Button>
+                  <Menu.Items
+                    transition
+                    anchor="bottom end"
+                    className={`min-w-52 origin-top-right absolute shadow-md right-0 bg-white rounded-xl border  p-1 text-sm/6 text-gray-800 z-50 transition duration-100 ease-out [--anchor-gap:--spacing(1)] focus:outline-none data-closed:scale-95 data-closed:opacity-0 top-16`}
+                  >
+                    <Menu.Item>
+                      <button
+                        className="group hover:bg-red-500/10 flex w-full items-center gap-2 rounded-lg px-3 py-1.5 data-focus:bg-white/10"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleChangePostStatus("Rejected");
+                        }}
+                      >
+                        Reject
+                      </button>
+                    </Menu.Item>
+                    <Menu.Item>
+                      <button
+                        className="group hover:bg-red-500/10 flex w-full items-center  gap-2 rounded-lg px-3 py-1.5 data-focus:bg-white/10"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleChangePostStatus("Rejected Permanently");
+                        }}
+                      >
+                        Rejected Permanently
+                      </button>
+                    </Menu.Item>
+                  </Menu.Items>
+                </Menu>
+              </div>
+            )}
+
+            {postStatus === POST_STATUS.APPROVED && (
+              <div className="relative">
+                <Menu>
+                  <Menu.Button
+                    
+                    className="p-2 bg-red-600 text-white hover:bg-red-600 hover:text-white rounded-lg transition-colors flex items-center gap-2"
+                    title="Suspend post"
+                  >
+                    <PauseCircleIcon className="h-6 w-6" /> 
+                    <span>Suspend</span> <ChevronDownIcon className="h-6 w-6" />
+                  </Menu.Button>
+                  <Menu.Items
+                    transition
+                    anchor="bottom end"
+                    className={`min-w-52 origin-top-right absolute shadow-md right-0 bg-white rounded-xl border  p-1 text-sm/6 text-gray-800 z-50 transition duration-100 ease-out [--anchor-gap:--spacing(1)] focus:outline-none data-closed:scale-95 data-closed:opacity-0 top-10`}
+                  >
+                    <Menu.Item>
+                      <button
+                        className="group hover:bg-red-500/10 flex w-full items-center gap-2 rounded-lg px-3 py-1.5 data-focus:bg-white/10"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleChangePostStatus(
+                            //post.postId,
+                            POST_STATUS.SUSPENDED,
+                          );
+                        }}
+                      >
+                        Suspend
+                      </button>
+                    </Menu.Item>
+                    <Menu.Item>
+                      <button
+                        className="group hover:bg-red-500/10 flex w-full items-center gap-2 rounded-lg px-3 py-1.5 data-focus:bg-white/10"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleChangePostStatus(
+                            //post.postId,
+                            POST_STATUS.SUSPENDED_PERMANENTLY,
+                          );
+                        }}
+                      >
+                        Suspend Permanently
+                      </button>
+                    </Menu.Item>
+                  </Menu.Items>
+                </Menu>
+              </div>
             )}
           </div>
         </div>

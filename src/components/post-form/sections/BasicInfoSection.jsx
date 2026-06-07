@@ -28,7 +28,7 @@ const BasicInfoSection = ({ formData, setFormData, errors, handleBlur }) => {
         const fetchCarCategory = async () => {
             try {
                 setIsLoading(true);
-                fetch("https://qarsspintest.smartvillageqatar.com/QarsSpinAPI/BrowsingRelatedApi.asmx/GetListOfCarCategories")
+                fetch(`${process.env.REACT_APP_MOBILE_API_BASE_URL}/BrowsingRelatedApi.asmx/GetListOfCarCategories`)
                     .then((res) => res.json())
                     .then((data) => {
                         setIsLoading(false);

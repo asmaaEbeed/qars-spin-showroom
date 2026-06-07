@@ -1,6 +1,6 @@
 import { privateAxios } from "../config/axios.config";
 const url =
-  "https://qarsspintest.smartvillageqatar.com/QarsSpinAPI/BrowsingRelatedApi.asmx";
+  `${process.env.REACT_APP_MOBILE_API_BASE_URL}/BrowsingRelatedApi.asmx`;
 export const carAPI = {
   getCarProfile: (params) =>
     privateAxios.get(`/v1/CarForSale/CarProfile?postCode=${params}`),

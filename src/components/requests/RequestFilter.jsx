@@ -45,6 +45,7 @@ export default function RequestFilter({ isUser = false }) {
                             <option value="">All</option>
                             <option value="Pending">Pending</option>
                             <option value="Completed">Completed</option>
+                            <option value="In-Progress">In-Progress</option>
                         </select>
                     </div>
                     {!isUser && <div className="w-full">

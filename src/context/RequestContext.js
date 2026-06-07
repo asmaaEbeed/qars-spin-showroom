@@ -7,6 +7,7 @@ import {
   useState,
 } from "react";
 import { RequestsApi } from "../services/api";
+import { toast } from "react-toastify";
 
 const RequestContext = createContext(null);
 
@@ -19,6 +20,7 @@ export const RequestProvider = ({ children }) => {
   const [bannerType, setBannerType] = useState("");
 
   const [uploadSlot, setUploadSlot] = useState("");
+  const [requestStatusLoading, setRequestStatusLoading] = useState(false);
 
   const initialFilterValues = useMemo(() => {
     return {
@@ -77,7 +79,6 @@ export const RequestProvider = ({ children }) => {
     setErrorRequests(null);
     try {
       const res = await RequestsApi.getRequests();
-      console.log(res.data);
       setAllRequests(res.data);
       setRequests(res.data);
       // setRequests(dummyData);
@@ -93,7 +94,6 @@ export const RequestProvider = ({ children }) => {
     setErrorRequests(null);
     try {
       const res = await RequestsApi.getUserRequests(userName);
-      console.log(res.data);
       setAllRequests(res.data);
       setRequests(res.data);
       // setRequests(dummyData);
@@ -104,13 +104,35 @@ export const RequestProvider = ({ children }) => {
     }
   }, []);
 
-  const updateRequestStatus = useCallback((id, status) => {
+  const updateRequestStatusView = useCallback((id, status) => {
     setRequests((prev) =>
       prev.map((request) =>
         request.id === id ? { ...request, status } : request,
       ),
     );
   }, []);
+  const updateRequestStatus = useCallback(
+    async (id, status) => {
+      setRequestStatusLoading(true);
+      try {
+        const res = await RequestsApi.updateRequestStatus(id, status);
+        // setRequests(dummyData);
+        if (res.data.success) {
+          toast.success(res.data.message);
+          setRequests((prev) =>
+            prev.map((request) =>
+              request.id === id ? { ...request, status } : request,
+            ),
+          );
+        }
+      } catch (e) {
+        setRequestStatusLoading(false);
+      } finally {
+        setRequestStatusLoading(false);
+      }
+    },
+    [setRequestStatusLoading],
+  );
 
   const value = useMemo(
     () => ({
@@ -131,6 +153,8 @@ export const RequestProvider = ({ children }) => {
       sortDate,
       setSortDate,
       updateRequestStatus,
+      updateRequestStatusView,
+      requestStatusLoading,
       fetchUserRequests,
     }),
     [
@@ -151,6 +175,8 @@ export const RequestProvider = ({ children }) => {
       sortDate,
       setSortDate,
       updateRequestStatus,
+      updateRequestStatusView,
+      requestStatusLoading,
       fetchUserRequests,
     ],
   );

@@ -25,6 +25,8 @@ export function PostsProvider({ children }) {
     sortBy: 0,
     year: "",
     pinToTop: false,
+    pageSize: 10,
+    pageNumber: 1,
   });
   const [totalPages, setTotalPages] = useState(1);
   const [postCreatedId, setPostCreatedId] = useState("");
@@ -37,8 +39,8 @@ export function PostsProvider({ children }) {
   const [carsClassList, setCarsClassList] = useState([]);
   const [carsClassLoading, setCarsClassLoading] = useState(false);
 
-  const [carsModelList, setCarsModelList] = useState([])
-  const [carsModelLoading, setCarsModelLoading] = useState(false)
+  const [carsModelList, setCarsModelList] = useState([]);
+  const [carsModelLoading, setCarsModelLoading] = useState(false);
 
   // Update Specification for post Reviewed after AI
   const updateSpecification = async (postId, specId, updatedSpec) => {
@@ -52,12 +54,12 @@ export function PostsProvider({ children }) {
                   Spec_Value_PL: updatedSpec.Spec_value_pl,
                   Spec_Value_SL: updatedSpec.Spec_value_sl,
                 }
-              : spec
+              : spec,
           );
           return { ...post, specs: updatedSpecs };
         }
         return post;
-      })
+      }),
     );
   };
 
@@ -109,7 +111,7 @@ export function PostsProvider({ children }) {
     }
   }, []);
 
-    const fetchCarsModel = useCallback(async (makeId, classId) => {
+  const fetchCarsModel = useCallback(async (makeId, classId) => {
     setCarsModelLoading(true);
     try {
       const res = await managementAPI.getCarModels(makeId, classId);
@@ -162,7 +164,10 @@ export function PostsProvider({ children }) {
     const result = await Swal.fire({
       icon: `${data.state === "Approved" ? "success" : "error"}`,
       title: `${data.state} Post`,
-      input: data.state === "Rejected" ? "text" : undefined,
+      input:
+        data.state === "Rejected" || data.state === "Rejected Permanently"
+          ? "text"
+          : undefined,
       inputPlaceholder: "Enter reason for rejection",
       text: `Are you sure you want to ${data.state} this post?`,
       showConfirmButton: true,
@@ -172,7 +177,11 @@ export function PostsProvider({ children }) {
       cancelButtonText: "Close",
       cancelButtonColor: "#f46a6a",
       preConfirm: (value) => {
-        if (data.state === "Rejected" && !value) {
+        if (
+          (data.state === "Rejected" ||
+            data.state === "Rejected Permanently") &&
+          !value
+        ) {
           // ✅ match same property
           Swal.showValidationMessage("Please enter a value");
         }
@@ -186,7 +195,10 @@ export function PostsProvider({ children }) {
         const response = await superAdminAPI.postChangeStatus({
           Post_ID: data.id,
           newStatus: data.state,
-          reason: data.state === "Rejected" ? result.value : "",
+          reason:
+            data.state === "Rejected" || data.state === "Rejected Permanently"
+              ? result.value
+              : "",
         });
         Swal.close();
         return response;
@@ -236,7 +248,7 @@ export function PostsProvider({ children }) {
     fetchCarsModel,
     carsModelList,
     carsModelLoading,
-    setCarsModelList
+    setCarsModelList,
   };
 
   return (
