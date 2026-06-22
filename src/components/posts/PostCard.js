@@ -12,9 +12,10 @@ import { useAuth } from "../../context/AuthContext";
 import { toast } from "react-toastify";
 import { usePosts } from "../../context/PostsContext";
 import { Menu } from "@headlessui/react";
-import { POST_STATUS, QARS_SPIN_PARTNER_ID } from "./constants/post-constants";
+import { POST_STATUS } from "./constants/post-constants";
 import qarsSpinLogo from "../../assets/images/logo/Logo.svg";
-import { PauseCircleIcon, TrashIcon } from "@heroicons/react/24/solid";
+import { PauseCircleIcon } from "@heroicons/react/24/solid";
+import { QARS_SPIN_PARTNER_ID } from "../../constants/qars-spin-data";
 
 const statusColors = {
   Approved: {

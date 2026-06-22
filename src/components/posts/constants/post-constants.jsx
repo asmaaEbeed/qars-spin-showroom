@@ -1,4 +1,3 @@
-export const QARS_SPIN_PARTNER_ID = 59;
 
 
 
@@ -10,4 +9,5 @@ export const POST_STATUS = Object.freeze({
   SUSPENDED: "Suspended",
   SUSPENDED_PERMANENTLY: "Suspended Permanently",
   DRAFT: "Draft",
+  SOLD: "Sold"
 });

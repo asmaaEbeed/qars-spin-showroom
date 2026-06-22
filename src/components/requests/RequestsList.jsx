@@ -155,33 +155,6 @@ const RequestsList = ({ isUser = false }) => {
 
 export default RequestsList
 
-// const DropdownActions = ({ data, lastId }) => {
-//     return <>
-//         <div className="relative">
-//             <Menu>
-//                 <Menu.Button className="inline-flex items-center gap-2 rounded-md bg-primary-500 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-inner shadow-white/10 focus:not-data-focus:outline-none data-focus:outline data-focus:outline-white data-hover:bg-gray-700 data-open:bg-gray-700">
-//                     <BiEdit className='size-4' />
-//                     <ChevronDownIcon className="size-4 fill-white/60" />
-//                 </Menu.Button>
-
-
-//                 <Menu.Items
-//                     transition
-//                     anchor="bottom end"
-//                     className={`min-w-40 origin-top-right absolute shadow-md right-0 bg-white rounded-xl border  p-1 text-sm/6 text-gray-800 z-50 transition duration-100 ease-out [--anchor-gap:--spacing(1)] focus:outline-none data-closed:scale-95 data-closed:opacity-0 ${lastId === data.id ? "bottom-8" : "top-8"}`}
-//                 >
-//                     <div className="h-px bg-white/5" />
-//                     <Menu.Item>
-//                         <button className="group hover:bg-red-500/10 flex w-full items-center gap-2 rounded-lg px-3 py-1.5 data-focus:bg-white/10">
-//                             <CheckCircleIcon className="size-5 fill-primary-500/30 text-primary-500" />
-//                             <span className="inline-block h-4 w-4 border-2 rounded-full mx-2 border-primary-500 border-t-transparent"></span>
-//                         </button>
-//                     </Menu.Item>
-//                 </Menu.Items>
-//             </Menu>
-//         </div>
-//     </>
-// }
 
 const CarImage = ({ src }) => {
     return (
@@ -204,7 +177,7 @@ const PostCode = ({ data }) => {
         fetchCarProfile(data.postCode)
     }
     return <>
-        <button onClick={handlePostCodeClick} title="View Post details" className="text-sm font-semibold text-primary-600 underline">{data.postCode}</button>
+        <button onClick={handlePostCodeClick} title={data.postCode} className="max-w-26 truncate text-sm font-semibold text-primary-600 underline">{data.postCode}</button>
         <QuickPostView open={!!quickPostView} setOpen={setQuickPostView} />
     </>
 }

@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import MainLayout from '../../components/layout/MainLayout'
 import { ShowRoomsHeader } from '../../components/showrooms/ShowRoomsHeader'
 import { FaImage, FaSearch } from 'react-icons/fa'
@@ -10,7 +10,7 @@ import { usePosts } from '../../context/PostsContext'
 import { AdminPartnerAPI } from '../../services/api'
 import { toast } from 'react-toastify'
 import qarsSpinLogo from "../../assets/images/logo/Logo.svg"
-import { QARS_SPIN_PARTNER_ID } from '../../components/posts/constants/post-constants'
+import { QARS_SPIN_PARTNER_ID } from '../../constants/qars-spin-data'
 
 const PARTNER_STATUS_COLOR = {
   Approved: "bg-green-500",
@@ -44,6 +44,7 @@ const ShowRooms = () => {
   }, [])
   useEffect(() => {
     if (!showrooms.length) fetchShowrooms();
+    console.log(showrooms.filter((s) => s.partnerStatus === "Approved"))
   }, [showrooms, fetchShowrooms]);
 
   // === Filter by partnerName ===

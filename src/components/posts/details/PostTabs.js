@@ -1,13 +1,19 @@
 import {
   CameraIcon,
+  CheckBadgeIcon,
   CheckCircleIcon,
+  NoSymbolIcon,
   PaperAirplaneIcon,
   PlusIcon,
   RectangleStackIcon,
   Squares2X2Icon,
   XCircleIcon,
 } from "@heroicons/react/24/outline";
-import { ChevronDownIcon, CurrencyDollarIcon, PauseCircleIcon } from "@heroicons/react/24/solid";
+import {
+  ChevronDownIcon,
+  CurrencyDollarIcon,
+  PauseCircleIcon,
+} from "@heroicons/react/24/solid";
 import React, { useState } from "react";
 import PostRequestMenu from "../PostRequestMenu";
 import SelectCurrencyModal from "../../../pages/payment/SelectCurrencyModal";
@@ -16,6 +22,8 @@ import { useHandlePostRequest } from "../hook/handlePostRequest";
 import { useAuth } from "../../../context/AuthContext";
 import { Menu } from "@headlessui/react";
 import { POST_STATUS } from "../constants/post-constants";
+import { BiEdit } from "react-icons/bi";
+import { IoMdArrowDropdown } from "react-icons/io";
 
 const PostTabs = ({
   activeTab,
@@ -35,7 +43,6 @@ const PostTabs = ({
   const handleTabChange = (tabName) => {
     setActiveTab(tabName);
   };
-  console.log(postStatus);
 
   const { onGetQarsServices } = usePaymentContext();
   const postId = currentPost?.postId;
@@ -45,13 +52,41 @@ const PostTabs = ({
     // Get All Service Price
     try {
       const res = await onGetQarsServices();
-      console.log(res);
       sessionStorage.setItem("postCode", currentPost?.postCode);
       handleSubmitRequest(type, postId, res.request360Price, res.request360Id);
     } catch (e) {
       console.log(e);
     }
   };
+
+  const PARTNER_POST_STATUS = [
+    {
+      value: POST_STATUS.APPROVED,
+      color: "green",
+      icon: <CheckCircleIcon className="w-4 h-4 text-green-500" />,
+    },
+  
+    {
+      value: POST_STATUS.SUSPENDED,
+      color: "orange",
+      icon: <PauseCircleIcon className="w-4 h-4 text-orange-500" />,
+    },
+    {
+      value: POST_STATUS.REJECTED,
+      color: "red",
+      icon: <XCircleIcon className="w-4 h-4 text-red-500" />,
+    },
+    {
+      value: POST_STATUS.REJECTED_PERMANENTLY,
+      color: "red",
+      icon: <NoSymbolIcon className="w-4 h-4 text-red-700" />,
+    },
+    {
+      value: POST_STATUS.SOLD,
+      color: "red",
+      icon: <NoSymbolIcon className="w-4 h-4 text-blue-700" />,
+    },
+  ];
   return (
     <div className="bg-white/90 backdrop-blur-sm shadow-lg border-b border-white/20 sticky top-16 z-40">
       <div className="max-w-7xl mx-auto md:px-6 px-4">
@@ -105,14 +140,14 @@ const PostTabs = ({
               )}
             </div>
 
-{/* Not superAdmin: Request 360 */}
+            {/* Partner: Request 360 */}
             {role !== "superAdmin" && (
               <div className="relative">
                 <button
                   onClick={() => {
                     handle360Request("Request 360 Photo Session");
                   }}
-                  className="flex items-center bg-primary-100 text-primary-700 rounded-lg hover:bg-primary-200 transition-colors md:text-md text-sm md:px-4 px-1 py-2"
+                  className="flex items-center bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors md:text-md text-sm md:px-4 px-1 py-2"
                 >
                   <CameraIcon className="h-6 w-6 mx-1" />
                   Request 360°
@@ -127,16 +162,16 @@ const PostTabs = ({
                   onClick={() => {
                     handleAdd360();
                   }}
-                  className="flex relative items-center bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors md:text-md text-sm md:px-4 px-1 py-2"
+                  className="flex relative group items-center bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors md:text-md text-sm md:px-4 px-1 py-2"
                 >
                   <CameraIcon className="h-6 w-6 mx-1" />
-                  <PlusIcon className="h-3 w-3 text-green-700 absolute  bg-green-100 rounded-full hover:bg-green-200 " />
+                  <PlusIcon className="h-3 w-3 text-blue-700 absolute  bg-blue-100 rounded-full group-hover:bg-blue-200 " />
                   Add 360°
                 </button>
               </div>
             )}
 
-            {postStatus === POST_STATUS.DRAFT && (
+            {postStatus === POST_STATUS.DRAFT && role !== "superAdmin" && (
               <div className="relative">
                 <button
                   onClick={() => {
@@ -149,85 +184,52 @@ const PostTabs = ({
                 </button>
               </div>
             )}
-            {postStatus === POST_STATUS.PENDING_APPROVAL && role === "superAdmin" && (
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  handleChangePostStatus("Approved");
-                }}
-                className="flex items-center bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors md:text-md text-sm md:px-4 px-1 py-2"
-                title="Approve post"
-              >
-                <CheckCircleIcon className="h-6 w-6" />
-                Approve
-              </button>
-            )}
-            {postStatus === POST_STATUS.PENDING_APPROVAL && role === "superAdmin" && (
-              <div>
-                <Menu>
-                  <Menu.Button
-                    // onClick={(e) => {
-                    //   e.preventDefault();
-                    //   e.stopPropagation();
-                    //   handleChangePostStatus("Rejected");
-                    // }}
-                    className="flex items-center bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors md:text-md text-sm md:px-4 px-1 py-2"
-                    title="Reject post"
+            {postStatus === POST_STATUS.PENDING_APPROVAL &&
+              role === "superAdmin" && (
+                <div className="flex gap-2">
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleChangePostStatus(POST_STATUS.APPROVED);
+                    }}
+                    className="flex items-center bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors md:text-md text-sm md:px-4 px-1 py-2"
+                    title="Approve post"
+                  >
+                    <CheckCircleIcon className="h-6 w-6" />
+                    Approve
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleChangePostStatus(POST_STATUS.REJECTED);
+                    }}
+                    className="flex items-center bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors md:text-md text-sm md:px-4 px-1 py-2"
+                    title="Approve post"
                   >
                     <XCircleIcon className="h-6 w-6" />
                     Reject
-                    <ChevronDownIcon className="h-6 w-6" />
-                  </Menu.Button>
-                  <Menu.Items
-                    transition
-                    anchor="bottom end"
-                    className={`min-w-52 origin-top-right absolute shadow-md right-0 bg-white rounded-xl border  p-1 text-sm/6 text-gray-800 z-50 transition duration-100 ease-out [--anchor-gap:--spacing(1)] focus:outline-none data-closed:scale-95 data-closed:opacity-0 top-16`}
-                  >
-                    <Menu.Item>
-                      <button
-                        className="group hover:bg-red-500/10 flex w-full items-center gap-2 rounded-lg px-3 py-1.5 data-focus:bg-white/10"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          handleChangePostStatus("Rejected");
-                        }}
-                      >
-                        Reject
-                      </button>
-                    </Menu.Item>
-                    <Menu.Item>
-                      <button
-                        className="group hover:bg-red-500/10 flex w-full items-center  gap-2 rounded-lg px-3 py-1.5 data-focus:bg-white/10"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          handleChangePostStatus("Rejected Permanently");
-                        }}
-                      >
-                        Rejected Permanently
-                      </button>
-                    </Menu.Item>
-                  </Menu.Items>
-                </Menu>
-              </div>
-            )}
+                  </button>
+                </div>
+              )}
+     
 
-            {postStatus === POST_STATUS.APPROVED && (
+            {/* Suspend Post for both Admin And showroom user */}
+            {(postStatus === POST_STATUS.APPROVED || role !== "superAdmin") && (
               <div className="relative">
                 <Menu>
                   <Menu.Button
-                    
-                    className="p-2 bg-red-600 text-white hover:bg-red-600 hover:text-white rounded-lg transition-colors flex items-center gap-2"
+                    className="p-2 bg-orange-100 text-orange-500 hover:bg-orange-200  rounded-lg transition-colors flex items-center gap-2"
                     title="Suspend post"
                   >
-                    <PauseCircleIcon className="h-6 w-6" /> 
+                    <PauseCircleIcon className="h-6 w-6" />
                     <span>Suspend</span> <ChevronDownIcon className="h-6 w-6" />
                   </Menu.Button>
                   <Menu.Items
                     transition
                     anchor="bottom end"
-                    className={`min-w-52 origin-top-right absolute shadow-md right-0 bg-white rounded-xl border  p-1 text-sm/6 text-gray-800 z-50 transition duration-100 ease-out [--anchor-gap:--spacing(1)] focus:outline-none data-closed:scale-95 data-closed:opacity-0 top-10`}
+                    className={`min-w-60 origin-top-right absolute shadow-md right-0 bg-white rounded-xl border  p-1 text-sm/6 text-gray-800 z-50 transition duration-100 ease-out [--anchor-gap:--spacing(1)] focus:outline-none data-closed:scale-95 data-closed:opacity-0 top-10`}
                   >
                     <Menu.Item>
                       <button
@@ -235,12 +237,10 @@ const PostTabs = ({
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          handleChangePostStatus(
-                            //post.postId,
-                            POST_STATUS.SUSPENDED,
-                          );
+                          handleChangePostStatus(POST_STATUS.SUSPENDED);
                         }}
                       >
+                        <PauseCircleIcon className="w-4 h-4 text-orange-500" />{" "}
                         Suspend
                       </button>
                     </Menu.Item>
@@ -256,9 +256,53 @@ const PostTabs = ({
                           );
                         }}
                       >
+                        <NoSymbolIcon className="w-4 h-4 text-orange-700" />
                         Suspend Permanently
                       </button>
                     </Menu.Item>
+                  </Menu.Items>
+                </Menu>
+              </div>
+            )}
+
+            {role === "superAdmin" && (
+              <div className="relative group">
+                <Menu>
+                  <Menu.Button className="relative flex items-center text-green-700 bg-green-100  rounded-lg hover:bg-green-200 transition-colors md:text-md text-sm md:px-4 px-1 py-2">
+                    <BiEdit className="h-6 w-6 mr-1" />
+                    Edit Status
+                    <IoMdArrowDropdown className="w-4 h-4" />
+                  </Menu.Button>
+                  <Menu.Items
+                    transition
+                    anchor="bottom end"
+                    className={`min-w-60 origin-top-right absolute shadow-md right-0 bg-white rounded-xl border  p-1 text-sm/6 text-gray-800 z-50 transition duration-100 ease-out [--anchor-gap:--spacing(1)] focus:outline-none data-closed:scale-95 data-closed:opacity-0 top-10`}
+                  >
+                    {PARTNER_POST_STATUS.map((status) => {
+                      return (
+                        <Menu.Item>
+                          <button
+                            className={`group  flex w-full justify-between items-center gap-2 rounded-lg px-3 py-1.5 data-focus:bg-white/10 ${postStatus === status.value ? "bg-green-100" : "hover:bg-slate-100"}`}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleChangePostStatus(status.value);
+                            }}
+                            disabled={postStatus === status.value}
+                          >
+                            <div className="flex items-center gap-2">
+                              {status.icon}
+                              <span>{status.value}</span>
+                            </div>
+                            {postStatus === status.value && (
+                              <CheckBadgeIcon
+                                className={`w-5 h-5 text-green-500`}
+                              />
+                            )}
+                          </button>
+                        </Menu.Item>
+                      );
+                    })}
                   </Menu.Items>
                 </Menu>
               </div>

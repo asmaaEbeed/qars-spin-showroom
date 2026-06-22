@@ -29,6 +29,68 @@ const noActionRequest = async (status, type) => {
   });
 };
 
+const handleCreateNewRequest = async (
+  type,
+  price,
+  serviceId,
+  postId,
+  param,
+  onPaymentInitiate,
+  setSelectCurrencyOpen,
+) => {
+  // New request (Offer Time) handling
+  const result = await Swal.fire({
+    icon: "question",
+    title: `${
+      type === "Request to Feature a Post"
+        ? "Make your post Feature"
+        : type === "Request 360 Photo Session"
+          ? "Request 360 Photo Session Service"
+          : type
+    }`,
+    html: `
+            ${type}
+            <p style="margin-top: 21px; font-size: 20px; font-weight: 600;">It's for 
+             <b style="color: #34c38f; font-weight: 600; font-size: 24px;">
+            ${type === "Request to Feature a Post" || type === "Request 360 Photo Session" ? `${price} QAR` : "Free!"} 
+              </b>
+            </p>
+          `,
+    confirmButtonText: "Confirm Request",
+    confirmButtonColor: "#34c38f",
+    showCancelButton: true,
+    cancelButtonText: "Close",
+    cancelButtonColor: "#f46a6a",
+  });
+
+  if (result.isConfirmed) {
+    try {
+      if (type === "Request New Tag" || type === "Request Inspected Tag") {
+        const resRequest = await carAPI.postCreateRequest(param);
+        if (resRequest.status === 200 || resRequest.status === 201) {
+          toast.success(
+            resRequest.data.Message || "Request sent successfully!",
+          );
+        }
+        return;
+      }
+      // Call payment initiation
+      const res = await onPaymentInitiate(type, price, serviceId, postId);
+
+      if (res.status === 200 || res.status === 201) {
+        toast.success(res.data.Message || "Payment Initiated Successfully!");
+        // Call the setter function passed as an argument
+        setSelectCurrencyOpen(true);
+      } else {
+        toast.error(res.message || "Your Request sent failed");
+      }
+    } catch (e) {
+      toast.error(e.data?.message || "Your Request sent failed");
+      console.error(e);
+    }
+  }
+};
+
 export function useHandlePostRequest(
   setSelectCurrencyOpen, // Pass the setter function
 ) {
@@ -68,72 +130,35 @@ export function useHandlePostRequest(
               type === "Request Inspected Tag"
             ) {
               noActionRequest(status, type);
-            }
-          } else if (status === "Pending") {
-            noActionRequest(status, type);
-          }
-        } else if(price && price !== "undefined") {
-          // New request (Offer Time) handling
-          const result = await Swal.fire({
-            icon: "question",
-            title: `${
-              type === "Request to Feature a Post"
-                ? "Make your post Feature"
-                : type === "Request 360 Photo Session"
-                  ? "Request 360 Photo Session Service"
-                  : type
-            }`,
-            html: `
-            ${type}
-            <p style="margin-top: 21px; font-size: 20px; font-weight: 600;">It's for 
-             <b style="color: #34c38f; font-weight: 600; font-size: 24px;">
-            ${type === "Request to Feature a Post" || type === "Request 360 Photo Session" ? `${price} QAR` : "Free!"} 
-              </b>
-            </p>
-          `,
-            confirmButtonText: "Confirm Request",
-            confirmButtonColor: "#34c38f",
-            showCancelButton: true,
-            cancelButtonText: "Close",
-            cancelButtonColor: "#f46a6a",
-          });
-
-          if (result.isConfirmed) {
-            try {
-              if (
-                type === "Request New Tag" ||
-                type === "Request Inspected Tag"
-              ) {
-                const resRequest = await carAPI.postCreateRequest(param);
-                if (resRequest.status === 200 || resRequest.status === 201) {
-                  toast.success(
-                    resRequest.data.Message || "Request sent successfully!",
-                  );
-                }
-                return;
-              }
-              // Call payment initiation
-              const res = await onPaymentInitiate(
+            } else if (
+              (type === "Request 360 Photo Session" ||
+                type === "Request to Feature a Post") &&
+              // Check if service  expired
+              !isSameOrAfterToday(data[0].endServiceDate)
+            ) {
+              handleCreateNewRequest(
                 type,
                 price,
                 serviceId,
                 postId,
+                param,
+                onPaymentInitiate,
+                setSelectCurrencyOpen,
               );
-
-              if (res.status === 200 || res.status === 201) {
-                toast.success(
-                  res.data.Message || "Payment Initiated Successfully!",
-                );
-                // Call the setter function passed as an argument
-                setSelectCurrencyOpen(true);
-              } else {
-                toast.error(res.message || "Your Request sent failed");
-              }
-            } catch (e) {
-              toast.error(e.data?.message || "Your Request sent failed");
-              console.error(e);
             }
+          } else if (status === "Pending") {
+            noActionRequest(status, type);
           }
+        } else if (price && price !== "undefined") {
+          handleCreateNewRequest(
+            type,
+            price,
+            serviceId,
+            postId,
+            param,
+            onPaymentInitiate,
+            setSelectCurrencyOpen,
+          );
         }
       } catch (e) {
         console.error(e);
