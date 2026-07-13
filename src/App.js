@@ -31,6 +31,7 @@ import PaymentFailed from "./pages/payment/PaymentFailed";
 import Requests from "./pages/Admin/requests";
 import { RequestProvider } from "./context/RequestContext";
 import UserRequests from "./pages/UserRequests";
+import AboutUs from "./pages/AboutUs";
 
 function App() {
   return (
@@ -55,6 +56,7 @@ function App() {
                   <Route path="/welcome" element={<Welcome />} />
                   <Route path="/apply" element={<Apply />} />
                   <Route path="/login" element={<Login />} />
+                  <Route path="/about-us" element={<AboutUs />} />
                   <Route
                     path="/dashboard"
                     element={

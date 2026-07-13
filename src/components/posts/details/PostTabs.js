@@ -10,7 +10,6 @@ import {
   XCircleIcon,
 } from "@heroicons/react/24/outline";
 import {
-  ChevronDownIcon,
   CurrencyDollarIcon,
   PauseCircleIcon,
 } from "@heroicons/react/24/solid";
@@ -216,7 +215,7 @@ const PostTabs = ({
      
 
             {/* Suspend Post for both Admin And showroom user */}
-            {(postStatus === POST_STATUS.APPROVED || role !== "superAdmin") && (
+            {/* {(postStatus === POST_STATUS.APPROVED || role !== "superAdmin") && (
               <div className="relative">
                 <Menu>
                   <Menu.Button
@@ -263,7 +262,7 @@ const PostTabs = ({
                   </Menu.Items>
                 </Menu>
               </div>
-            )}
+            )} */}
 
             {role === "superAdmin" && (
               <div className="relative group">

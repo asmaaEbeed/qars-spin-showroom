@@ -6,6 +6,7 @@ import { FaBars, FaTimes } from "react-icons/fa";
 import { IoMdArrowDropdown } from "react-icons/io";
 import { FiLogOut } from "react-icons/fi";
 import { ChevronDownIcon } from "@heroicons/react/24/solid";
+import Footer from "../common/Footer";
 
 const MainLayout = ({ children }) => {
   const { user, logout } = useAuth();
@@ -326,26 +327,7 @@ const MainLayout = ({ children }) => {
       </div>
 
       {/* Footer */}
-      <footer className="bg-white shadow">
-        <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center">
-            <div className="text-sm text-white">
-              © {new Date().getFullYear()} Qars Spin. All rights reserved.
-            </div>
-            <div className="text-sm text-gray-500">
-              Developed by{" "}
-              <a
-                href="https://smartvillage.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary-600 hover:text-primary-700"
-              >
-                Smart Village
-              </a>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
       {/* Click Outside Handler */}
       {(userMenuOpen || mobileMenuOpen) && (
         <div
