@@ -70,6 +70,21 @@ const MainLayout = ({ children }) => {
             to: `/admin/requests`,
             isActive: /^\/admin\/requests(\/|$)/.test(path),
           },
+          {
+            label: "Reports",
+            to: "#", // parent has no direct link
+            isActive:
+              path.includes("/payment-reports"),
+
+            // Submenu Children
+            children: [
+              {
+                label: "Payment Reports",
+                to: `/admin/payment-reports`,
+                isActive: path.includes("/payment-reports"),
+              },
+            ]
+          }
         ]
       : []),
     {
@@ -103,16 +118,16 @@ const MainLayout = ({ children }) => {
             <img className="h-8 w-auto" src={Logo} alt="Qars Spin Logo" />
           </Link>
         </div>
-        <div className="flex items-center shadow bg-primary-600 justify-between px-6 py-3 md:py-0 relative">
+        <div className="flex items-center shadow bg-primary-600 justify-between px-6 py-3 lg:py-0 relative">
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex h-full">
+          <nav className="hidden lg:flex h-full">
             <div className="flex flex-row">
               {navItems.map((item) => (
                 <div key={item.label} className="relative group">
                   {/* Parent Link */}
                   <Link
                     to={item.to}
-                    className={`h-full flex w-auto uppercase md:px-2 lg:px-4 text-center py-4 text-sm font-medium hover:bg-primary-700 whitespace-nowrap transition-all duration-200 tracking-widest ${
+                    className={`h-full flex w-auto uppercase lg:px-2 lg:px-4 text-center py-4 text-sm font-medium hover:bg-primary-700 whitespace-nowrap transition-all duration-200 tracking-widest ${
                       item.isActive ? "bg-primary-700 text-white" : ""
                     }`}
                   >
@@ -161,7 +176,7 @@ const MainLayout = ({ children }) => {
           </nav>
 
           {/* User Menu (Desktop) */}
-          <div className="hidden md:flex items-center relative">
+          <div className="hidden lg:flex items-center relative">
             <button
               onClick={() => setUserMenuOpen(!userMenuOpen)}
               className="flex items-center space-x-3 px-4 py-1 rounded-xl hover:shadow-md transition-all duration-200"
@@ -222,7 +237,7 @@ const MainLayout = ({ children }) => {
 
           {/* Mobile Menu Button */}
           <button
-            className="md:hidden text-white text-2xl flex ml-auto"
+            className="lg:hidden text-white text-2xl flex ml-auto"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             {mobileMenuOpen ? <FaTimes /> : <FaBars />}
@@ -231,7 +246,7 @@ const MainLayout = ({ children }) => {
           {/* Mobile Navigation Drawer */}
           {/* Mobile Navigation Drawer */}
           {mobileMenuOpen && (
-            <div className="fixed inset-0 top-24 z-40 md:hidden bg-black/30 backdrop-blur-sm">
+            <div className="fixed inset-0 top-24 z-40 lg:hidden bg-black/30 backdrop-blur-sm">
               <div
                 className="bg-white shadow-xl rounded-b-lg overflow-hidden"
                 onClick={(e) => e.stopPropagation()}

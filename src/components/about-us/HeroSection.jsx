@@ -1,4 +1,6 @@
-import { ArrowRightIcon } from "@heroicons/react/24/outline";
+import { IoLogoApple } from "react-icons/io";
+import { IoLogoGooglePlaystore } from "react-icons/io5";
+import { Link } from "react-router-dom";
 
 const stats = [
   { value: "360°", label: "Vehicle Experience" },
@@ -54,15 +56,31 @@ export default function HeroSection() {
           {/* Buttons */}
           <div className="mt-10 flex flex-col gap-4 sm:flex-row">
 
-            <button className="group inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-primary-500 to-primary-600 px-7 py-4 font-semibold text-white shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
-              Explore Vehicles
+            <Link target="_blank" to="https://play.google.com/store/apps/details?id=com.qarsspin.mobile" className="group space-x-3 inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-primary-500 to-primary-600 px-7 py-4 font-semibold text-white shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
+              <IoLogoGooglePlaystore className="h-8 w-8 transition-transform duration-300 group-hover:translate-x-1" />
+              Download on Google Play
 
-              <ArrowRightIcon className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
-            </button>
+            </Link>
+            <Link target="_blank"  to="https://apps.apple.com/eg/app/qars-spin/id6630392818" className="group space-x-3 inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-primary-500 to-primary-600 px-7 py-4 font-semibold text-white shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
+              <IoLogoApple className=" h-8 w-8 transition-transform duration-300 group-hover:translate-x-1" />
+              Download on IOS
 
-            <button className="rounded-xl border border-white/30 bg-white/10 px-7 py-4 font-semibold text-white backdrop-blur-md transition-all duration-300 hover:bg-white hover:text-secondary-800">
+            </Link>
+
+            {/* <button className="rounded-xl border border-white/30 bg-white/10 px-7 py-4 font-semibold text-white backdrop-blur-md transition-all duration-300 hover:bg-white hover:text-secondary-800">
               Contact Us
-            </button>
+            </button> */}
+            <a
+              href="https://wa.me/97466288388"
+              target="_blank"
+              rel="noreferrer"
+              className="rounded-xl border border-white/30 bg-white/10 px-7 py-4 font-semibold text-white backdrop-blur-md transition-all duration-300 hover:bg-white hover:text-secondary-800"
+            >
+
+              <div>
+                Contact Us
+              </div>
+            </a>
 
           </div>
 

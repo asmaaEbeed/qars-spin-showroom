@@ -57,7 +57,7 @@ export default function AdminDashboard() {
 
   return (
     <MainLayout>
-      <main className="relative min-h-[calc(100vh-6rem)]  bg-gradient-to-r z-10 from-secondary-900/90 to-primary-300/90 ">
+      <main className="relative min-h-[calc(100vh-9.5rem)]  bg-gradient-to-r z-10 from-secondary-900/90 to-primary-300/90 ">
 
         <div
           className="absolute inset-0 bg-cover bg-center bg-transparent "

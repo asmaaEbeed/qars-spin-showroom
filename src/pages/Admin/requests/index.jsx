@@ -14,7 +14,7 @@ const Requests = () => {
     return (
         <MainLayout>
             <RequestsHeader requests={requests} description="Manage and track your clients requests." />
-            <div className="max-w-7xl mx-auto px-6 py-4">
+            <div className="max-w-7xl mx-auto py-4">
 
 
                 <RequestFilter />

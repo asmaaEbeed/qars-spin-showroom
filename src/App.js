@@ -32,6 +32,8 @@ import Requests from "./pages/Admin/requests";
 import { RequestProvider } from "./context/RequestContext";
 import UserRequests from "./pages/UserRequests";
 import AboutUs from "./pages/AboutUs";
+import PaymentReports from "./pages/Admin/reports/PaymentReports";
+import CarsManagement from "./pages/Admin/management/cars-management/CarsManagement";
 
 function App() {
   return (
@@ -139,7 +141,10 @@ function App() {
                       // </PostsProvider>
                     }
                   />
-                  <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                  <Route
+                    path="/"
+                    element={<Navigate to="/dashboard" replace />}
+                  />
                   {/* <Route path="/" element=<RoleRedirect /> /> */}
                   <Route
                     path="/showroom"
@@ -168,6 +173,16 @@ function App() {
                       // <PostsProvider>
                       <ProtectedRoute allowedRoles={["superAdmin"]}>
                         <ShowRooms />
+                      </ProtectedRoute>
+                      // </PostsProvider>
+                    }
+                  />
+                  <Route
+                    path="/admin/payment-reports"
+                    element={
+                      // <PostsProvider>
+                      <ProtectedRoute allowedRoles={["superAdmin"]}>
+                        <PaymentReports />
                       </ProtectedRoute>
                       // </PostsProvider>
                     }
@@ -235,17 +250,17 @@ function App() {
                   <Route
                     path="/admin/requests"
                     element={
-                        <ProtectedRoute allowedRoles={["superAdmin"]}>
-                          <Requests />
-                        </ProtectedRoute>
+                      <ProtectedRoute allowedRoles={["superAdmin"]}>
+                        <Requests />
+                      </ProtectedRoute>
                     }
                   />
-                   <Route
+                  <Route
                     path="/user-requests"
                     element={
-                        <ProtectedRoute>
-                          <UserRequests />
-                        </ProtectedRoute>
+                      <ProtectedRoute>
+                        <UserRequests />
+                      </ProtectedRoute>
                     }
                   />
                   <Route
@@ -254,6 +269,16 @@ function App() {
                       <PostsProvider>
                         <ProtectedRoute>
                           <UserSettings />
+                        </ProtectedRoute>
+                      </PostsProvider>
+                    }
+                  />
+                  <Route
+                    path="/admin/cars-management"
+                    element={
+                      <PostsProvider>
+                        <ProtectedRoute allowedRoles={["superAdmin"]}>
+                          <CarsManagement />
                         </ProtectedRoute>
                       </PostsProvider>
                     }

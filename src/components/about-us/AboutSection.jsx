@@ -115,7 +115,7 @@ export default function AboutSection() {
 
             {/* Buttons */}
 
-            <div className="mt-12 flex flex-wrap gap-4">
+            {/* <div className="mt-12 flex flex-wrap gap-4">
 
               <button className="rounded-xl bg-gradient-to-r from-primary-500 to-primary-600 px-7 py-4 font-semibold text-white shadow-lg transition hover:-translate-y-1 hover:shadow-xl">
                 Explore Vehicles
@@ -125,7 +125,7 @@ export default function AboutSection() {
                 Contact Us
               </button>
 
-            </div>
+            </div> */}
 
           </div>
 

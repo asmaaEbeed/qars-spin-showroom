@@ -97,7 +97,7 @@ const PostCard = ({
           <img
             src={post.rectangleImageUrl || PlaceHolderImage}
             alt={post.title}
-            className="h-full object-cover max-height-[205px] w-[300px]"
+            className="h-full object-cover max-height-[150px] w-[300px]"
           />
           <div className="absolute top-3 left-3 flex flex-col space-y-1">
             <p
