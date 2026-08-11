@@ -1,39 +1,90 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import BaseModal from '../../common/BaseModal';
 import SwitchSelect from '../../common/SwitchSelect';
+import UploadBannerImg from '../../banners/UploadBannerImg';
+import { useCarsManagement } from '../../../context/CarsManagementContext';
 
-const AddCarsMakesModal = ({ selectedCarMake = null, open, onClose, createCarMake, createCarMakesLoading }) => {
+const AddCarsMakesModal = ({ selectedCarMake = null,
+    open,
+    onClose,
+    createCarMake,
+    createCarMakesLoading,
+    updateCarMake,
+    updateCarMakeLoading,
+    setAddClassOpen,
+}) => {
+    const [viewFile, setViewFile] = useState("")
+    const [openClass, setOpenClass] = useState(false)
+    const [imageError, setImageError] = useState(false)
 
     const initialFormData = useMemo(() => ({
-        makeNamePl: "",
-        makeNameSl: "",
-        imageFileName: "",
-        imageUrl: "",
-        isActive: true,
-
+        makeId: "",
+        MakeNamePl: "",
+        MakeNameSl: "",
+        LogoFile: "",
+        IsActive: true,
     }), [])
+
+
+    const { selectedCarMakeId } = useCarsManagement()
+
     const [formData, setFormData] = useState(initialFormData);
 
-    function onSubmit(e) {
+    function onSubmit(e, openClass) {
         e.preventDefault()
-        createCarMake(formData);
+        setOpenClass(openClass)
+        if (formData.LogoFile === "") { setImageError(true); return }
+        formData.makeId ? updateCarMake(formData) : createCarMake(formData);
     }
+
+    // To open class Modal after make created
+    useEffect(() => {
+        if (selectedCarMakeId) {
+            if (openClass) {
+                setAddClassOpen(true)
+            }
+            onClose();
+        }
+    }, [openClass, setAddClassOpen, selectedCarMakeId, onClose])
 
     useEffect(() => {
         if (selectedCarMake) {
             setFormData({
-                ...selectedCarMake,
-                isActive: selectedCarMake.isActive || true,
+                makeId: selectedCarMake.makeId || "",
+                MakeNamePl: selectedCarMake.makeNamePl || "",
+                MakeNameSl: selectedCarMake.makeNameSl || "",
+                LogoFile: selectedCarMake.imageUrl || "",
+                IsActive: selectedCarMake.isActive || true,
             });
+            setViewFile(selectedCarMake.imageUrl);
         } else {
             setFormData(initialFormData);
+            setViewFile("");
+
         }
     }, [selectedCarMake, initialFormData]);
 
+    const handleSetUploadFile = (file) => {
+        const reader = new FileReader();
+        reader.onloadend = () => setViewFile(reader.result);
+        reader.onload = () => setFormData({ ...formData, LogoFile: file });
+        reader.readAsDataURL(file);
+    }
+    useEffect(() => {
+        setImageError(false)
+    }, [open])
+
+    useEffect(() => {
+        if (formData.LogoFile) setImageError(false)
+    }, [formData])
+
     return (
-        <BaseModal title="Create New Car Make" open={open} setOpen={onClose}>
-            <form className=" space-y-6" onSubmit={(e) => onSubmit(e)}>
+        <BaseModal title={`${selectedCarMake?.makeId ? "Edit" : "Create"} a Car Make`} open={open} setOpen={onClose}>
+            <form className=" space-y-6">
                 <div className="p-6">
+                    <UploadBannerImg viewFile={viewFile} setUploadFile={(file) => handleSetUploadFile(file)} imgLayoutStyle="h-[100px] w-[100px] rounded-full object-cover m-auto" />
+
+                    {imageError && <p className='m-auto text-red-600 text-center mb-4'>Please add model logo.</p>}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         {/* Make Name (PL) */}
                         <div className="space-y-2">
@@ -46,10 +97,10 @@ const AddCarsMakesModal = ({ selectedCarMake = null, open, onClose, createCarMak
                                 required
                                 placeholder="Enter Make Name (PL)"
                                 type="text"
-                                value={formData.makeNamePl}
+                                value={formData.MakeNamePl}
                                 onChange={(e) => {
                                     const sanitized = e.target.value.replace(/[\u0600-\u06FF]/g, "");;
-                                    setFormData({ ...formData, makeNamePl: sanitized })
+                                    setFormData({ ...formData, MakeNamePl: sanitized })
                                 }}
                                 className={`w-full focus-visible:outline-none px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm text-gray-900 bg-white`}
                             />
@@ -67,20 +118,20 @@ const AddCarsMakesModal = ({ selectedCarMake = null, open, onClose, createCarMak
                                 required
                                 placeholder="اسم الصنع"
                                 type="text"
-                                value={formData.makeNameSl}
+                                value={formData.MakeNameSl}
                                 onChange={(e) => {
                                     const sanitized = e.target.value.replace(/[A-Za-z]/g, "");
-                                    setFormData({ ...formData, makeNameSl: sanitized });
+                                    setFormData({ ...formData, MakeNameSl: sanitized });
                                 }}
                                 className="w-full text-right focus-visible:outline-none px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm text-gray-900 bg-white"
                             />
                         </div>
                         <div className='flex gap-5 mb-3'>
                             <SwitchSelect
-                                value={formData.isActive}
-                                handleOnChange={(e) => { setFormData({ ...formData, isActive: e }) }}
+                                value={formData.IsActive}
+                                handleOnChange={(e) => { setFormData({ ...formData, IsActive: e }) }}
                             />
-                            <p>{formData.isActive ? "Active" : "Inactive"}</p>
+                            <p>{formData.IsActive ? "Active" : "Inactive"}</p>
                         </div>
 
                     </div>
@@ -95,12 +146,22 @@ const AddCarsMakesModal = ({ selectedCarMake = null, open, onClose, createCarMak
                         Cancel
                     </button>
                     <button
-                        disabled={createCarMakesLoading}
-                        type="submit"
+                        disabled={createCarMakesLoading || updateCarMakeLoading}
+                        type="button"
+                        onClick={e => onSubmit(e, false)}
                         className="flex px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors duration-200"
                     >
-                        {createCarMakesLoading && <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mx-2"></div>}
-                        <p>{!createCarMakesLoading ? "Save" : "Saving..."}</p>
+                        {((createCarMakesLoading || updateCarMakeLoading) && !openClass) ? <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mx-2"></div> : null}
+                        <p>{!createCarMakesLoading && !updateCarMakeLoading ? "Save" : "Saving..."}</p>
+                    </button>
+                    <button
+                        disabled={createCarMakesLoading || updateCarMakeLoading}
+                        type="button"
+                        onClick={e => onSubmit(e, true)}
+                        className="flex px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
+                    >
+                        {((createCarMakesLoading || updateCarMakeLoading) && openClass) ? <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mx-2"></div> : null}
+                        <p>{!createCarMakesLoading && !updateCarMakeLoading ? "Save & Add Class" : "Saving..."}</p>
                     </button>
                 </div>
             </form>

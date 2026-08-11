@@ -84,6 +84,31 @@ const MainLayout = ({ children }) => {
                 isActive: path.includes("/payment-reports"),
               },
             ]
+          },
+          {
+            label: "Managements",
+            to: "#", // parent has no direct link
+            isActive:
+              path.includes("/cars-management"),
+
+            // Submenu Children
+            children: [
+              {
+                label: "Car Makes",
+                to: `/admin/cars-management/car-makes`,
+                isActive: path.includes("/cars-management/car-makes"),
+              },
+              {
+                label: "Car Classes",
+                to: `/admin/cars-management/car-classes`,
+                isActive: path.includes("/cars-management/car-classes"),
+              },
+              {
+                label: "Car Models",
+                to: `/admin/cars-management/car-models`,
+                isActive: path.includes("/cars-management/car-models"),
+              },
+            ]
           }
         ]
       : []),
@@ -243,7 +268,6 @@ const MainLayout = ({ children }) => {
             {mobileMenuOpen ? <FaTimes /> : <FaBars />}
           </button>
 
-          {/* Mobile Navigation Drawer */}
           {/* Mobile Navigation Drawer */}
           {mobileMenuOpen && (
             <div className="fixed inset-0 top-24 z-40 lg:hidden bg-black/30 backdrop-blur-sm">

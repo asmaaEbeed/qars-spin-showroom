@@ -3,6 +3,7 @@ import {
   Routes,
   Route,
   Navigate,
+  Outlet,
 } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { PostsProvider } from "./context/PostsContext";
@@ -33,7 +34,10 @@ import { RequestProvider } from "./context/RequestContext";
 import UserRequests from "./pages/UserRequests";
 import AboutUs from "./pages/AboutUs";
 import PaymentReports from "./pages/Admin/reports/PaymentReports";
-import CarsManagement from "./pages/Admin/management/cars-management/CarsManagement";
+import CarsMakes from "./pages/Admin/management/cars-management/CarsMakes";
+import CarsClasses from "./pages/Admin/management/cars-management/CarsClasses";
+import CarsModels from "./pages/Admin/management/cars-management/CarsModels";
+import { CarsManagementProvider } from "./context/CarsManagementContext";
 
 function App() {
   return (
@@ -277,12 +281,18 @@ function App() {
                     path="/admin/cars-management"
                     element={
                       <PostsProvider>
-                        <ProtectedRoute allowedRoles={["superAdmin"]}>
-                          <CarsManagement />
-                        </ProtectedRoute>
+                        <CarsManagementProvider>
+                          <ProtectedRoute allowedRoles={["superAdmin"]}>
+                            <Outlet />
+                          </ProtectedRoute>
+                        </CarsManagementProvider>
                       </PostsProvider>
                     }
-                  />
+                  >
+                    <Route path="car-makes" element={<CarsMakes />} />
+                    <Route path="car-classes" element={<CarsClasses />} />
+                    <Route path="car-models" element={<CarsModels />} />
+                  </Route>
                   <Route
                     path="/payment-success"
                     element={

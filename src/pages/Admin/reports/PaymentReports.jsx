@@ -20,8 +20,6 @@ const PaymentReports = () => {
     resetFilter,
   } = usePayments()
 
-  console.log(filter  )
-
 
   const payments = useMemo(() => paymentReportData.payments || [], [paymentReportData.payments])
   const totalPages = paymentReportData.totalPages

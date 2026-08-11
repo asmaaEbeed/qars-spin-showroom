@@ -4,13 +4,16 @@ import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-tabl
 import { DocumentArrowUpIcon, PlusIcon } from '@heroicons/react/24/solid';
 import LoadingState from '../../../../components/common/LoadingState';
 import Pagination from '../../../../components/layout/Pagination';
-import { useCarsManagement } from '../../../../hooks/admin/management/cars-management/useCarsManagement';
 import xlsxExport from '../../../../hooks/xlsxExport';
 import AddCarsMakesModal from '../../../../components/management/cars-management/AddCarsMakesModal';
+import { Link } from 'react-router-dom';
+import AddCarsClassesModal from '../../../../components/management/cars-management/AddCarsClassesModal';
+import { useCarsManagement } from '../../../../context/CarsManagementContext';
 
-const CarsManagement = () => {
+const CarsMakes = () => {
   const [openMakesModal, setOpenMakesModal] = useState(false);
   const [selectedCarMake, setSelectedCarMake] = useState(null);
+  const [addClassOpen, setAddClassOpen] = useState(false)
   const {
     fetchCarsMakes,
     carsMakesFiltered,
@@ -32,8 +35,17 @@ const CarsManagement = () => {
     createCarMake,
     createCarMakesLoading,
 
-    deleteCarMake,
+    createCarClass,
+    createCarClassesLoading,
+    updateCarClass,
+    updateCarClassLoading,
 
+    deleteCarMake,
+    updateCarMake,
+    updateCarMakeLoading,
+
+    selectedCarMakeId,
+    setSelectedCarMakeId
   } = useCarsManagement()
 
   useEffect(() => {
@@ -86,7 +98,19 @@ const CarsManagement = () => {
       ),
     },
 
-  ], [])
+    {
+      accessorKey: 'view',
+      header: 'Classes',
+      cell: ({ row }) => (
+        <div className="flex gap-2">
+          <Link to={`/admin/cars-management/car-classes?makeid=${row.original.makeId}`} className='flex gap-2 items-center text-primary-700'>
+            Classes
+          </Link>
+        </div>
+      ),
+    },
+
+  ], [deleteCarMake])
   const table = useReactTable({ data: currentCarsMakes, columns, getCoreRowModel: getCoreRowModel() })
 
   const handleExportCarsMakes = () => {
@@ -228,6 +252,17 @@ const CarsManagement = () => {
           createCarMake={createCarMake}
           createCarMakesLoading={createCarMakesLoading}
           selectedCarMake={selectedCarMake}
+          updateCarMake={updateCarMake}
+          updateCarMakeLoading={updateCarMakeLoading}
+          setAddClassOpen={setAddClassOpen}
+        />
+        <AddCarsClassesModal
+          open={addClassOpen}
+          onClose={() => { setAddClassOpen(false); setSelectedCarMakeId(null)}}
+          createCarClass={createCarClass}
+          createCarClassesLoading={createCarClassesLoading}
+          updateCarClass={updateCarClass}
+          updateCarClassLoading={updateCarClassLoading}
         />
 
       </main>
@@ -235,4 +270,4 @@ const CarsManagement = () => {
   )
 }
 
-export default CarsManagement
+export default CarsMakes
