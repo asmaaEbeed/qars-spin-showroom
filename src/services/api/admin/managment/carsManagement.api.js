@@ -22,4 +22,14 @@ export const carsManagementApi = {
   deleteCarClass: (id) => {
     return privateAxios.delete(`VehicleManagement/class/${id}`);
   },
+
+  createCarModel: (data) => {
+    return privateAxios.post("VehicleManagement/model", data);
+  },
+  updateCarModel: (data) => {
+    return privateAxios.put(`VehicleManagement/model/${data.modelId}`, data);
+  },
+  deleteCarModel: (id) => {
+    return privateAxios.delete(`VehicleManagement/model/${id}`);
+  },
 };

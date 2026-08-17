@@ -16,6 +16,7 @@ const AddCarsMakesModal = ({ selectedCarMake = null,
     const [viewFile, setViewFile] = useState("")
     const [openClass, setOpenClass] = useState(false)
     const [imageError, setImageError] = useState(false)
+    const [makeExistBefore, setMakeExistBefore] = useState(false)
 
     const initialFormData = useMemo(() => ({
         makeId: "",
@@ -26,26 +27,25 @@ const AddCarsMakesModal = ({ selectedCarMake = null,
     }), [])
 
 
-    const { selectedCarMakeId } = useCarsManagement()
+    const { selectedCarMakeId, carMakeCreatedSuccess, carsMakesList, setSelectedCarMakeId } = useCarsManagement()
 
     const [formData, setFormData] = useState(initialFormData);
-
-    function onSubmit(e, openClass) {
-        e.preventDefault()
-        setOpenClass(openClass)
-        if (formData.LogoFile === "") { setImageError(true); return }
-        formData.makeId ? updateCarMake(formData) : createCarMake(formData);
-    }
-
     // To open class Modal after make created
     useEffect(() => {
         if (selectedCarMakeId) {
             if (openClass) {
                 setAddClassOpen(true)
             }
-            onClose();
+            // onClose();
         }
     }, [openClass, setAddClassOpen, selectedCarMakeId, onClose])
+
+    // reset form data when makes created successfully
+    useEffect(() => {
+        if (carMakeCreatedSuccess) {
+            setFormData(initialFormData)
+        }
+    }, [carMakeCreatedSuccess, initialFormData])
 
     useEffect(() => {
         if (selectedCarMake) {
@@ -72,7 +72,22 @@ const AddCarsMakesModal = ({ selectedCarMake = null,
     }
     useEffect(() => {
         setImageError(false)
-    }, [open])
+        if(!selectedCarMake?.makeId) setViewFile("")
+    }, [open, selectedCarMake])
+
+
+    function onSubmit(e, openClass) {
+        e.preventDefault()
+        setOpenClass(openClass)
+        if(openClass && formData.makeId) setSelectedCarMakeId(formData.makeId)
+        if (formData.LogoFile === "") { setImageError(true); return }
+        if (!formData.makeId && carsMakesList.some(make => make.makeNamePl.toLowerCase().trim() === formData.MakeNamePl.toLowerCase().trim())) {
+            setMakeExistBefore(true)
+            // show error message
+            return;
+        }
+        formData.makeId ? updateCarMake(formData) : createCarMake(formData);
+    }
 
     useEffect(() => {
         if (formData.LogoFile) setImageError(false)
@@ -87,24 +102,28 @@ const AddCarsMakesModal = ({ selectedCarMake = null,
                     {imageError && <p className='m-auto text-red-600 text-center mb-4'>Please add model logo.</p>}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         {/* Make Name (PL) */}
-                        <div className="space-y-2">
-                            <label
-                                className="block text-sm font-medium text-gray-700"
-                            >
-                                Make Name (En)<span className="text-red-500">*</span>
-                            </label>
-                            <input
-                                required
-                                placeholder="Enter Make Name (PL)"
-                                type="text"
-                                value={formData.MakeNamePl}
-                                onChange={(e) => {
-                                    const sanitized = e.target.value.replace(/[\u0600-\u06FF]/g, "");;
-                                    setFormData({ ...formData, MakeNamePl: sanitized })
-                                }}
-                                className={`w-full focus-visible:outline-none px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm text-gray-900 bg-white`}
-                            />
+                        <div>
+                            <div className="space-y-2">
+                                <label
+                                    className="block text-sm font-medium text-gray-700"
+                                >
+                                    Make Name (En)<span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    required
+                                    placeholder="Enter Make Name (PL)"
+                                    type="text"
+                                    value={formData.MakeNamePl}
+                                    onChange={(e) => {
+                                        setMakeExistBefore(false)
+                                        const sanitized = e.target.value.replace(/[\u0600-\u06FF]/g, "");;
+                                        setFormData({ ...formData, MakeNamePl: sanitized })
+                                    }}
+                                    className={`w-full focus-visible:outline-none px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm text-gray-900 bg-white`}
+                                />
 
+                            </div>
+                            {makeExistBefore && <p className='m-auto text-red-600 mb-4'>This car make is existing</p>}
                         </div>
                         {/* Make Name (SL) */}
                         <div className="space-y-2">
@@ -120,8 +139,8 @@ const AddCarsMakesModal = ({ selectedCarMake = null,
                                 type="text"
                                 value={formData.MakeNameSl}
                                 onChange={(e) => {
-                                    const sanitized = e.target.value.replace(/[A-Za-z]/g, "");
-                                    setFormData({ ...formData, MakeNameSl: sanitized });
+                                    // const sanitized = e.target.value.replace(/[A-Za-z]/g, "");
+                                    setFormData({ ...formData, MakeNameSl: e.target.value });
                                 }}
                                 className="w-full text-right focus-visible:outline-none px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm text-gray-900 bg-white"
                             />

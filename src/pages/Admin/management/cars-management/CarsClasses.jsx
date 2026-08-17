@@ -8,15 +8,16 @@ import Select from 'react-select';
 import EmptyState from '../../../../components/common/EmptyState';
 import { LuPointer } from 'react-icons/lu';
 import AddCarsClassesModal from '../../../../components/management/cars-management/AddCarsClassesModal';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useCarsManagement } from '../../../../context/CarsManagementContext';
+import AddCarsModelsModal from '../../../../components/management/cars-management/AddCarsModelsModal';
 
 const CarsClasses = () => {
-  const [openMakesModal, setOpenMakesModal] = useState(false);
   // const [selectedCarMake, setSelectedCarMake] = useState(null);
 
   const [selectedCarClass, setSelectedCarClass] = useState("");
   const [openClassesModal, setOpenClassesModal] = useState(false);
+  const [addModelOpen, setAddModelOpen] = useState(false)
 
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -104,9 +105,20 @@ const CarsClasses = () => {
             onClick={() => { setSelectedCarClass(row.original); setOpenClassesModal(true) }}>
             Edit
           </button>
-          <button className="bg-red-500 text-white px-2 py-1 rounded" onClick={() => deleteCarClass(row.original.classId, selectedCarMakeId)}>
+          <button className="bg-red-500 text-white px-2 py-1 rounded" onClick={() => deleteCarClass(row.original.classId)}>
             Delete
           </button>
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'view',
+      header: 'Models',
+      cell: ({ row }) => (
+        <div className="flex gap-2">
+          <Link to={`/admin/cars-management/car-models?classid=${row.original.classId}&makeid=${selectedCarMakeId}`} className='flex gap-2 items-center text-primary-700'>
+            Models
+          </Link>
         </div>
       ),
     },
@@ -130,7 +142,7 @@ const CarsClasses = () => {
             <h2 className="text-base font-semibold text-gray-700 flex items-center gap-2 px-4 py-2">Car Classes List</h2>
             <div className="flex justify-between items-center px-4 py-2">
               <div className="flex gap-1 w-full">
-                {carsMakesLoading ? <p className='border p-2'>Loading...</p> : <Select
+                {carsMakesLoading ? <p className='border p-2 min-w-200'>Loading...</p> : <Select
                   options={carsMakesList}
                   getOptionLabel={(option) => option.makeNamePl}
                   getOptionValue={(option) => String(option.makeId)}
@@ -138,16 +150,16 @@ const CarsClasses = () => {
                     carsMakesList.find((c) => c.makeId === selectedCarMakeId) || null
                   }
                   onChange={(selected) => {
-                      setSearchParams(selected ? {
-                        makeid: String(selected.makeId),
-                      } : "")
-                      setSelectedCarMakeId(selected ? selectedCarMakeId : "")
+                    setSearchParams(selected ? {
+                      makeid: String(selected.makeId),
+                    } : "")
+                    setSelectedCarMakeId(selected ? selectedCarMakeId : "")
                     // fetchCarsClass(selected.classId)
                   }
                   }
                   placeholder="Select Car Make"
                   isClearable
-                  className='w-auto'
+                  className='min-w-300'
                   styles={{
                     control: (base, state) => ({
                       ...base,
@@ -188,7 +200,7 @@ const CarsClasses = () => {
                   <button
                     disabled={!selectedCarMakeId}
                     className="bg-primary-500 text-white px-4 hight-auto py-2 rounded-lg text-sm disabled:bg-primary-200 disabled:cursor-not-allowed"
-                    onClick={() => setOpenMakesModal(true)}
+                    onClick={() => setOpenClassesModal(true)}
                   >
                     <PlusIcon className="w-5 h-5 inline" /> Add Car Class
                   </button>
@@ -212,7 +224,7 @@ const CarsClasses = () => {
                     }
                     actionIcon={<PlusIcon className="mr-2 h-5 w-5" />}
                     actionLabel="Create First Class"
-                    onAction={() => setOpenMakesModal(true)}
+                    onAction={() => setOpenClassesModal(true)}
                   /> :
                   // When payment tabe list available
                   <>
@@ -267,13 +279,19 @@ const CarsClasses = () => {
           </div>
         </div>
         <AddCarsClassesModal
-          open={openMakesModal}
-          onClose={() => { setOpenMakesModal(false); setSelectedCarClass(null); }}
+          open={openClassesModal}
+          onClose={() => { setOpenClassesModal(false); setSelectedCarClass(null); }}
           createCarClass={createCarClass}
           createCarClassesLoading={createCarClassesLoading}
           selectedCarClass={selectedCarClass}
           updateCarClass={updateCarClass}
           updateCarClassLoading={updateCarClassLoading}
+          setAddModelOpen={setAddModelOpen}
+        />
+
+        <AddCarsModelsModal
+          open={addModelOpen}
+          onClose={() => { setAddModelOpen(false); }}
         />
 
       </main>

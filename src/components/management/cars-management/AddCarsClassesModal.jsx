@@ -11,9 +11,10 @@ const AddCarsClassesModal = ({
     createCarClassesLoading,
     updateCarClass,
     updateCarClassLoading,
+    setAddModelOpen
 }) => {
 
-    const { selectedCarMakeId } = useCarsManagement()
+    const { selectedCarMakeId, classUpdatedSuccess, setSelectedCarClassId, carsClassList, selectedCarClassId } = useCarsManagement()
 
     const initialFormData = useMemo(() => ({
         makeId: selectedCarMakeId ? selectedCarMakeId : "",
@@ -24,15 +25,24 @@ const AddCarsClassesModal = ({
     }), [])
 
     const [formData, setFormData] = useState(initialFormData);
+    const [openModal, setOpenModal] = useState(false)
+    const [classExistBefore, setClassExistBefore] = useState(false)
 
     useEffect(() => {
         if (open)
             setFormData({ ...formData, makeId: selectedCarMakeId })
     }, [selectedCarMakeId, open])
 
-    function onSubmit(e) {
+    function onSubmit(e, openModal) {
         e.preventDefault()
-        formData.classId ? updateCarClass(formData) : createCarClass(formData);
+        setOpenModal(openModal)
+        if (openModal && selectedCarMakeId && formData.classId) setSelectedCarClassId(formData.classId)
+        if (!formData.classId && carsClassList.some(carClass => carClass.classNamePl.toLowerCase().trim() === formData.classNamePl.toLowerCase().trim())) {
+            setClassExistBefore(true)
+            // show error message
+            return;
+        }
+        formData.classId ? updateCarClass(formData, selectedCarMakeId) : createCarClass(formData);
     }
 
     useEffect(() => {
@@ -50,10 +60,24 @@ const AddCarsClassesModal = ({
         }
     }, [selectedCarClass, initialFormData]);
 
+    useEffect(() => {
+        if (classUpdatedSuccess) onClose()
+    }, [classUpdatedSuccess, onClose])
+
+
+
+    useEffect(() => {
+        if (selectedCarClassId && selectedCarMakeId ) {
+            if (openModal) {
+                setAddModelOpen(true)
+            }
+            // onClose();
+        }
+    }, [openModal, selectedCarClassId, selectedCarMakeId, setAddModelOpen])
 
 
     return (
-        <BaseModal title="Create New Car Class" open={open} setOpen={onClose}>
+        <BaseModal title={`${selectedCarClass?.classId ? "Edit" : "Create"}  a Car Class`} open={open} setOpen={onClose}>
             <form className=" space-y-6" onSubmit={(e) => onSubmit(e)}>
                 <div className="p-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -62,7 +86,7 @@ const AddCarsClassesModal = ({
                             <label
                                 className="block text-sm font-medium text-gray-700"
                             >
-                                Make Name (En)<span className="text-red-500">*</span>
+                                Class Name (En)<span className="text-red-500">*</span>
                             </label>
                             <input
                                 required
@@ -70,11 +94,13 @@ const AddCarsClassesModal = ({
                                 type="text"
                                 value={formData.classNamePl}
                                 onChange={(e) => {
+                                    setClassExistBefore(false)
                                     const sanitized = e.target.value.replace(/[\u0600-\u06FF]/g, "");;
                                     setFormData({ ...formData, classNamePl: sanitized })
                                 }}
                                 className={`w-full focus-visible:outline-none px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm text-gray-900 bg-white`}
                             />
+                            {classExistBefore && <p className='m-auto text-red-600 mb-4'>This car class is existing.</p>}
 
                         </div>
                         {/* Make Name (SL) */}
@@ -83,7 +109,7 @@ const AddCarsClassesModal = ({
                                 htmlFor="mobile"
                                 className="block text-sm font-medium text-gray-700"
                             >
-                                Make Name (Ar)<span className="text-red-500">*</span>
+                                Class Name (Ar)<span className="text-red-500">*</span>
                             </label>
                             <input
                                 required
@@ -91,8 +117,8 @@ const AddCarsClassesModal = ({
                                 type="text"
                                 value={formData.classNameSl}
                                 onChange={(e) => {
-                                    const sanitized = e.target.value.replace(/[A-Za-z]/g, "");
-                                    setFormData({ ...formData, classNameSl: sanitized });
+                                    // const sanitized = e.target.value.replace(/[A-Za-z]/g, "");
+                                    setFormData({ ...formData, classNameSl: e.target.value });
                                 }}
                                 className="w-full text-right focus-visible:outline-none px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm text-gray-900 bg-white"
                             />
@@ -123,6 +149,15 @@ const AddCarsClassesModal = ({
                     >
                         {createCarClassesLoading || updateCarClassLoading ? <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mx-2"></div> : null}
                         <p>{!createCarClassesLoading && !updateCarClassLoading ? "Save" : "Saving..."}</p>
+                    </button>
+                    <button
+                        disabled={createCarClassesLoading || updateCarClassLoading}
+                        type="button"
+                        onClick={e => onSubmit(e, true)}
+                        className="flex px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
+                    >
+                        {((createCarClassesLoading || updateCarClassLoading) && openModal) ? <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mx-2"></div> : null}
+                        <p>{!createCarClassesLoading && !updateCarClassLoading ? "Save & Add Model" : "Saving..."}</p>
                     </button>
                 </div>
             </form>

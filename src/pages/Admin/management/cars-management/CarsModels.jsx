@@ -1,68 +1,114 @@
 import { useEffect, useMemo, useState } from 'react';
 import MainLayout from '../../../../components/layout/MainLayout'
 import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
-import { DocumentArrowUpIcon, PlusIcon } from '@heroicons/react/24/solid';
+import { DocumentArrowUpIcon, FolderPlusIcon, PlusIcon } from '@heroicons/react/24/solid';
 import LoadingState from '../../../../components/common/LoadingState';
-import Pagination from '../../../../components/layout/Pagination';
 import xlsxExport from '../../../../hooks/xlsxExport';
-import AddCarsMakesModal from '../../../../components/management/cars-management/AddCarsMakesModal';
+import Select from 'react-select';
+import EmptyState from '../../../../components/common/EmptyState';
+import { LuPointer } from 'react-icons/lu';
+import AddCarsClassesModal from '../../../../components/management/cars-management/AddCarsClassesModal';
+import { useSearchParams } from 'react-router-dom';
 import { useCarsManagement } from '../../../../context/CarsManagementContext';
+import AddCarsModelsModal from '../../../../components/management/cars-management/AddCarsModelsModal';
+import { usePosts } from '../../../../context/PostsContext';
 
 const CarsModels = () => {
-  const [openMakesModal, setOpenMakesModal] = useState(false);
-  const [selectedCarMake, setSelectedCarMake] = useState(null);
+  // const [selectedCarMake, setSelectedCarMake] = useState(null);
+
+  const [selectedCarModel, setSelectedCarModel] = useState("");
+  const [openModelModal, setOpenModelModal] = useState(false);
+
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const makeIdParams = Number(searchParams.get('makeid'));
+  const classIdParams = Number(searchParams.get('classid'));
+
+
   const {
     fetchCarsMakes,
     carsMakesFiltered,
     carsMakesLoading,
+    carsMakesList,
 
     fetchCarsClass,
     carsClassLoading,
     carsClassList,
 
+    createCarClass,
+    createCarClassesLoading,
+
+    updateCarClass,
+    updateCarClassLoading,
+    deleteCarClass,
+
     fetchCarsModel,
     carsModelList,
     carsModelLoading,
 
-    filter,
-    setFilter,
-    totalPages,
-    currentCarsMakes,
-
     createCarMake,
     createCarMakesLoading,
-
-
 
     deleteCarMake,
     updateCarMake,
     updateCarMakeLoading,
 
+    selectedCarMakeId,
+    setSelectedCarMakeId,
+    setSelectedCarClassId,
+
+    selectedCarClassId,
+    createCarModelLoading,
+    modelUpdateSuccess,
+    createCarModel,
+    updateCarModel,
+    updateCarModelLoading,
+    deleteCarModel,
+    
+
   } = useCarsManagement()
+
+  const { setCarsClassList } = usePosts()
 
   useEffect(() => {
     fetchCarsMakes()
   }, [fetchCarsMakes])
 
+  useEffect(() => {
+
+    if (makeIdParams) setSelectedCarMakeId(makeIdParams)
+  }, [makeIdParams, setSelectedCarMakeId, classIdParams, setSelectedCarClassId])
+
+  useEffect(() => {
+    if (selectedCarMakeId && classIdParams && carsClassList.length > 0) setSelectedCarClassId(classIdParams)
+  }, [selectedCarMakeId, classIdParams, setSelectedCarClassId, carsClassList])
+
+  useEffect(() => {
+
+    if (selectedCarMakeId) {
+      fetchCarsClass(selectedCarMakeId);
+    }
+  }, [fetchCarsClass, selectedCarMakeId]);
+
+  useEffect(() => {
+
+    if (selectedCarClassId) {
+      fetchCarsModel(selectedCarMakeId, selectedCarClassId);
+    }
+  }, [selectedCarMakeId, fetchCarsModel, selectedCarClassId]);
+
   const columns = useMemo(() => [
     {
-      accessorKey: 'imageUrl',
-      header: 'Img',
-      cell: ({ row }) => (
-        <img src={row.original.imageUrl} alt={row.original.makeNamePl} className="max-w-20 h-20 object-cover" />
-      ),
+      accessorKey: 'modelId',
+      header: 'model ID',
     },
     {
-      accessorKey: 'makeId',
-      header: 'Make ID',
+      accessorKey: 'modelNamePl',
+      header: 'Model Name En',
     },
     {
-      accessorKey: 'makeNamePl',
-      header: 'Make Name En',
-    },
-    {
-      accessorKey: 'makeNameSl',
-      header: 'Make Name Ar',
+      accessorKey: 'modelNameSl',
+      header: 'Model Name Ar',
     },
     {
       accessorKey: 'isActive',
@@ -80,10 +126,10 @@ const CarsModels = () => {
       cell: ({ row }) => (
         <div className="flex gap-2">
           <button className="bg-primary-500 text-white px-2 py-1 rounded"
-            onClick={() => { setSelectedCarMake(row.original); setOpenMakesModal(true) }}>
+            onClick={() => { setSelectedCarModel(row.original); setOpenModelModal(true) }}>
             Edit
           </button>
-          <button className="bg-red-500 text-white px-2 py-1 rounded" onClick={() => deleteCarMake(row.original.makeId)}>
+          <button className="bg-red-500 text-white px-2 py-1 rounded" onClick={() => deleteCarModel(row.original.modelId)}>
             Delete
           </button>
         </div>
@@ -91,149 +137,216 @@ const CarsModels = () => {
     },
 
   ], [])
-  const table = useReactTable({ data: currentCarsMakes, columns, getCoreRowModel: getCoreRowModel() })
+  const table = useReactTable({
+    data: carsModelList,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+  });
 
-  const handleExportCarsMakes = () => {
-    xlsxExport(currentCarsMakes, `Car Makes`);
+  const handleExportCarMakes = () => {
+    xlsxExport(carsModelList, `Car Models`);
   };
 
   return (
     <MainLayout>
       <main className="relative min-h-[calc(100vh-10rem)]">
         <div className="max-w-7xl m-auto my-4 overflow-x-auto">
-          <div className="mb-2 pb-4 bg-white/80 backdrop-blur-md border border-gray-200 rounded-2xl shadow-md">
-            <h2 className="text-base font-semibold text-gray-700 flex items-center gap-2 px-4 py-2">Car Makes List</h2>
+          <div className="mb-2 pb-4 min-h-[calc(100vh-10rem)] bg-white/80 backdrop-blur-md border border-gray-200 rounded-2xl shadow-md">
+            <h2 className="text-base font-semibold text-gray-700 flex items-center gap-2 px-4 py-2">Car Models List</h2>
             <div className="flex justify-between items-center px-4 py-2">
-              <div className="flex gap-1">
+              <div className="flex gap-4 w-1/2">
 
-                <select
-                  value={filter.filterBy}
-                  onChange={(e) =>
-                    setFilter({ ...filter, filterBy: e.target.value, pageNumber: 1, value: '' })
-                  }
-                  className="w-full rounded-lg border border-gray-300 text-sm text-gray-700 bg-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                >
-                  <option value="">Search By</option>
-                  <option value="makeId">Id</option>
-                  <option value="makeNamePl">Make Name En</option>
-                  <option value="makeNameSl">Make Name Ar</option>
-                </select>
-                <input
-                  type="text"
-                  disabled={filter.filterBy === ''}
-                  placeholder="Search..."
-                  className="px-3 py-2 border border-gray-300 rounded-lg"
-                  onChange={(e) => setFilter({ ...filter, value: e.target.value, pageNumber: 1 })}
-                  value={filter.value}
-                />
-              </div>
-              {carsMakesFiltered.length > 0 && !carsMakesLoading &&
-                <div className="flex items-end gap-2">
-                  <div className="flex items-center gap-1">
-                    <label className="block text-xs text-nowrap font-medium text-gray-600">
-                      Page Size
-                    </label>
-                    <select
-                      value={filter.pageSize}
-                      onChange={(e) =>
-                        setFilter({ ...filter, pageSize: e.target.value, pageNumber: 1 })
+                <div className="flex gap-1 w-full">
+                  {carsMakesLoading ? <p className='border p-2 w-full'><span className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mx-2"></span>Loading...</p> :
+                    <Select
+                      loadingState={carsMakesLoading}
+                      options={carsMakesList}
+                      getOptionLabel={(option) => option.makeNamePl}
+                      getOptionValue={(option) => String(option.makeId)}
+                      value={
+                        carsMakesList.find((c) => c.makeId === selectedCarMakeId) || null
                       }
-                      className="w-full rounded-lg border border-gray-300 text-sm text-gray-700 bg-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                    >
-                      <option value="20">20</option>
-                      <option value="50">50</option>
-                      <option value="100">100</option>
-                    </select>
-                  </div>
+                      onChange={(selected) => {
+                        setSelectedCarClassId(null);
+                        setCarsClassList([])
+                        if (selected) {
+                          setSearchParams(prev => ({ ...prev, makeid: String(selected.makeId) }))
+                          setSelectedCarMakeId(selected.makeId)
+                        } else setSelectedCarMakeId("")
+                      }
+                      }
+                      placeholder="Select Car Make"
+                      isClearable
+                      className='w-full'
+                      styles={{
+                        control: (base, state) => ({
+                          ...base,
+                          borderColor: state.isFocused
+                            ? "#3b82f6" // tailwind primary-500 تقريباً
+                            : "#d1d5db", // gray-300
+                          boxShadow: state.isFocused
+                            ? "0 0 0 1px #3b82f6"
+                            : "none",
+                          "&:hover": {
+                            borderColor: state.isFocused
+                              ? "#3b82f6"
+                              : "#9ca3af", // gray-400
+                          },
+                        }),
+                      }}
+                      formatOptionLabel={(option) => (
+                        <div className="grid grid-cols-5 items-center space-x-2">
+                          <img
+                            alt={option.makeNamePl}
+                            src={option.imageUrl}
+                            className="col-span-1 w-10 h-10 rounded-full border border-gray-300"
+                          />
+                          <span className="col-span-2">{option.makeNamePl}</span>
+                        </div>
+                      )}
+                    />}
+                </div>
+
+                <div className="flex gap-1 w-full">
+                  {carsClassLoading ? <p className='border p-2 w-full'><span className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mx-2"></span>Loading...</p> : <Select
+                    // loadingState={carsClassLoading}
+                    disabled={!selectedCarMakeId}
+                    options={carsClassList}
+                    getOptionLabel={(option) => option.classNamePl}
+                    getOptionValue={(option) => String(option.classId)}
+                    value={
+                      carsClassList.find((c) => c.classId === selectedCarClassId) || null
+                    }
+                    onChange={(selected) => {
+                      if (selected) {
+                        setSearchParams(prev => ({ ...prev, classid: String(selected.classId) }))
+                        setSelectedCarClassId(selected.classId)
+                      } else setSelectedCarClassId("")
+                      // setSearchParams({
+                      //   ...searchParams,
+                      //   ...(selected
+                      //     ? { classid: String(selected.classId) }
+                      //     : {}),
+                      // });
+                      // setSelectedCarClassId(selected ? selected.classId : "")
+                    }}
+                    placeholder="Select Car Class"
+                    isClearable
+                    className='w-full'
+                    styles={{
+                      control: (base, state) => ({
+                        ...base,
+                        borderColor: state.isFocused
+                          ? "#3b82f6" // tailwind primary-500 تقريباً
+                          : "#d1d5db", // gray-300
+                        boxShadow: state.isFocused
+                          ? "0 0 0 1px #3b82f6"
+                          : "none",
+                        "&:hover": {
+                          borderColor: state.isFocused
+                            ? "#3b82f6"
+                            : "#9ca3af", // gray-400
+                        },
+                      }),
+                    }}
+                    formatOptionLabel={(option) => (
+                      <span className="col-span-2">{option.classNamePl}</span>
+                    )}
+                  />}
+                </div>
+              </div>
+              {(selectedCarClassId) &&
+                <div className="flex items-end gap-2 justify-end">
                   <button
-                    className="bg-primary-500 text-white px-4 hight-auto py-2 rounded-lg text-sm"
-                    onClick={handleExportCarsMakes}
+                    disabled={!selectedCarClassId && carsModelList.length > 0}
+                    className="bg-primary-500 text-white px-4 hight-auto py-2 rounded-lg text-sm disabled:bg-primary-200 disabled:cursor-not-allowed"
+                    onClick={handleExportCarMakes}
                   >
                     <DocumentArrowUpIcon className="w-5 h-5 inline" /> Export
                   </button>
                   <button
-                    className="bg-primary-500 text-white px-4 hight-auto py-2 rounded-lg text-sm"
-                    onClick={() => setOpenMakesModal(true)}
+                    disabled={!selectedCarClassId}
+                    className="bg-primary-500 text-white px-4 hight-auto py-2 rounded-lg text-sm disabled:bg-primary-200 disabled:cursor-not-allowed"
+                    onClick={() => setOpenModelModal(true)}
                   >
-                    <PlusIcon className="w-5 h-5 inline" /> Add Car Make
+                    <PlusIcon className="w-5 h-5 inline" /> Add Car Model
                   </button>
                 </div>}
             </div>
 
-            {carsMakesLoading ?
+            {carsModelLoading ?
               // Loading Data
-              <LoadingState title="Car Makes" />
+              <LoadingState title="Car Models" />
               :
-              (carsMakesFiltered.length === 0 ?
-                // When  payment records length 0
-                <main className="relative min-h-[calc(100vh-10rem)]">
-                  <div className="text-center py-12">
-                    <div className="text-gray-500 text-lg">No Car Makes found</div>
-                    <div className="mt-2 text-gray-400">No car makes are available.</div>
-                  </div>
-                </main> :
-                // When payment tabe list available
-                <>
-                  <div className="border border-gray-200 shadow-sm mb-4 overflow-x-auto">
-                    <table className="min-w-full border-collapse">
-                      <thead className="bg-gradient-to-r from-primary-500/20 to-indigo-500/20">
-                        {table.getHeaderGroups().map((hg) => (
-                          <tr key={hg.id}>
-                            {hg.headers.map((header) => (
-                              <th
-                                key={header.id}
-                                className="px-3 py-4 text-left text-xs font-semibold text-gray-600 tracking-wider uppercase"
-                              >
-                                {flexRender(header.column.columnDef.header, header.getContext())}
-                              </th>
-                            ))}
-                          </tr>
-                        ))}
-                      </thead>
-
-                      <tbody className="bg-white max-h-96 ">
-                        {table.getRowModel().rows.map((row, rowIndex) => (
-                          <tr
-                            key={row.id}
-                            className={`transition-all duration-150 ${rowIndex % 2 === 0 ? 'bg-primary-50/40' : 'bg-primary-50'
-                              } hover:bg-primary-100/80`}
-                          >
-                            {row.getVisibleCells().map((cell) => (
-                              <td
-                                key={cell.id}
-                                className="px-2 py-1.5 text-xs font-semibold text-gray-700 whitespace-nowrap border-t border-gray-300"
-                              >
-                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                              </td>
-                            ))}
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                  <Pagination
-                    currentPage={filter.pageNumber}
-                    totalPages={totalPages}
-                    onPageChange={(page) =>
-                      setFilter((prev) => ({
-                        ...prev,
-                        pageNumber: page,
-                      }))
+              selectedCarMakeId && selectedCarClassId ?
+                ((carsClassList.length === 0) ?
+                  <EmptyState
+                    icon={<FolderPlusIcon className="h-10 w-10 text-white" />}
+                    title="No Models Found"
+                    description={
+                      carsModelList?.length
+                        ? "Try adjusting your search filters or clear all filters to see more results"
+                        : "Start by creating your first model"
                     }
-                  />
-                </>
-              )
+                    actionIcon={<PlusIcon className="mr-2 h-5 w-5" />}
+                    actionLabel="Create First Model"
+                    onAction={() => setOpenModelModal(true)}
+                  /> :
+                  <>
+                    <div className="border border-gray-200 shadow-sm mb-4 overflow-x-auto">
+                      <table className="min-w-full border-collapse">
+                        <thead className="bg-gradient-to-r from-primary-500/20 to-indigo-500/20">
+                          {table.getHeaderGroups().map((hg) => (
+                            <tr key={hg.id}>
+                              {hg.headers.map((header) => (
+                                <th
+                                  key={header.id}
+                                  className="px-3 py-4 text-left text-xs font-semibold text-gray-600 tracking-wider uppercase"
+                                >
+                                  {flexRender(header.column.columnDef.header, header.getContext())}
+                                </th>
+                              ))}
+                            </tr>
+                          ))}
+                        </thead>
+
+                        <tbody className="bg-white max-h-96 ">
+                          {table.getRowModel().rows.map((row, rowIndex) => (
+                            <tr
+                              key={row.id}
+                              className={`transition-all duration-150 ${rowIndex % 2 === 0 ? 'bg-primary-50/40' : 'bg-primary-50'
+                                } hover:bg-primary-100/80`}
+                            >
+                              {row.getVisibleCells().map((cell) => (
+                                <td
+                                  key={cell.id}
+                                  className="px-2 py-1.5 text-xs font-semibold text-gray-700 whitespace-nowrap border-t border-gray-300"
+                                >
+                                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                </td>
+                              ))}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </>
+                ) : <EmptyState
+                  icon={<LuPointer className="h-10 w-10 text-white" />}
+                  title="Select Car Class"
+                  description={
+                    carsClassList?.length
+                      ? "select Car Class to view it's models list."
+                      : "No car Models found you can add from car makes page"
+                  }
+                />
             }
           </div>
         </div>
-        <AddCarsMakesModal
-          open={openMakesModal}
-          onClose={() => { setOpenMakesModal(false); setSelectedCarMake(null); }}
-          createCarMake={createCarMake}
-          createCarMakesLoading={createCarMakesLoading}
-          selectedCarMake={selectedCarMake}
-          updateCarMake={updateCarMake}
-          updateCarMakeLoading={updateCarMakeLoading}
+        <AddCarsModelsModal
+          open={openModelModal}
+          onClose={() => { setOpenModelModal(false); setSelectedCarModel(null); }}
+          selectedCarModel={selectedCarModel}
         />
 
       </main>

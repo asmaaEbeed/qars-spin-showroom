@@ -9,11 +9,13 @@ import AddCarsMakesModal from '../../../../components/management/cars-management
 import { Link } from 'react-router-dom';
 import AddCarsClassesModal from '../../../../components/management/cars-management/AddCarsClassesModal';
 import { useCarsManagement } from '../../../../context/CarsManagementContext';
+import AddCarsModelsModal from '../../../../components/management/cars-management/AddCarsModelsModal';
 
 const CarsMakes = () => {
   const [openMakesModal, setOpenMakesModal] = useState(false);
   const [selectedCarMake, setSelectedCarMake] = useState(null);
   const [addClassOpen, setAddClassOpen] = useState(false)
+  const [addModelOpen, setAddModelOpen] = useState(false)
   const {
     fetchCarsMakes,
     carsMakesFiltered,
@@ -258,11 +260,17 @@ const CarsMakes = () => {
         />
         <AddCarsClassesModal
           open={addClassOpen}
-          onClose={() => { setAddClassOpen(false); setSelectedCarMakeId(null)}}
+          onClose={() => { setAddClassOpen(false); }}
           createCarClass={createCarClass}
           createCarClassesLoading={createCarClassesLoading}
           updateCarClass={updateCarClass}
           updateCarClassLoading={updateCarClassLoading}
+          setAddModelOpen={setAddModelOpen}
+        />
+
+        <AddCarsModelsModal
+          open={addModelOpen}
+          onClose={() => { setAddModelOpen(false); }}
         />
 
       </main>

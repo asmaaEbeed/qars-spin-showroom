@@ -24,17 +24,24 @@ export const CarsManagementProvider = ({ children }) => {
     const [filter, setFilter] = useState(initialFilter);
     const [carsMakesFiltered, setCarsMakesFiltered] = useState([]);
     const [createCarMakesLoading, setCreateCarMakesLoading] = useState(false);
+    const [carMakeCreatedSuccess, setCarMakeCreatedSuccess] = useState(false);
     const [updateCarMakeLoading, setUpdateCarMakeLoading] = useState(false);
 
     const [createCarClassesLoading, setCreateCarClassesLoading] = useState(false);
 
     const [updateCarClassLoading, setUpdateCarClassLoading] = useState(false);
+    const [classUpdatedSuccess, setClassUpdatedSuccess] = useState(false)
 
     const [currentCarsMakes, setCurrentCarsMakes] = useState([]);
 
     const [selectedCarClassId, setSelectedCarClassId] = useState(null);
-    const [selectedCarMakeId,
-        setSelectedCarMakeId] = useState(null);
+    const [selectedCarMakeId, setSelectedCarMakeId] = useState(null);
+
+    const [createCarModelLoading, setCreateCarModelLoading] = useState(false);
+    const [createCarModelSuccess, setCreateCarModelSuccess] = useState(false)
+    const [updateCarModelLoading, setUpdateCarModelLoading] = useState(false);
+    // use to open model after updated successfully
+    const [modelUpdateSuccess, setModelUpdateSuccess] = useState(false)
 
     const {
         fetchCarsMakes,
@@ -49,6 +56,7 @@ export const CarsManagementProvider = ({ children }) => {
         fetchCarsModel,
         carsModelList,
         carsModelLoading,
+        setCarsModelList
     } = usePosts();
 
     const totalPages = Math.ceil(carsMakesList.length / filter.pageSize);
@@ -89,6 +97,7 @@ export const CarsManagementProvider = ({ children }) => {
     // Create Car Make
     const createCarMake = useCallback(async (data) => {
         try {
+            setCarMakeCreatedSuccess(false)
             setCreateCarMakesLoading(true);
             const formData = new FormData();
             Object.entries(data).forEach(([key, value]) => {
@@ -99,6 +108,7 @@ export const CarsManagementProvider = ({ children }) => {
                 toast.success("Car Make created successfully");
                 fetchCarsMakes();
                 setSelectedCarMakeId(res.data.makeId);
+                setCarMakeCreatedSuccess(true)
             }
             return res;
         } catch (e) {
@@ -175,6 +185,7 @@ export const CarsManagementProvider = ({ children }) => {
             const res = await carsManagementApi.createCarClass(data);
             if (res.status === 200 || res.makeId) {
                 toast.success("Car Make created successfully");
+                setSelectedCarClassId(res.data.classId);
                 fetchCarsClass(data.makeId);
             }
             return res;
@@ -190,22 +201,24 @@ export const CarsManagementProvider = ({ children }) => {
     const updateCarClass = useCallback(async (data, makeId) => {
         try {
             setUpdateCarClassLoading(true);
+            setClassUpdatedSuccess(false)
             const res = await carsManagementApi.updateCarClass(data);
             if (res.status === 200 || res.makeId) {
                 toast.success("Car Class Updated successfully");
                 fetchCarsClass(makeId);
+                setClassUpdatedSuccess(true)
+
             }
             return res;
         } catch (e) {
-            toast.error(e?.response?.data?.message || "Failed to create car make");
+            toast.error(e?.response?.data?.message || "Failed to update car class");
             console.log(e);
         } finally {
-            setUpdateCarMakeLoading(false);
+            setUpdateCarClassLoading(false);
         }
     }, [fetchCarsClass]);
     // Delete Car class
-    const deleteCarClass = useCallback(async (id, makeId) => {
-        console.log(id)
+    const deleteCarClass = useCallback(async (id) => {
         try {
             Swal.fire({
                 title: `Are you sure to delete this car Class?`,
@@ -224,7 +237,7 @@ export const CarsManagementProvider = ({ children }) => {
                                 res.data.message || "Car Class deleted successfully",
                             );
                             setCarsClassList(prev => prev.filter(e => e.classId !== id))
-                          
+
                         }
                     } catch (error) {
                         toast.error(
@@ -236,8 +249,82 @@ export const CarsManagementProvider = ({ children }) => {
         } catch (error) {
             toast.error("Something went wrong");
         }
-    }, [fetchCarsClass]);
+    }, [setCarsClassList]);
 
+    // Create Car Model
+    const createCarModel = useCallback(async (data) => {
+        try {
+            setCreateCarModelLoading(true);
+            setCreateCarModelSuccess(false)
+            const res = await carsManagementApi.createCarModel(data);
+            if (res.status === 200 || res.modelId) {
+                toast.success("Car model created successfully");
+                fetchCarsModel(data.makeId, data.classId);
+                setCreateCarModelSuccess(true)
+            }
+            return res;
+        } catch (e) {
+            toast.error(e?.response?.data?.message || "Failed to create car model");
+            console.log(e);
+        } finally {
+            setCreateCarModelLoading(false);
+        }
+    }, [fetchCarsModel]);
+
+    // Update Car model
+    const updateCarModel = useCallback(async (data, makeId) => {
+        try {
+            setUpdateCarModelLoading(true);
+            setModelUpdateSuccess(false)
+            const res = await carsManagementApi.updateCarModel(data);
+            if (res.status === 200 || res.modelId) {
+                toast.success("Car Model Updated successfully");
+                fetchCarsModel(data.makeId, data.classId);
+                setModelUpdateSuccess(true)
+
+            }
+            return res;
+        } catch (e) {
+            toast.error(e?.response?.data?.message || "Failed to update car model");
+            console.log(e);
+        } finally {
+            setUpdateCarModelLoading(false);
+        }
+    }, [fetchCarsModel]);
+
+    // Delete Car Model
+    const deleteCarModel = useCallback(async (id) => {
+        try {
+            Swal.fire({
+                title: `Are you sure to delete this car Model?`,
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, Delete it!",
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        const res = await carsManagementApi.deleteCarModel(id);
+                        if (res.status === 200 || res.status === 204) {
+                            toast.success(
+                                res.data.message || "Car Model deleted successfully",
+                            );
+                            setCarsModelList(prev => prev.filter(e => e.modelId !== id))
+
+                        }
+                    } catch (error) {
+                        toast.error(
+                            error?.response?.data?.title || "Failed to delete car make",
+                        );
+                    }
+                }
+            });
+        } catch (error) {
+            toast.error("Something went wrong");
+        }
+    }, [setCarsModelList]);
 
 
     const value = useMemo(
@@ -264,6 +351,7 @@ export const CarsManagementProvider = ({ children }) => {
 
             createCarMake,
             createCarMakesLoading,
+            carMakeCreatedSuccess,
 
             updateCarMakeLoading,
             updateCarMake,
@@ -275,12 +363,21 @@ export const CarsManagementProvider = ({ children }) => {
             updateCarClass,
             updateCarClassLoading,
             deleteCarClass,
+            classUpdatedSuccess,
 
             selectedCarClassId,
             setSelectedCarClassId,
 
             selectedCarMakeId,
-            setSelectedCarMakeId
+            setSelectedCarMakeId,
+
+            createCarModelLoading,
+            createCarModelSuccess,
+            modelUpdateSuccess,
+            createCarModel,
+            updateCarModel,
+            updateCarModelLoading,
+            deleteCarModel
         }),
         [
 
@@ -305,6 +402,7 @@ export const CarsManagementProvider = ({ children }) => {
 
             createCarMake,
             createCarMakesLoading,
+            carMakeCreatedSuccess,
 
             updateCarMakeLoading,
             updateCarMake,
@@ -316,12 +414,21 @@ export const CarsManagementProvider = ({ children }) => {
             updateCarClass,
             updateCarClassLoading,
             deleteCarClass,
+            classUpdatedSuccess,
 
             selectedCarClassId,
             setSelectedCarClassId,
 
             selectedCarMakeId,
-            setSelectedCarMakeId
+            setSelectedCarMakeId,
+
+            createCarModelLoading,
+            createCarModelSuccess,
+            modelUpdateSuccess,
+            createCarModel,
+            updateCarModel,
+            updateCarModelLoading,
+            deleteCarModel
         ]
     );
 
