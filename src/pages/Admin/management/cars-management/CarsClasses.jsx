@@ -58,20 +58,18 @@ const CarsClasses = () => {
   } = useCarsManagement()
 
   useEffect(() => {
-    fetchCarsMakes()
-  }, [fetchCarsMakes])
+    if(carsMakesList.length === 0) fetchCarsMakes()
+  }, [fetchCarsMakes, carsMakesList])
+
 
   useEffect(() => {
-
-    if (makeIdParams) setSelectedCarMakeId(makeIdParams)
-  }, [makeIdParams, setSelectedCarMakeId])
-
-  useEffect(() => {
-
-    if (selectedCarMakeId) {
-      fetchCarsClass(selectedCarMakeId);
+    if (!makeIdParams) {
+      return;
     }
-  }, [fetchCarsClass, selectedCarMakeId]);
+
+    setSelectedCarMakeId(makeIdParams);
+    fetchCarsClass(makeIdParams);
+  }, [makeIdParams, fetchCarsClass, setSelectedCarMakeId]);
 
   const columns = useMemo(() => [
     {
@@ -102,7 +100,7 @@ const CarsClasses = () => {
       cell: ({ row }) => (
         <div className="flex gap-2">
           <button className="bg-primary-500 text-white px-2 py-1 rounded"
-            onClick={() => { setSelectedCarClass(row.original); setOpenClassesModal(true) }}>
+            onClick={(e) => { e.preventDefault(); setSelectedCarClass(row.original); setOpenClassesModal(true) }}>
             Edit
           </button>
           <button className="bg-red-500 text-white px-2 py-1 rounded" onClick={() => deleteCarClass(row.original.classId)}>

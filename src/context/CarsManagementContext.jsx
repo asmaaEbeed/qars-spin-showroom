@@ -24,7 +24,6 @@ export const CarsManagementProvider = ({ children }) => {
     const [filter, setFilter] = useState(initialFilter);
     const [carsMakesFiltered, setCarsMakesFiltered] = useState([]);
     const [createCarMakesLoading, setCreateCarMakesLoading] = useState(false);
-    const [carMakeCreatedSuccess, setCarMakeCreatedSuccess] = useState(false);
     const [updateCarMakeLoading, setUpdateCarMakeLoading] = useState(false);
 
     const [createCarClassesLoading, setCreateCarClassesLoading] = useState(false);
@@ -41,7 +40,6 @@ export const CarsManagementProvider = ({ children }) => {
     const [createCarModelSuccess, setCreateCarModelSuccess] = useState(false)
     const [updateCarModelLoading, setUpdateCarModelLoading] = useState(false);
     // use to open model after updated successfully
-    const [modelUpdateSuccess, setModelUpdateSuccess] = useState(false)
 
     const {
         fetchCarsMakes,
@@ -97,7 +95,6 @@ export const CarsManagementProvider = ({ children }) => {
     // Create Car Make
     const createCarMake = useCallback(async (data) => {
         try {
-            setCarMakeCreatedSuccess(false)
             setCreateCarMakesLoading(true);
             const formData = new FormData();
             Object.entries(data).forEach(([key, value]) => {
@@ -108,7 +105,6 @@ export const CarsManagementProvider = ({ children }) => {
                 toast.success("Car Make created successfully");
                 fetchCarsMakes();
                 setSelectedCarMakeId(res.data.makeId);
-                setCarMakeCreatedSuccess(true)
             }
             return res;
         } catch (e) {
@@ -181,12 +177,13 @@ export const CarsManagementProvider = ({ children }) => {
     const createCarClass = useCallback(async (data) => {
         try {
             setCreateCarClassesLoading(true);
-            console.log(data);
+            setClassUpdatedSuccess(false)
             const res = await carsManagementApi.createCarClass(data);
             if (res.status === 200 || res.makeId) {
                 toast.success("Car Make created successfully");
                 setSelectedCarClassId(res.data.classId);
                 fetchCarsClass(data.makeId);
+                setClassUpdatedSuccess(true)
             }
             return res;
         } catch (e) {
@@ -275,12 +272,10 @@ export const CarsManagementProvider = ({ children }) => {
     const updateCarModel = useCallback(async (data, makeId) => {
         try {
             setUpdateCarModelLoading(true);
-            setModelUpdateSuccess(false)
             const res = await carsManagementApi.updateCarModel(data);
             if (res.status === 200 || res.modelId) {
                 toast.success("Car Model Updated successfully");
                 fetchCarsModel(data.makeId, data.classId);
-                setModelUpdateSuccess(true)
 
             }
             return res;
@@ -351,7 +346,6 @@ export const CarsManagementProvider = ({ children }) => {
 
             createCarMake,
             createCarMakesLoading,
-            carMakeCreatedSuccess,
 
             updateCarMakeLoading,
             updateCarMake,
@@ -373,7 +367,6 @@ export const CarsManagementProvider = ({ children }) => {
 
             createCarModelLoading,
             createCarModelSuccess,
-            modelUpdateSuccess,
             createCarModel,
             updateCarModel,
             updateCarModelLoading,
@@ -402,7 +395,6 @@ export const CarsManagementProvider = ({ children }) => {
 
             createCarMake,
             createCarMakesLoading,
-            carMakeCreatedSuccess,
 
             updateCarMakeLoading,
             updateCarMake,
@@ -424,7 +416,6 @@ export const CarsManagementProvider = ({ children }) => {
 
             createCarModelLoading,
             createCarModelSuccess,
-            modelUpdateSuccess,
             createCarModel,
             updateCarModel,
             updateCarModelLoading,

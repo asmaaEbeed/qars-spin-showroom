@@ -59,7 +59,6 @@ const CarsModels = () => {
 
     selectedCarClassId,
     createCarModelLoading,
-    modelUpdateSuccess,
     createCarModel,
     updateCarModel,
     updateCarModelLoading,

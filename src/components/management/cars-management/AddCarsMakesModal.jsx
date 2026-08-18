@@ -1,8 +1,17 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import BaseModal from '../../common/BaseModal';
 import SwitchSelect from '../../common/SwitchSelect';
 import UploadBannerImg from '../../banners/UploadBannerImg';
 import { useCarsManagement } from '../../../context/CarsManagementContext';
+
+
+const initialFormData = {
+    makeId: "",
+    MakeNamePl: "",
+    MakeNameSl: "",
+    LogoFile: "",
+    IsActive: true,
+}
 
 const AddCarsMakesModal = ({ selectedCarMake = null,
     open,
@@ -14,40 +23,19 @@ const AddCarsMakesModal = ({ selectedCarMake = null,
     setAddClassOpen,
 }) => {
     const [viewFile, setViewFile] = useState("")
-    const [openClass, setOpenClass] = useState(false)
     const [imageError, setImageError] = useState(false)
     const [makeExistBefore, setMakeExistBefore] = useState(false)
 
-    const initialFormData = useMemo(() => ({
-        makeId: "",
-        MakeNamePl: "",
-        MakeNameSl: "",
-        LogoFile: "",
-        IsActive: true,
-    }), [])
 
 
-    const { selectedCarMakeId, carMakeCreatedSuccess, carsMakesList, setSelectedCarMakeId } = useCarsManagement()
+
+    const { selectedCarMakeId, carsMakesList, setSelectedCarMakeId } = useCarsManagement()
 
     const [formData, setFormData] = useState(initialFormData);
-    // To open class Modal after make created
-    useEffect(() => {
-        if (selectedCarMakeId) {
-            if (openClass) {
-                setAddClassOpen(true)
-            }
-            // onClose();
-        }
-    }, [openClass, setAddClassOpen, selectedCarMakeId, onClose])
-
-    // reset form data when makes created successfully
-    useEffect(() => {
-        if (carMakeCreatedSuccess) {
-            setFormData(initialFormData)
-        }
-    }, [carMakeCreatedSuccess, initialFormData])
 
     useEffect(() => {
+        if (!open) return;
+        // Edit
         if (selectedCarMake) {
             setFormData({
                 makeId: selectedCarMake.makeId || "",
@@ -57,12 +45,15 @@ const AddCarsMakesModal = ({ selectedCarMake = null,
                 IsActive: selectedCarMake.isActive || true,
             });
             setViewFile(selectedCarMake.imageUrl);
-        } else {
-            setFormData(initialFormData);
-            setViewFile("");
-
+            return;
         }
-    }, [selectedCarMake, initialFormData]);
+        // new
+        setFormData({
+            ...initialFormData,
+            makeId: selectedCarMakeId ?? "",
+        });
+        setViewFile("");
+    }, [open, selectedCarMakeId, selectedCarMake]);
 
     const handleSetUploadFile = (file) => {
         const reader = new FileReader();
@@ -72,21 +63,38 @@ const AddCarsMakesModal = ({ selectedCarMake = null,
     }
     useEffect(() => {
         setImageError(false)
-        if(!selectedCarMake?.makeId) setViewFile("")
+        if (!selectedCarMake?.makeId) setViewFile("")
     }, [open, selectedCarMake])
 
 
-    function onSubmit(e, openClass) {
+    async function onSubmit(e, openClassModal) {
         e.preventDefault()
-        setOpenClass(openClass)
-        if(openClass && formData.makeId) setSelectedCarMakeId(formData.makeId)
+        if (openClassModal && formData.makeId) setSelectedCarMakeId(formData.makeId)
         if (formData.LogoFile === "") { setImageError(true); return }
         if (!formData.makeId && carsMakesList.some(make => make.makeNamePl.toLowerCase().trim() === formData.MakeNamePl.toLowerCase().trim())) {
             setMakeExistBefore(true)
             // show error message
             return;
         }
-        formData.makeId ? updateCarMake(formData) : createCarMake(formData);
+        if (formData.makeId) {
+            const res = await updateCarMake(formData)
+            if (res.status === 200 || res.data.makeId) {
+                if (openClassModal) {
+                    setAddClassOpen(true)
+                    onClose()
+                } else
+                    onClose()
+            }
+        } else {
+            const res = await createCarMake(formData);
+            if (res.status === 200 || res.data.makeId) {
+                setFormData(initialFormData);
+                if (openClassModal) {
+                    setAddClassOpen(true)
+                    onClose()
+                }
+            }
+        }
     }
 
     useEffect(() => {
@@ -170,7 +178,7 @@ const AddCarsMakesModal = ({ selectedCarMake = null,
                         onClick={e => onSubmit(e, false)}
                         className="flex px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors duration-200"
                     >
-                        {((createCarMakesLoading || updateCarMakeLoading) && !openClass) ? <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mx-2"></div> : null}
+                        {((createCarMakesLoading || updateCarMakeLoading)) ? <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mx-2"></div> : null}
                         <p>{!createCarMakesLoading && !updateCarMakeLoading ? "Save" : "Saving..."}</p>
                     </button>
                     <button
@@ -179,7 +187,7 @@ const AddCarsMakesModal = ({ selectedCarMake = null,
                         onClick={e => onSubmit(e, true)}
                         className="flex px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
                     >
-                        {((createCarMakesLoading || updateCarMakeLoading) && openClass) ? <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mx-2"></div> : null}
+                        {((createCarMakesLoading || updateCarMakeLoading)) ? <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mx-2"></div> : null}
                         <p>{!createCarMakesLoading && !updateCarMakeLoading ? "Save & Add Class" : "Saving..."}</p>
                     </button>
                 </div>

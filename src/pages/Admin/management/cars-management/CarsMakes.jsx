@@ -21,7 +21,6 @@ const CarsMakes = () => {
     carsMakesFiltered,
     carsMakesLoading,
 
-    fetchCarsClass,
     carsClassLoading,
     carsClassList,
 
@@ -51,8 +50,8 @@ const CarsMakes = () => {
   } = useCarsManagement()
 
   useEffect(() => {
-    fetchCarsMakes()
-  }, [fetchCarsMakes])
+    if(currentCarsMakes.length === 0) fetchCarsMakes()
+  }, [fetchCarsMakes, currentCarsMakes])
 
   const columns = useMemo(() => [
     {

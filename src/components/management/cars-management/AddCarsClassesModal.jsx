@@ -1,7 +1,15 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import BaseModal from '../../common/BaseModal';
 import SwitchSelect from '../../common/SwitchSelect';
 import { useCarsManagement } from '../../../context/CarsManagementContext';
+
+const initialFormData = {
+    makeId: "",
+    classId: "",
+    classNamePl: "",
+    classNameSl: "",
+    isActive: true,
+}
 
 const AddCarsClassesModal = ({
     selectedCarClass = null,
@@ -16,36 +24,14 @@ const AddCarsClassesModal = ({
 
     const { selectedCarMakeId, classUpdatedSuccess, setSelectedCarClassId, carsClassList, selectedCarClassId } = useCarsManagement()
 
-    const initialFormData = useMemo(() => ({
-        makeId: selectedCarMakeId ? selectedCarMakeId : "",
-        classId: "",
-        classNamePl: "",
-        classNameSl: "",
-        isActive: true,
-    }), [])
+
 
     const [formData, setFormData] = useState(initialFormData);
-    const [openModal, setOpenModal] = useState(false)
     const [classExistBefore, setClassExistBefore] = useState(false)
 
     useEffect(() => {
-        if (open)
-            setFormData({ ...formData, makeId: selectedCarMakeId })
-    }, [selectedCarMakeId, open])
-
-    function onSubmit(e, openModal) {
-        e.preventDefault()
-        setOpenModal(openModal)
-        if (openModal && selectedCarMakeId && formData.classId) setSelectedCarClassId(formData.classId)
-        if (!formData.classId && carsClassList.some(carClass => carClass.classNamePl.toLowerCase().trim() === formData.classNamePl.toLowerCase().trim())) {
-            setClassExistBefore(true)
-            // show error message
-            return;
-        }
-        formData.classId ? updateCarClass(formData, selectedCarMakeId) : createCarClass(formData);
-    }
-
-    useEffect(() => {
+        if (!open) return;
+        // Edit
         if (selectedCarClass) {
             setFormData({
                 makeId: selectedCarClass.makeId || "",
@@ -54,26 +40,50 @@ const AddCarsClassesModal = ({
                 classNameSl: selectedCarClass.classNameSl || "",
                 isActive: selectedCarClass.isActive || true,
             });
-        } else {
-            setFormData(initialFormData);
-
+            return;
         }
-    }, [selectedCarClass, initialFormData]);
+        // new
+        setFormData({
+            ...initialFormData,
+            makeId: selectedCarMakeId ?? "",
+            classId: selectedCarClassId ?? ""
+        });
+    }, [open, selectedCarMakeId, selectedCarClass, selectedCarClassId]);
+
 
     useEffect(() => {
         if (classUpdatedSuccess) onClose()
     }, [classUpdatedSuccess, onClose])
 
 
-
-    useEffect(() => {
-        if (selectedCarClassId && selectedCarMakeId ) {
-            if (openModal) {
-                setAddModelOpen(true)
-            }
-            // onClose();
+    async function onSubmit(e, openModelModal) {
+        e.preventDefault()
+        if (openModelModal && selectedCarMakeId && formData.classId) setSelectedCarClassId(formData.classId)
+        if (!formData.classId && carsClassList.some(carClass => carClass.classNamePl.toLowerCase().trim() === formData.classNamePl.toLowerCase().trim())) {
+            setClassExistBefore(true)
+            // show error message
+            return;
         }
-    }, [openModal, selectedCarClassId, selectedCarMakeId, setAddModelOpen])
+        if (formData.classId) {
+            const res = await updateCarClass(formData, selectedCarMakeId)
+            if (res.status === 200 || res.data.classId) {
+                if (openModelModal) {
+                    setAddModelOpen(true)
+                    onClose()
+                } else
+                    onClose()
+            }
+        } else {
+            const res = await createCarClass(formData);
+            if (res.status === 200 || res.data.makeId) {
+                setFormData(initialFormData);
+                if (openModelModal) {
+                    setAddModelOpen(true)
+                    onClose()
+                }
+            }
+        }
+    }
 
 
     return (
@@ -156,7 +166,7 @@ const AddCarsClassesModal = ({
                         onClick={e => onSubmit(e, true)}
                         className="flex px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
                     >
-                        {((createCarClassesLoading || updateCarClassLoading) && openModal) ? <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mx-2"></div> : null}
+                        {((createCarClassesLoading || updateCarClassLoading)) ? <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mx-2"></div> : null}
                         <p>{!createCarClassesLoading && !updateCarClassLoading ? "Save & Add Model" : "Saving..."}</p>
                     </button>
                 </div>

@@ -3,6 +3,15 @@ import BaseModal from '../../common/BaseModal';
 import SwitchSelect from '../../common/SwitchSelect';
 import { useCarsManagement } from '../../../context/CarsManagementContext';
 
+const initialFormData = {
+    makeId: "",
+    classId: "",
+    modelId: "",
+    modelNamePl: "",
+    modelNameSl: "",
+    isActive: true,
+};
+
 const AddCarsModelsModal = ({
     selectedCarModel = null,
     open,
@@ -12,7 +21,6 @@ const AddCarsModelsModal = ({
 
     const {
         selectedCarMakeId,
-        modelUpdatedSuccess,
         selectedCarClassId,
         createCarModel,
         createCarModelLoading,
@@ -21,50 +29,59 @@ const AddCarsModelsModal = ({
         createCarModelSuccess
     } = useCarsManagement()
 
-    const initialFormData = useMemo(() => ({
-        makeId: selectedCarMakeId ? selectedCarMakeId : "",
-        classId: selectedCarClassId ? selectedCarClassId : "",
-        modelId: "",
-        modelNamePl: "",
-        modelNameSl: "",
-        isActive: true,
-    }), [])
 
     const [formData, setFormData] = useState(initialFormData);
 
     useEffect(() => {
-        if (open)
-            setFormData({ ...formData, makeId: selectedCarMakeId, classId: selectedCarClassId })
-    }, [selectedCarMakeId, selectedCarClassId, open])
+        if (!open) return;
 
-    function onSubmit(e) {
-        e.preventDefault()
-        formData.modelId ? updateCarModel(formData, selectedCarMakeId) : createCarModel(formData);
-    }
-
-    useEffect(() => {
         if (selectedCarModel) {
             setFormData({
-                makeId: selectedCarModel.makeId || "",
-                classId: selectedCarModel.classId || "",
-                modelId: selectedCarModel.modelId || "",
-                modelNamePl: selectedCarModel.modelNamePl || "",
-                modelNameSl: selectedCarModel.modelNameSl || "",
-                isActive: selectedCarModel.isActive || true,
+                makeId: selectedCarModel.makeId ?? "",
+                classId: selectedCarModel.classId ?? "",
+                modelId: selectedCarModel.modelId ?? "",
+                modelNamePl: selectedCarModel.modelNamePl ?? "",
+                modelNameSl: selectedCarModel.modelNameSl ?? "",
+                isActive: selectedCarModel.isActive ?? true,
             });
-        } else {
-            setFormData(initialFormData);
 
+            return;
         }
-    }, [selectedCarModel, initialFormData]);
 
-    useEffect(() => {
-        if (modelUpdatedSuccess) onClose()
-    }, [modelUpdatedSuccess, onClose])
+        setFormData({
+            ...initialFormData,
+            makeId: selectedCarMakeId ?? "",
+            classId: selectedCarClassId ?? "",
+        });
+    }, [
+        open,
+        selectedCarModel,
+        selectedCarMakeId,
+        selectedCarClassId,
+    ]);
+
+    async function onSubmit(e) {
+        e.preventDefault()
+        if (formData.modelId) {
+            const res = await updateCarModel(formData, selectedCarMakeId)
+            console.log(res);
+            if (res.status === 200 || res.data.modelId) {
+                onClose();
+            }
+        } else {
+            createCarModel(formData);
+        }
+    }
+
 
     useEffect(() => {
         if (createCarModelSuccess) {
-            setFormData(initialFormData)
+            setFormData(prev => ({
+                ...prev, modelId: "",
+                modelNamePl: "",
+                modelNameSl: "",
+                isActive: true,
+            }))
         }
     }, [createCarModelSuccess, initialFormData])
 
