@@ -26,7 +26,6 @@ const AddShowroomUserModal = ({ open, setOpen }) => {
         try {
             setLoading(true);
             const res = await addNewShowroomUser(formData);
-            console.log(res);
             if (res.status === 200 || res.status === 201) {
                 setFormData(initialFormData);
                 getPartnerUsers(id);

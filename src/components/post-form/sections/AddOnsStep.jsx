@@ -63,7 +63,6 @@ const AddOnsStep = ({ currentPost = null, onClose, setStep }) => {
             if (type === "Request New Tag" || type === "Request Inspected Tag") {
                 handleSubmitRequest(type, postCreatedId, 0, 0);
             } else {
-                console.log(postCreatedCode)
                 sessionStorage.setItem("postCode", postCreatedCode)
                 if (type === "Request 360 Photo Session") {
                     const price = type === "Request 360 Photo Session" && res.request360Price

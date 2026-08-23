@@ -76,7 +76,6 @@ const AddCarsModelsModal = ({
         }
         if (formData.modelId) {
             const res = await updateCarModel(formData, selectedCarMakeId)
-            console.log(res);
             if (res.status === 200 || res.data.modelId) {
                 onClose();
             }
