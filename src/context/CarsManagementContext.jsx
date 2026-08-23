@@ -29,7 +29,6 @@ export const CarsManagementProvider = ({ children }) => {
     const [createCarClassesLoading, setCreateCarClassesLoading] = useState(false);
 
     const [updateCarClassLoading, setUpdateCarClassLoading] = useState(false);
-    const [classUpdatedSuccess, setClassUpdatedSuccess] = useState(false)
 
     const [currentCarsMakes, setCurrentCarsMakes] = useState([]);
 
@@ -177,13 +176,11 @@ export const CarsManagementProvider = ({ children }) => {
     const createCarClass = useCallback(async (data) => {
         try {
             setCreateCarClassesLoading(true);
-            setClassUpdatedSuccess(false)
             const res = await carsManagementApi.createCarClass(data);
             if (res.status === 200 || res.makeId) {
                 toast.success("Car Make created successfully");
                 setSelectedCarClassId(res.data.classId);
                 fetchCarsClass(data.makeId);
-                setClassUpdatedSuccess(true)
             }
             return res;
         } catch (e) {
@@ -198,12 +195,10 @@ export const CarsManagementProvider = ({ children }) => {
     const updateCarClass = useCallback(async (data, makeId) => {
         try {
             setUpdateCarClassLoading(true);
-            setClassUpdatedSuccess(false)
             const res = await carsManagementApi.updateCarClass(data);
             if (res.status === 200 || res.makeId) {
                 toast.success("Car Class Updated successfully");
                 fetchCarsClass(makeId);
-                setClassUpdatedSuccess(true)
 
             }
             return res;
@@ -357,7 +352,6 @@ export const CarsManagementProvider = ({ children }) => {
             updateCarClass,
             updateCarClassLoading,
             deleteCarClass,
-            classUpdatedSuccess,
 
             selectedCarClassId,
             setSelectedCarClassId,
@@ -406,7 +400,6 @@ export const CarsManagementProvider = ({ children }) => {
             updateCarClass,
             updateCarClassLoading,
             deleteCarClass,
-            classUpdatedSuccess,
 
             selectedCarClassId,
             setSelectedCarClassId,

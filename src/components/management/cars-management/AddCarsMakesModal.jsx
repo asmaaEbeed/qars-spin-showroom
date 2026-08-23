@@ -48,10 +48,10 @@ const AddCarsMakesModal = ({ selectedCarMake = null,
             return;
         }
         // new
-        setFormData({
-            ...initialFormData,
-            makeId: selectedCarMakeId ?? "",
-        });
+        // setFormData({
+        //     ...initialFormData,
+        //     makeId: selectedCarMakeId ?? "",
+        // });
         setViewFile("");
     }, [open, selectedCarMakeId, selectedCarMake]);
 
@@ -70,12 +70,19 @@ const AddCarsMakesModal = ({ selectedCarMake = null,
     async function onSubmit(e, openClassModal) {
         e.preventDefault()
         if (openClassModal && formData.makeId) setSelectedCarMakeId(formData.makeId)
-        if (formData.LogoFile === "") { setImageError(true); return }
-        if (!formData.makeId && carsMakesList.some(make => make.makeNamePl.toLowerCase().trim() === formData.MakeNamePl.toLowerCase().trim())) {
+
+        const isExist = carsMakesList.some(make => make.makeNamePl.toLowerCase().trim() === formData.MakeNamePl.toLowerCase().trim());
+        const noImage = formData.LogoFile === ""
+
+        if (noImage) { setImageError(true); }
+
+        if (!formData.makeId && isExist) {
             setMakeExistBefore(true)
             // show error message
-            return;
         }
+
+        if (noImage || isExist) return;
+
         if (formData.makeId) {
             const res = await updateCarMake(formData)
             if (res.status === 200 || res.data.makeId) {
@@ -105,6 +112,7 @@ const AddCarsMakesModal = ({ selectedCarMake = null,
         <BaseModal title={`${selectedCarMake?.makeId ? "Edit" : "Create"} a Car Make`} open={open} setOpen={onClose}>
             <form className=" space-y-6">
                 <div className="p-6">
+                    <p className="m-auto text-center text-red-500 ml-24">*</p>
                     <UploadBannerImg viewFile={viewFile} setUploadFile={(file) => handleSetUploadFile(file)} imgLayoutStyle="h-[100px] w-[100px] rounded-full object-cover m-auto" />
 
                     {imageError && <p className='m-auto text-red-600 text-center mb-4'>Please add model logo.</p>}
@@ -153,13 +161,13 @@ const AddCarsMakesModal = ({ selectedCarMake = null,
                                 className="w-full text-right focus-visible:outline-none px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm text-gray-900 bg-white"
                             />
                         </div>
-                        <div className='flex gap-5 mb-3'>
+                        {/* <div className='flex gap-5 mb-3'>
                             <SwitchSelect
                                 value={formData.IsActive}
                                 handleOnChange={(e) => { setFormData({ ...formData, IsActive: e }) }}
                             />
                             <p>{formData.IsActive ? "Active" : "Inactive"}</p>
-                        </div>
+                        </div> */}
 
                     </div>
                 </div>

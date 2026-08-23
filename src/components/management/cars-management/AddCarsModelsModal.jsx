@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import BaseModal from '../../common/BaseModal';
 import SwitchSelect from '../../common/SwitchSelect';
 import { useCarsManagement } from '../../../context/CarsManagementContext';
+import { ArrowRightIcon } from '@heroicons/react/16/solid';
 
 const initialFormData = {
     makeId: "",
@@ -26,11 +27,17 @@ const AddCarsModelsModal = ({
         createCarModelLoading,
         updateCarModel,
         updateCarModelLoading,
-        createCarModelSuccess
+        createCarModelSuccess,
+        carsClassList, carsMakesList,
+        carsModelList
     } = useCarsManagement()
 
 
     const [formData, setFormData] = useState(initialFormData);
+    const [carMakeData, setCarMakeData] = useState({})
+    const [carClassData, setCarClassData] = useState({})
+    const [modelExistBefore, setModelExistBefore] = useState(false)
+
 
     useEffect(() => {
         if (!open) return;
@@ -62,6 +69,11 @@ const AddCarsModelsModal = ({
 
     async function onSubmit(e) {
         e.preventDefault()
+        if (!formData.modelId &&
+            carsModelList.some(carModel => carModel.modelNamePl.toLowerCase().trim() === formData.modelNamePl.toLowerCase().trim())) {
+            setModelExistBefore(true)
+            return;
+        }
         if (formData.modelId) {
             const res = await updateCarModel(formData, selectedCarMakeId)
             console.log(res);
@@ -85,10 +97,48 @@ const AddCarsModelsModal = ({
         }
     }, [createCarModelSuccess, initialFormData])
 
+    useEffect(() => {
+        if (selectedCarMakeId && carsMakesList.length > 0) {
+            const carMake = carsMakesList.find(carMake => carMake.makeId === selectedCarMakeId)
+            setCarMakeData(carMake)
+        }
+        if (selectedCarClassId && carsClassList.length > 0) {
+            const carClass = carsClassList.find(carClass => carClass.classId === selectedCarClassId)
+            setCarClassData(carClass)
+        }
+    }, [selectedCarMakeId, carsMakesList, open, carsClassList, selectedCarClassId])
+
 
 
     return (
         <BaseModal title={`${selectedCarModel?.modelId ? "Edit" : "Create"}  a Car Model`} open={open} setOpen={onClose}>
+            {carMakeData && (
+                <div className="mb-4 flex items-center gap-2 rounded-lg bg-gray-50 border border-gray-200 px-3 py-2">
+                    <img
+                        src={carMakeData.imageUrl}
+                        alt={carMakeData.makeNamePl}
+                        className="h-12 w-12 rounded-full object-contain"
+                    />
+
+                    <span className="text-sm text-gray-500">
+                        {selectedCarModel?.modelId ? "Edit" : "Create"} Model for
+                    </span>
+
+                    <span className="text-sm font-semibold text-gray-800">
+                        {carMakeData.makeNamePl}
+                    </span>
+                    <span className="text-sm text-gray-500">Make</span>
+                    {carClassData && (
+                        <>
+                            <ArrowRightIcon className="h-6 w-6 text-gray-400" />
+                            <span className="text-sm font-semibold text-gray-800">
+                                {carClassData.classNamePl}
+                            </span>
+                            <span className="text-sm text-gray-500">Class</span>
+                        </>
+                    )}
+                </div>
+            )}
             <form className=" space-y-6" onSubmit={(e) => onSubmit(e)}>
                 <div className="p-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -106,11 +156,14 @@ const AddCarsModelsModal = ({
                                 type="text"
                                 value={formData.modelNamePl}
                                 onChange={(e) => {
+                                    setModelExistBefore(false)
                                     const sanitized = e.target.value.replace(/[\u0600-\u06FF]/g, "");;
                                     setFormData({ ...formData, modelNamePl: sanitized })
                                 }}
                                 className={`w-full focus-visible:outline-none px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm text-gray-900 bg-white`}
                             />
+                            {modelExistBefore && <p className='m-auto text-red-600 mb-4'>This car model is existing.</p>}
+                            
 
                         </div>
                         {/* model Name (SL) */}
@@ -134,13 +187,13 @@ const AddCarsModelsModal = ({
                                 className="w-full text-right focus-visible:outline-none px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm text-gray-900 bg-white"
                             />
                         </div>
-                        <div className='flex gap-5 mb-3'>
+                        {/* <div className='flex gap-5 mb-3'>
                             <SwitchSelect
                                 value={formData.isActive}
                                 handleOnChange={(e) => { setFormData({ ...formData, isActive: e }) }}
                             />
                             <p>{formData.isActive ? "Active" : "Inactive"}</p>
-                        </div>
+                        </div> */}
 
                     </div>
                 </div>

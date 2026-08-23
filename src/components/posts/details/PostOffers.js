@@ -37,7 +37,7 @@ const PostOffers = ({ currentPost }) => {
                 Asking Price
               </h3>
               <p className="text-2xl font-bold text-primary-600">
-                ${currentPost.askingPrice}
+                QAR {currentPost.askingPrice}
               </p>
             </div>
             <div className="bg-primary-50 p-4 rounded-lg">
@@ -45,7 +45,7 @@ const PostOffers = ({ currentPost }) => {
                 Minimum Price
               </h3>
               <p className="text-xl font-semibold text-secondary-800">
-                ${currentPost.minimumPrice}
+                QAR {currentPost.minimumPrice}
               </p>
             </div>
             <div className="bg-primary-50 p-4 rounded-lg">
@@ -168,19 +168,19 @@ const PostOffers = ({ currentPost }) => {
               <div className="flex justify-between items-center">
                 <span className="text-secondary-600">Least Price:</span>
                 <span className="font-semibold text-secondary-800 text-sm">
-                  ${formatNumber(currentPost.leastPrice) || "N/A"}
+                  QAR{formatNumber(currentPost.leastPrice) || "N/A"}
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-secondary-600">Highest Price:</span>
                 <span className="font-semibold text-secondary-800 text-sm">
-                  ${formatNumber(currentPost.highestPrice) || "N/A"}
+                  QAR {formatNumber(currentPost.highestPrice) || "N/A"}
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-secondary-600">Avg Price:</span>
                 <span className="font-semibold text-secondary-800 text-sm">
-                  ${formatNumber(currentPost.avgPrice) || "N/A"}
+                  QAR {formatNumber(currentPost.avgPrice) || "N/A"}
                 </span>
               </div>
               <div className="flex justify-between items-center">

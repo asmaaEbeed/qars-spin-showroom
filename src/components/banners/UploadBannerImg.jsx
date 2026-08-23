@@ -40,7 +40,7 @@ const UploadBannerImg = ({ viewFile, setUploadFile, slot = "", imgLayoutStyle = 
                     />
                 ) : (
                     <div className="flex flex-col items-center text-gray-400">
-                        <PhotoIcon className="w-16 h-16 mb-2" />
+                        <PhotoIcon className="w-16 h-16" />
                         {slot && <p className="text-sm">No {slot === "pl" ? "English" : "Arabic"} banner uploaded</p>}
                     </div>
                 )}

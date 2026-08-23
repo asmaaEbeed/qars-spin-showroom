@@ -22,12 +22,13 @@ const AddCarsClassesModal = ({
     setAddModelOpen
 }) => {
 
-    const { selectedCarMakeId, classUpdatedSuccess, setSelectedCarClassId, carsClassList, selectedCarClassId } = useCarsManagement()
+    const { selectedCarMakeId, setSelectedCarClassId, carsClassList, selectedCarClassId, carsMakesList } = useCarsManagement()
 
 
 
     const [formData, setFormData] = useState(initialFormData);
     const [classExistBefore, setClassExistBefore] = useState(false)
+    const [carMakeData, setCarMakeData] = useState({})
 
     useEffect(() => {
         if (!open) return;
@@ -46,19 +47,25 @@ const AddCarsClassesModal = ({
         setFormData({
             ...initialFormData,
             makeId: selectedCarMakeId ?? "",
-            classId: selectedCarClassId ?? ""
+            // classId: selectedCarClassId ?? ""
         });
+
     }, [open, selectedCarMakeId, selectedCarClass, selectedCarClassId]);
 
-
     useEffect(() => {
-        if (classUpdatedSuccess) onClose()
-    }, [classUpdatedSuccess, onClose])
+        if (selectedCarMakeId && carsMakesList.length > 0) {
+            const carMake = carsMakesList.find(carMake => carMake.makeId === selectedCarMakeId)
+            setCarMakeData(carMake)
+        }
+    }, [selectedCarMakeId, carsMakesList, open])
+
 
 
     async function onSubmit(e, openModelModal) {
         e.preventDefault()
-        if (openModelModal && selectedCarMakeId && formData.classId) setSelectedCarClassId(formData.classId)
+        if (openModelModal && selectedCarMakeId && formData.classId) {
+            setSelectedCarClassId(formData.classId)
+        }
         if (!formData.classId && carsClassList.some(carClass => carClass.classNamePl.toLowerCase().trim() === formData.classNamePl.toLowerCase().trim())) {
             setClassExistBefore(true)
             // show error message
@@ -88,6 +95,26 @@ const AddCarsClassesModal = ({
 
     return (
         <BaseModal title={`${selectedCarClass?.classId ? "Edit" : "Create"}  a Car Class`} open={open} setOpen={onClose}>
+            <div className="bg-yellow-100">
+                {carMakeData && (
+                    <div className="mb-4 flex items-center gap-2 rounded-lg bg-gray-50 border border-gray-200 px-3 py-2">
+                        <img
+                            src={carMakeData.imageUrl}
+                            alt={carMakeData.makeNamePl}
+                            className="h-12 w-12 rounded-full object-contain"
+                        />
+
+                        <span className="text-sm text-gray-500">
+                            {selectedCarClass?.classId ? "Edit" : "Create"} Class for
+                        </span>
+
+                        <span className="text-sm font-semibold text-gray-800">
+                            {carMakeData.makeNamePl} 
+                        </span>
+                        <span className="text-sm text-gray-500">Make</span>
+                    </div>
+                )}
+            </div>
             <form className=" space-y-6" onSubmit={(e) => onSubmit(e)}>
                 <div className="p-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -133,13 +160,13 @@ const AddCarsClassesModal = ({
                                 className="w-full text-right focus-visible:outline-none px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm text-gray-900 bg-white"
                             />
                         </div>
-                        <div className='flex gap-5 mb-3'>
+                        {/* <div className='flex gap-5 mb-3'>
                             <SwitchSelect
                                 value={formData.isActive}
                                 handleOnChange={(e) => { setFormData({ ...formData, isActive: e }) }}
                             />
                             <p>{formData.isActive ? "Active" : "Inactive"}</p>
-                        </div>
+                        </div> */}
 
                     </div>
                 </div>

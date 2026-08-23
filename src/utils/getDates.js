@@ -3,6 +3,9 @@ export const getDates = () => {
   const nextWeek = new Date();
   nextWeek.setDate(today.getDate() + 7);
 
+  const nextCentury = new Date();
+  nextCentury.setDate(today.getDate() + 36524);
+
   const lastMonth = new Date();
   lastMonth.setDate(today.getDate() - 30);
 
@@ -17,5 +20,6 @@ export const getDates = () => {
     today: format(today),
     nextWeek: format(nextWeek),
     lastMonth: format(lastMonth),
+    nextCentury: format(nextCentury)
   };
 };
