@@ -35,6 +35,13 @@ const AddCarsMakesModal = ({ selectedCarMake = null,
 
     useEffect(() => {
         if (!open) return;
+        setFormData(initialFormData);
+        setViewFile("");
+        setImageError(false);
+        setMakeExistBefore(false);
+    }, [open])
+
+    useEffect(() => {
         // Edit
         if (selectedCarMake) {
             setFormData({
@@ -53,7 +60,7 @@ const AddCarsMakesModal = ({ selectedCarMake = null,
         //     makeId: selectedCarMakeId ?? "",
         // });
         setViewFile("");
-    }, [open, selectedCarMakeId, selectedCarMake]);
+    }, [selectedCarMakeId, selectedCarMake]);
 
     const handleSetUploadFile = (file) => {
         const reader = new FileReader();
@@ -72,18 +79,21 @@ const AddCarsMakesModal = ({ selectedCarMake = null,
         if (openClassModal && formData.makeId) setSelectedCarMakeId(formData.makeId)
 
         const isExist = carsMakesList.some(make => make.makeNamePl.toLowerCase().trim() === formData.MakeNamePl.toLowerCase().trim());
-        const noImage = formData.LogoFile === ""
-
+        const noImage = (formData.LogoFile === "" || !viewFile);
+        
         if (noImage) { setImageError(true); }
-
+        
         if (!formData.makeId && isExist) {
             setMakeExistBefore(true)
             // show error message
         }
+        
+        if (noImage || (isExist && !formData.makeId)) return;
 
-        if (noImage || isExist) return;
+        console.log(noImage)
 
         if (formData.makeId) {
+            console.log("test")
             const res = await updateCarMake(formData)
             if (res.status === 200 || res.data.makeId) {
                 if (openClassModal) {
