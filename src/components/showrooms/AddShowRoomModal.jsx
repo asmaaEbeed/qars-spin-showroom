@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import BaseModal from '../common/BaseModal'
 import { getDates } from '../../utils/getDates';
-import { AdminPartnerAPI, superAdminAPI } from '../../services/api';
+import { AdminPartnerAPI } from '../../services/api';
 import { toast } from 'react-toastify';
 
 const SHOWROOM_KIND = [
@@ -39,7 +39,6 @@ const AddShowRoomModal = ({ open, setOpen }) => {
     try {
       setLoading(true);
       const response = await AdminPartnerAPI.createNewPartner(formData);
-      console.log(response)
       if (response.status === 200 || response.status === 201) {
         AdminPartnerAPI.getAllShowRooms()
         toast.success("Partner added successfully");

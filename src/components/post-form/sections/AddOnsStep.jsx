@@ -13,7 +13,7 @@ import { useHandlePostRequest } from '../../posts/hook/handlePostRequest';
 import { usePaymentContext } from '../../../context/PaymentContext';
 
 const AddOnsStep = ({ currentPost = null, onClose, setStep }) => {
-    const { postCreatedId } = usePosts();
+    const { postCreatedId, postCreatedCode } = usePosts();
     const { user } = useAuth();
     const [selectCurrencyOpen, setSelectCurrencyOpen] = useState(false);
     const { onGetQarsServices } = usePaymentContext();
@@ -25,19 +25,19 @@ const AddOnsStep = ({ currentPost = null, onClose, setStep }) => {
             icon: <CameraIcon className="w-8 h-8 text-primary-600" />,
             view: true
         },
-        {
-            title: "Request New Tag",
-            description: "Suggest a new tag to categorize and organize content better.",
-            icon: <TagIcon className="w-8 h-8 text-indigo-600" />,
-            view: user.role !== "superAdmin"
-        },
-        {
-            title: "Request Inspected Tag",
-            description: "Ask for a tag to be reviewed and verified for accuracy.",
-            icon: <CheckBadgeIcon className="w-8 h-8 text-green-600" />,
-            view: user.role !== "superAdmin"
+        // {
+        //     title: "Request New Tag",
+        //     description: "Suggest a new tag to categorize and organize content better.",
+        //     icon: <TagIcon className="w-8 h-8 text-indigo-600" />,
+        //     view: user.role !== "superAdmin"
+        // },
+        // {
+        //     title: "Request Inspected Tag",
+        //     description: "Ask for a tag to be reviewed and verified for accuracy.",
+        //     icon: <CheckBadgeIcon className="w-8 h-8 text-green-600" />,
+        //     view: user.role !== "superAdmin"
 
-        },
+        // },
         {
             title: "Request to Feature a Post",
             description: "Highlight a post to gain more visibility and engagement.",
@@ -56,14 +56,26 @@ const AddOnsStep = ({ currentPost = null, onClose, setStep }) => {
             handleModalSubmit(addon.title)
         }
     }
+
     const handleModalSubmit = async (type) => {
         try {
             const res = await onGetQarsServices();
-            handleSubmitRequest(type, postCreatedId, res.request360);
+            if (type === "Request New Tag" || type === "Request Inspected Tag") {
+                handleSubmitRequest(type, postCreatedId, 0, 0);
+            } else {
+                sessionStorage.setItem("postCode", postCreatedCode)
+                if (type === "Request 360 Photo Session") {
+                    const price = type === "Request 360 Photo Session" && res.request360Price
+                    handleSubmitRequest(type, postCreatedId, price, res.request360Id);
+                } else {
+
+                    const price = type === "Request to Feature a Post" && res.requestFeaturePrice
+                    handleSubmitRequest(type, postCreatedId, price, res.requestFeatureId);
+                }
+            }
         } catch (e) {
             console.log(e);
         }
-
     };
 
 

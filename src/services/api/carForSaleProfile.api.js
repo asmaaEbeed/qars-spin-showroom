@@ -1,6 +1,5 @@
 import { privateAxios } from "../config/axios.config";
-const url =
-  "https://qarsspintest.smartvillageqatar.com/QarsSpinAPI/BrowsingRelatedApi.asmx";
+const url = `${process.env.REACT_APP_MOBILE_API_BASE_URL}/BrowsingRelatedApi.asmx`;
 export const carAPI = {
   getCarProfile: (params) =>
     privateAxios.get(`/v1/CarForSale/CarProfile?postCode=${params}`),
@@ -14,12 +13,18 @@ export const carAPI = {
     privateAxios.put(`/v1/CarForSale/${params}/specs`, data),
   getCarRequests: (params) =>
     privateAxios.get(
-      `/v1/QarsRequests/Get-Request?postId=${params.postId}&RequestType=${params.RequestType}&RequestFrom=${params.RequestFrom}`
+      `/v1/QarsRequests/Get-Request?postId=${params.postId}&RequestType=${params.RequestType}&RequestFrom=${params.RequestFrom}`,
     ),
   putCarInfo: (params, data) =>
     privateAxios.put(`/v1/CarForSale/${params}/internal-info`, data),
   postCreateRequest: (data) =>
     privateAxios.post(`/v1/QarsRequests/CreateRequest`, data),
+
+  postSoldRequest: (postId) =>
+    privateAxios.post(
+      `/v1/CarForSaleManagement/change-ToSold?Post_ID=${postId}`,
+    ),
+
   postUploadGalleryImage: async (formData) => {
     try {
       const response = await fetch(`${url}/UploadPostGalleryPhoto`, {

@@ -3,6 +3,7 @@ import {
   Routes,
   Route,
   Navigate,
+  Outlet,
 } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { PostsProvider } from "./context/PostsContext";
@@ -28,6 +29,15 @@ import { ShowroomProvider } from "./context/ShowroomContext";
 import { PaymentProvider } from "./context/PaymentContext";
 import PaymentSuccess from "./pages/payment/PaymentSuccess";
 import PaymentFailed from "./pages/payment/PaymentFailed";
+import Requests from "./pages/Admin/requests";
+import { RequestProvider } from "./context/RequestContext";
+import UserRequests from "./pages/UserRequests";
+import AboutUs from "./pages/AboutUs";
+import PaymentReports from "./pages/Admin/reports/PaymentReports";
+import CarsMakes from "./pages/Admin/management/cars-management/CarsMakes";
+import CarsClasses from "./pages/Admin/management/cars-management/CarsClasses";
+import CarsModels from "./pages/Admin/management/cars-management/CarsModels";
+import { CarsManagementProvider } from "./context/CarsManagementContext";
 
 function App() {
   return (
@@ -35,225 +45,274 @@ function App() {
       <CarProvider>
         <PostsProvider>
           <PaymentProvider>
-            <Router>
-              <ToastContainer
-                position="top-right"
-                autoClose={5000}
-                hideProgressBar={false}
-                newestOnTop={false}
-                closeOnClick
-                rtl={false}
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover
-              />
-              <Routes>
-                <Route path="/welcome" element={<Welcome />} />
-                <Route path="/apply" element={<Apply />} />
-                <Route path="/login" element={<Login />} />
-                <Route
-                  path="/dashboard"
-                  element={
-                    // <PostsProvider>
+            <RequestProvider>
+              <Router>
+                <ToastContainer
+                  position="top-right"
+                  autoClose={5000}
+                  hideProgressBar={false}
+                  newestOnTop={false}
+                  closeOnClick
+                  rtl={false}
+                  pauseOnFocusLoss
+                  draggable
+                  pauseOnHover
+                />
+                <Routes>
+                  <Route path="/welcome" element={<Welcome />} />
+                  <Route path="/apply" element={<Apply />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/about-us" element={<AboutUs />} />
+                  <Route
+                    path="/dashboard"
+                    element={
+                      // <PostsProvider>
                       <ProtectedRoute>
                         <Dashboard />
                       </ProtectedRoute>
-                    // </PostsProvider>
-                  }
-                />
-                <Route
-                  path="/admin/dealer/:id/dashboard"
-                  element={
-                    // <PostsProvider>
+                      // </PostsProvider>
+                    }
+                  />
+                  <Route
+                    path="/admin/dealer/:id/dashboard"
+                    element={
+                      // <PostsProvider>
                       <ProtectedRoute allowedRoles={["superAdmin"]}>
                         <Dashboard />
                       </ProtectedRoute>
-                    // </PostsProvider>
-                  }
-                />
-                <Route
-                  path="/profile"
-                  element={
-                    // <PostsProvider>
+                      // </PostsProvider>
+                    }
+                  />
+                  <Route
+                    path="/profile"
+                    element={
+                      // <PostsProvider>
                       <ProtectedRoute>
                         <Profile />
                       </ProtectedRoute>
-                    // </PostsProvider>
-                  }
-                />
-                <Route
-                  path="/admin/dealer/:id/profile"
-                  element={
-                    // <PostsProvider>
+                      // </PostsProvider>
+                    }
+                  />
+                  <Route
+                    path="/admin/dealer/:id/profile"
+                    element={
+                      // <PostsProvider>
                       <ShowroomProvider>
                         <ProtectedRoute allowedRoles={["superAdmin"]}>
                           <Profile />
                         </ProtectedRoute>
                       </ShowroomProvider>
-                    // </PostsProvider>
-                  }
-                />
-                <Route
-                  path="/showroom/posts"
-                  element={
-                    // <PostsProvider>
+                      // </PostsProvider>
+                    }
+                  />
+                  <Route
+                    path="/showroom/posts"
+                    element={
+                      // <PostsProvider>
                       <ProtectedRoute>
                         <Posts />
                       </ProtectedRoute>
-                    // </PostsProvider>
-                  }
-                />
-                <Route
-                  path="/admin/dealer/:id/showroom/posts"
-                  element={
-                    // <PostsProvider>
+                      // </PostsProvider>
+                    }
+                  />
+                  <Route
+                    path="/admin/dealer/:id/showroom/posts"
+                    element={
+                      // <PostsProvider>
                       <ProtectedRoute allowedRoles={["superAdmin"]}>
                         <Posts />
                       </ProtectedRoute>
-                    // </PostsProvider>
-                  }
-                />
-                <Route
-                  path="/showroom/posts/:code"
-                  element={
-                    // <PostsProvider>
+                      // </PostsProvider>
+                    }
+                  />
+                  <Route
+                    path="/showroom/posts/:code"
+                    element={
+                      // <PostsProvider>
                       <ProtectedRoute>
                         <PostDetails />
                       </ProtectedRoute>
-                    // </PostsProvider>
-                  }
-                />
-                <Route
-                  path="/admin/dealer/:id/showroom/posts/:code"
-                  element={
-                    // <PostsProvider>
+                      // </PostsProvider>
+                    }
+                  />
+                  <Route
+                    path="/admin/dealer/:id/showroom/posts/:code"
+                    element={
+                      // <PostsProvider>
                       <ProtectedRoute allowedRoles={["superAdmin"]}>
                         <PostDetails />
                       </ProtectedRoute>
-                    // </PostsProvider>
-                  }
-                />
-                <Route path="/" element={<Navigate to="/login" replace />} />
-                <Route
-                  path="/showroom"
-                  element={
-                    // <PostsProvider>
+                      // </PostsProvider>
+                    }
+                  />
+                  <Route
+                    path="/"
+                    element={<Navigate to="/dashboard" replace />}
+                  />
+                  {/* <Route path="/" element=<RoleRedirect /> /> */}
+                  <Route
+                    path="/showroom"
+                    element={
+                      // <PostsProvider>
                       <ProtectedRoute>
                         <Showroom />
                       </ProtectedRoute>
-                    // </PostsProvider>
-                  }
-                />
-                <Route
-                  path="/admin/dealer/:id/showroom"
-                  element={
-                    // <PostsProvider>
+                      // </PostsProvider>
+                    }
+                  />
+                  <Route
+                    path="/admin/dealer/:id/showroom"
+                    element={
+                      // <PostsProvider>
                       <ProtectedRoute allowedRoles={["superAdmin"]}>
                         <Showroom />
                       </ProtectedRoute>
-                    // </PostsProvider>
-                  }
-                />
+                      // </PostsProvider>
+                    }
+                  />
 
-                <Route
-                  path="/admin/showrooms"
-                  element={
-                    // <PostsProvider>
+                  <Route
+                    path="/admin/showrooms"
+                    element={
+                      // <PostsProvider>
                       <ProtectedRoute allowedRoles={["superAdmin"]}>
                         <ShowRooms />
                       </ProtectedRoute>
-                    // </PostsProvider>
-                  }
-                />
-                <Route
-                  path="/admin/superAdmin-panel"
-                  element={
-                    // <PostsProvider>
+                      // </PostsProvider>
+                    }
+                  />
+                  <Route
+                    path="/admin/payment-reports"
+                    element={
+                      // <PostsProvider>
+                      <ProtectedRoute allowedRoles={["superAdmin"]}>
+                        <PaymentReports />
+                      </ProtectedRoute>
+                      // </PostsProvider>
+                    }
+                  />
+                  <Route
+                    path="/admin/superAdmin-panel"
+                    element={
+                      // <PostsProvider>
                       <ProtectedRoute allowedRoles={["superAdmin"]}>
                         <AdminDashboard />
                       </ProtectedRoute>
-                    // </PostsProvider>
-                  }
-                />
-                <Route
-                  path="/admin/posts"
-                  element={
-                    // <PostsProvider>
+                      // </PostsProvider>
+                    }
+                  />
+                  <Route
+                    path="/admin/posts"
+                    element={
+                      // <PostsProvider>
                       <ProtectedRoute allowedRoles={["superAdmin"]}>
                         <Posts />
                       </ProtectedRoute>
-                    // </PostsProvider>
-                  }
-                />
-                <Route
-                  path="/admin/big-banners"
-                  element={
-                    <BigBannerProvider>
+                      // </PostsProvider>
+                    }
+                  />
+                  <Route
+                    path="/admin/big-banners"
+                    element={
+                      <BigBannerProvider>
+                        <ProtectedRoute allowedRoles={["superAdmin"]}>
+                          <BigBanners />
+                        </ProtectedRoute>
+                      </BigBannerProvider>
+                    }
+                  />
+                  <Route
+                    path="/admin/small-banners"
+                    element={
+                      <BigBannerProvider>
+                        <ProtectedRoute allowedRoles={["superAdmin"]}>
+                          <BigBanners />
+                        </ProtectedRoute>
+                      </BigBannerProvider>
+                    }
+                  />
+                  <Route
+                    path="/admin/big-fillers"
+                    element={
+                      <BigBannerProvider>
+                        <ProtectedRoute allowedRoles={["superAdmin"]}>
+                          <BigBanners />
+                        </ProtectedRoute>
+                      </BigBannerProvider>
+                    }
+                  />
+                  <Route
+                    path="/admin/small-fillers"
+                    element={
+                      <BigBannerProvider>
+                        <ProtectedRoute allowedRoles={["superAdmin"]}>
+                          <BigBanners />
+                        </ProtectedRoute>
+                      </BigBannerProvider>
+                    }
+                  />
+                  <Route
+                    path="/admin/requests"
+                    element={
                       <ProtectedRoute allowedRoles={["superAdmin"]}>
-                        <BigBanners />
+                        <Requests />
                       </ProtectedRoute>
-                    </BigBannerProvider>
-                  }
-                />
-                <Route
-                  path="/admin/small-banners"
-                  element={
-                    <BigBannerProvider>
-                      <ProtectedRoute allowedRoles={["superAdmin"]}>
-                        <BigBanners />
-                      </ProtectedRoute>
-                    </BigBannerProvider>
-                  }
-                />
-                <Route
-                  path="/admin/big-fillers"
-                  element={
-                    <BigBannerProvider>
-                      <ProtectedRoute allowedRoles={["superAdmin"]}>
-                        <BigBanners />
-                      </ProtectedRoute>
-                    </BigBannerProvider>
-                  }
-                />
-                <Route
-                  path="/admin/small-fillers"
-                  element={
-                    <BigBannerProvider>
-                      <ProtectedRoute allowedRoles={["superAdmin"]}>
-                        <BigBanners />
-                      </ProtectedRoute>
-                    </BigBannerProvider>
-                  }
-                />
-                <Route
-                  path="/user-settings"
-                  element={
-                    <PostsProvider>
+                    }
+                  />
+                  <Route
+                    path="/user-requests"
+                    element={
                       <ProtectedRoute>
-                        <UserSettings />
+                        <UserRequests />
                       </ProtectedRoute>
-                    </PostsProvider>
-                  }
-                />
-                <Route
-                  path="/payment-success"
-                  element={
-                    <ProtectedRoute>
-                      <PaymentSuccess />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/payment-failed"
-                  element={
-                    <ProtectedRoute>
-                      <PaymentFailed />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route path="/not-authorized" element={<NotAuthorized />} />
-              </Routes>
-            </Router>
+                    }
+                  />
+                  <Route
+                    path="/user-settings"
+                    element={
+                      <PostsProvider>
+                        <ProtectedRoute>
+                          <UserSettings />
+                        </ProtectedRoute>
+                      </PostsProvider>
+                    }
+                  />
+                  <Route
+                    path="/admin/cars-management"
+                    element={
+                      <PostsProvider>
+                        <CarsManagementProvider>
+                          <ProtectedRoute allowedRoles={["superAdmin"]}>
+                            <Outlet />
+                          </ProtectedRoute>
+                        </CarsManagementProvider>
+                      </PostsProvider>
+                    }
+                  >
+                    <Route path="car-makes" element={<CarsMakes />} />
+                    <Route path="car-classes" element={<CarsClasses />} />
+                    <Route path="car-models" element={<CarsModels />} />
+                  </Route>
+                  <Route
+                    path="/payment-success"
+                    element={
+                      <ProtectedRoute>
+                        <PaymentSuccess />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/payment-failed"
+                    element={
+                      <ProtectedRoute>
+                        <PaymentFailed />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route path="/not-authorized" element={<NotAuthorized />} />
+                </Routes>
+              </Router>
+            </RequestProvider>
           </PaymentProvider>
         </PostsProvider>
       </CarProvider>

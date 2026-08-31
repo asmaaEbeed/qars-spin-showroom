@@ -1,10 +1,7 @@
 import { useCallback } from "react";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
-import Img360 from "../../assets/images/360-camera.png";
-import { carAPI } from "../../services/api/carForSaleProfile.api";
 import { superAdminAPI } from "../../services/api";
-import { useAuth } from "../../context/AuthContext";
 
 // export function useCar360Request(car) {
 
@@ -120,11 +117,14 @@ export function useAddCar360Url(postId) {
         if (res.status === 200) {
           toast.success(res.data.message);
           Swal.close();
+          return result.value;
         }
+        return null
       } catch (e) {
         console.error(e);
         toast.error("Something went wrong");
         Swal.close();
+        return null
       }
     }
   }, [postId]);

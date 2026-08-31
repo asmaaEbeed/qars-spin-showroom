@@ -13,8 +13,14 @@ const PostRequestMenu = ({ currentPost, setSelectCurrencyOpen }) => {
         // Get All Service Price
         try {
             const res = await onGetQarsServices();
-            const price = type === "Request to Feature a Post" && res.requestFeature
-            handleSubmitRequest(type, postId, price);
+            if (type === "Request New Tag" || type === "Request Inspected Tag") {
+                handleSubmitRequest(type, postId, 0, 0);
+            } else {
+                sessionStorage.setItem("postCode", currentPost?.postCode)
+
+                const price = type === "Request to Feature a Post" && res.requestFeaturePrice
+                handleSubmitRequest(type, postId, price, res.requestFeatureId);
+            }
         } catch (e) {
             console.log(e);
         }
@@ -29,7 +35,7 @@ const PostRequestMenu = ({ currentPost, setSelectCurrencyOpen }) => {
                 anchor="bottom end"
                 className={`min-w-40 origin-top-right absolute shadow-md right-0 bg-white rounded-xl border  p-1 text-sm/6 text-gray-800 z-50 transition duration-100 ease-out [--anchor-gap:--spacing(1)] focus:outline-none data-closed:scale-95 data-closed:opacity-0 top-9`}
             >
-                <Menu.Item className="p-3 hover:bg-indigo-50">
+                {/* <Menu.Item className="p-3 hover:bg-indigo-50">
                     <button
                         onClick={() => handleSubmit("Request New Tag")}
                         className="w-full px-6 py-3 rounded-lg ansition-colors text-sm text-gray-900 flex items-center gap-2"
@@ -44,7 +50,7 @@ const PostRequestMenu = ({ currentPost, setSelectCurrencyOpen }) => {
                     ><CheckBadgeIcon className="w-5 h-5 text-green-600" />
                         <p className="text-nowrap">Request Inspected</p>
                     </button>
-                </Menu.Item>
+                </Menu.Item> */}
                 <Menu.Item className="border-t p-3 hover:bg-indigo-50">
                     <button
                         onClick={() => handleSubmit("Request to Feature a Post")}

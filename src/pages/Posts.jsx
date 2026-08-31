@@ -10,6 +10,7 @@ import { useParams } from "react-router-dom";
 import { FolderPlusIcon, FunnelIcon, PlusIcon } from "@heroicons/react/24/outline";
 import { toast } from "react-toastify";
 import LoadingState from "../components/common/LoadingState";
+import EmptyState from "../components/common/EmptyState";
 
 const Posts = () => {
   const {
@@ -35,7 +36,6 @@ const Posts = () => {
   const [postsList, setPostsList] = useState([]);
   // For Pagination
   const [pageNumber, setPageNumber] = useState(1);
-  const [pageSize] = useState(10);
   const [editModalData, setEditModalData] = useState(null);
 
   useEffect(() => {
@@ -51,15 +51,12 @@ const Posts = () => {
 
 
   const queryParams = useMemo(() => ({
-    ...filters,
+    // ...filters,
     partnerId: id || user?.partnerId || null,
-    pageSize,
-    pageNumber,
-  }), [filters, id, user?.partnerId, pageSize, pageNumber]);
+  }), [id, user?.partnerId]);
 
   useEffect(() => {
     if (loading || !user?.userId) return;
-
     const timeout = setTimeout(() => {
       fetchPosts(queryParams);
     }, 300);
@@ -71,7 +68,13 @@ const Posts = () => {
     setPageNumber(1)
     setFilters((prev) => ({
       ...prev,
-      ...newFilters,
+      partnerId: id || user.partnerId,
+      // status: "Approved",
+      SearchType: newFilters.searchBy,
+      SearchTerm: newFilters.searchTerm,
+      Status: newFilters.status,
+      PinToTop: newFilters.pinToTop ? 1 : 0,
+      SortBy: newFilters.sortBy,
     }));
 
     const params = {
@@ -101,19 +104,31 @@ const Posts = () => {
       sortBy: 0,
       year: "",
       pinToTop: false,
+      pageSize: 10,
+      pageNumber: 1,
     })
     const params = {
       partnerId: id || user.partnerId,
-      status: "Approved",
+      // status: "Approved",
       PageNumber: pageNumber,
     };
     fetchPosts(params)
   };
 
 
-  const handlePrev = () => { if (pageNumber > 1) setPageNumber((prev) => prev - 1); };
+  const handlePrev = () => {
+    if (pageNumber > 1) {
+      setPageNumber((prev) => prev - 1);
+      fetchPosts({ ...filters, partnerId: id || user?.partnerId, pageNumber: pageNumber - 1 })
+    }
+  };
 
-  const handleNext = () => { if (pageNumber < totalPages) setPageNumber((prev) => prev + 1); };
+  const handleNext = () => {
+    if (pageNumber < totalPages) {
+      setPageNumber((prev) => prev + 1);
+      fetchPosts({ ...filters, partnerId: id || user?.partnerId, pageNumber: pageNumber + 1 })
+    }
+  };
 
   // Handle Change from draft to pending Approval
   const handleStatusChange = (postId, newStatus) => {
@@ -238,28 +253,18 @@ const Posts = () => {
                       <p className="text-secondary-500 text-center">{error}</p>
                     </div>
                   ) : postsList.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-20">
-                      <div className="h-20 w-20 bg-secondary-100 rounded-2xl flex items-center justify-center mb-6">
-                        <FolderPlusIcon className="h-10 w-10 text-white" />
-                      </div>
-                      <h3 className="text-xl font-semibold text-secondary-700 mb-2">
-                        No car listings found
-                      </h3>
-                      <p className="text-secondary-500 mb-6 text-center">
-                        {filters && Object.keys(filters).length > 0
+                    <EmptyState
+                      icon={<FolderPlusIcon className="h-10 w-10 text-white" />}
+                      title="No Posts Found"
+                      description={
+                        postsList.length
                           ? "Try adjusting your search filters or clear all filters to see more results"
-                          : "Start by creating your first car listing to showcase your vehicles"}
-                      </p>
-                      <button
-                        onClick={() => {
-                          setShowModal(true);
-                        }}
-                        className="inline-flex items-center px-6 py-3 border border-transparent text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 shadow-lg hover:shadow-xl transition-all duration-200"
-                      >
-                        <PlusIcon className="mr-2 h-5 w-5" />
-                        Create First Car
-                      </button>
-                    </div>
+                          : "Start by creating your first post"
+                      }
+                      actionIcon={<PlusIcon className="mr-2 h-5 w-5" />}
+                      actionLabel="Create First Car"
+                      onAction={() => setShowModal(true)}
+                    />
                   ) : (
                     <div>
                       <div className="">

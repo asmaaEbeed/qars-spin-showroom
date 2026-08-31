@@ -51,6 +51,7 @@ const ProfileHeader = ({ partner }) => {
 
     // Upload the file
     try {
+      setIsUploading(true);
       const result = await ShowroomProfileAPI.uploadLogo(
         partner.partnerId,
         file

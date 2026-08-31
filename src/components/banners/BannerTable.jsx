@@ -13,7 +13,8 @@ import {
 import LoadingState from "../common/LoadingState";
 import { useBannerContext } from "../../context/BannerContext";
 import { formatDateTime } from "../../utils/dateFormatter";
-import { IoRefreshCircleOutline, IoReload } from "react-icons/io5";
+import { IoReload } from "react-icons/io5";
+import EmptyState from "../common/EmptyState";
 
 export default function BannerTable({ onEdit, onApprove, onUpload, handleOpenCreate }) {
 
@@ -27,26 +28,18 @@ export default function BannerTable({ onEdit, onApprove, onUpload, handleOpenCre
 
 
   if (bigBanners && bigBanners.length === 0 && !loadingBigBanner)
-    return <div className="flex flex-col items-center justify-center py-20 border border-gray-200 rounded-xl bg-white/50 h-full">
-      <div className="h-20 w-20 bg-secondary-100 rounded-2xl flex items-center justify-center mb-6">
-        <FolderPlusIcon className="h-10 w-10 text-white" />
-      </div>
-      <h3 className="text-xl font-semibold text-secondary-700 mb-2">
-        No Banners Found
-      </h3>
-      <p className="text-secondary-500 mb-6 text-center">
-        {bigBanners && bigBanners.length > 0
+    return <EmptyState
+      icon={<FolderPlusIcon className="h-10 w-10 text-white" />}
+      title="No Banners Found"
+      description={
+        bigBanners?.length
           ? "Try adjusting your search filters or clear all filters to see more results"
-          : "Start by creating your first banner"}
-      </p>
-      <button
-        onClick={handleOpenCreate}
-        className="inline-flex items-center px-6 py-3 border border-transparent text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 shadow-lg hover:shadow-xl transition-all duration-200"
-      >
-        <PlusIcon className="mr-2 h-5 w-5" />
-        Create First Banner
-      </button>
-    </div>;
+          : "Start by creating your first banner"
+      }
+      actionIcon={<PlusIcon className="mr-2 h-5 w-5" />}
+      actionLabel="Create First Banner"
+      onAction={handleOpenCreate}
+    />;
 
   const EmptyImg = ({ banner, type }) => <div className=" relative mt-3 rounded-lg overflow-hidden border border-gray-300 bg-gray-200 h-[120px] w-[300px] flex flex-col items-center justify-center">
     <PhotoIcon className="h-12 w-12 text-gray-500" />

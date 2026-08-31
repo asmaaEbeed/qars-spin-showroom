@@ -1,4 +1,3 @@
-import React, { useEffect } from 'react'
 import PostSpecifications from '../../posts/details/PostSpecifications'
 import { usePosts } from '../../../context/PostsContext'
 

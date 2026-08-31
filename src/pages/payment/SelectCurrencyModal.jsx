@@ -1,59 +1,48 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import BaseModal from '../../components/common/BaseModal'
 import { usePaymentContext } from '../../context/PaymentContext'
 import { toast } from 'react-toastify'
-import Select from 'react-select'
-import { usePosts } from '../../context/PostsContext'
+import { IoCheckmarkCircle } from 'react-icons/io5'
 
-const mobileRegex = /^[0-9]{3,11}$/;
 
 const SelectCurrencyModal = ({ open, setOpen }) => {
-    const { paymentMethod, onPaymentExecute, paymentExecuteLoading, requestType } = usePaymentContext()
-    const { showroomInitData } = usePosts();
+    const { paymentMethod, onPaymentExecute, paymentExecuteLoading, requestType, masterOrderId } = usePaymentContext()
+    // const { showroomInitData } = usePosts();
 
     const [formData, setFormData] = useState({
         PaymentMethodId: "",
-        customerName: "",
-        email: "",
-        mobile: "",
-        amount: 0
+        amount: 0,
+        type: null,
+        masterOrderId: null,
     })
-    const [error, setError] = useState({})
+    const [paymentMethodError, setPaymentMethodError] = useState(false)
+
+
 
     useEffect(() => {
-        if (showroomInitData) {
-            setFormData(prev => ({
-                ...prev,
-                customerName: showroomInitData.partnerNamePl,
-                email: showroomInitData.notificationEmail,
-                mobile: showroomInitData.contactPhone,
+        setFormData(prev => ({
+            ...prev,
+            amount: requestType?.price,
+            type: requestType,
+            masterOrderId,
+        }))
+    }, [requestType, masterOrderId])
 
-            }))
-        }
-    }, [showroomInitData])
-
-    useEffect(() => {
-        setFormData(prev => ({...prev, amount: requestType.price, type: requestType}))
-    }, [requestType])
 
     const onSubmit = async (e) => {
         e.preventDefault()
-        if (!formData.PaymentMethodId) { setError({ ...error, PaymentMethodId: true }); return };
-        const mobile = formData.mobile.trim().replace(/\s+/g, "");
+        if (!formData.PaymentMethodId) { setPaymentMethodError(true); return };
 
-        if (!mobileRegex.test(mobile)) {
-            setError({ ...error, mobile: true });
-            return
-        }
+
         try {
             const res = await onPaymentExecute(formData)
             if (res.status === 200 || res.status === 201) {
                 toast.success(res.data.Message || "Payment started successfully!");
-                if (res.data.Data) {
-                    const paymentUrl = res.data.Data.PaymentURL
-                    window.open(paymentUrl, "_blank", "noopener,noreferrer");
+                if (res.data.raw) {
+                    const paymentUrl = res.data.raw.PaymentUrl
+                    console.log(paymentUrl)
+                    window.location.href = paymentUrl
                 }
-
             }
         } catch (e) {
             toast.dismiss()
@@ -64,34 +53,10 @@ const SelectCurrencyModal = ({ open, setOpen }) => {
 
 
     return (
-        <BaseModal title="Payment" open={open} setOpen={setOpen} className='relative h-[480px] '>
+        <BaseModal title="Payment" open={open} setOpen={setOpen} className='relative '>
             <form onSubmit={onSubmit}>
-                <div className='p-6 overflow-auto h-[360px]'>
-                    {/* {Object.keys(error).length && <div className="flex items-center bg-red-100 p-3 rounded-md mb-2">
-                        <div className="flex-shrink-0">
-                            <XCircleIcon className="h-5 w-5 text-red-400" />
-                        </div>
-                        <div className="ml-3">
-                            <p className="text-sm font-medium text-red-800">{error}</p>
-                        </div>
-                    </div>} */}
-                    {/* {paymentMethod.length && paymentMethod.map((option => <div key={option.PaymentMethodId}
-                        className={`grid grid-cols-5 items-center space-x-2 gap-4 p-2 hover:bg-gray-100 cursor-pointer
-                             ${option.PaymentMethodId === formData.PaymentMethodId ? "bg-primary-50" : ""}`}
-                        onClick={(e) => onSelectPaymentMethod(e, option)}>
-                        <img
-                            className="col-span-1 w-8 h-8 rounded-full border border-gray-300"
-                            src={option.ImageUrl}
-                            alt={option.PaymentCurrencyIso}
-                        />
-                        <span className="col-span-2">{option.PaymentMethodEn}</span>
-                        <span className="col-span-1">{option.PaymentCurrencyIso}</span>
-                        <div className=' col-span-1'>
-                            {option.PaymentMethodId === formData.PaymentMethodId && <CheckCircleIcon className="w-5 h-5 text-green-700" />}
-                        </div>
-                    </div>))} */}
-
-                    <div className='flex flex-col mb-8'>
+                <div className='p-6 overflow-auto max-h-[620px]'>
+                    {/* <div className='flex flex-col mb-8'>
                         <label className="block text-xs font-medium text-gray-700 mb-1">
                             Select Payment <span className="text-red-500">*</span>
                         </label>
@@ -122,15 +87,16 @@ const SelectCurrencyModal = ({ open, setOpen }) => {
                                 }),
                                 menuList: (base) => ({
                                     ...base,
-                                    maxHeight: "200px",
+                                    maxHeight: "150px",
                                     overflowY: "auto",
+                                    zIndex: 1000,
                                 }),
                             }}
 
                             formatOptionLabel={(option) => (
                                 <div className="grid grid-cols-5 items-center space-x-2">
                                     <img
-                                        className="col-span-1 w-8 h-8 rounded-full border border-gray-300"
+                                        className="col-span-1 w-6 h-6 rounded-full border border-gray-300"
                                         src={option.ImageUrl}
                                         alt={option.PaymentCurrencyIso}
                                     />
@@ -140,57 +106,22 @@ const SelectCurrencyModal = ({ open, setOpen }) => {
                             )}
                         />}
                         {error.PaymentMethodId && <div className='text-xs text-red-500'>Please, select payment method</div>}
-                    </div>
-                    <div className='grid grid-cols-2 gap-8'>
-                        <div className='flex flex-col mb-2'>
-                            <label className="block text-xs font-medium text-gray-700 mb-1">
-                                Amount
-                            </label>
-                            <div className="relative rounded-md shadow-sm">
-                                <input className={`w-full px-3 py-1.5 border border-gray-300 rounded-md focus:ring-primary-500 focus-visible:outline-none focus:border-primary-500 pr-9`} type="number" value={formData.amount} readOnly />
-                            </div>
-                        </div>
-                        {/* Customer Name */}
-                        <div className='flex flex-col mb-2'>
-                            <label className="block text-xs font-medium text-gray-700 mb-1">
-                                Customer Name <span className="text-red-500">*</span>
-                            </label>
-                            <div className="relative rounded-md shadow-sm">
-                                <input className={`w-full px-3 py-1.5 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500 pr-9 focus-visible:outline-none`} type="text" value={formData.customerName}
-                                    onChange={(e) => setFormData({ ...formData, customerName: e.target.value })} required />
-                            </div>
-                        </div>
-                        {/* Customer Name */}
-                        <div className='flex flex-col mb-2'>
-                            <label className="block text-xs font-medium text-gray-700 mb-1">
-                                Customer Phone <span className="text-red-500">*</span>
-                            </label>
-                            <div className="relative rounded-md shadow-sm">
-                                <input className={`w-full px-3 py-1.5 border ${error.mobile ? "border-red-500" : "border-gray-300"} rounded-md focus:ring-primary-500 focus:border-primary-500 pr-9 focus-visible:outline-none`} type="text" value={formData.mobile}
-                                    onChange={(e) => { setError({ ...error, mobile: "" }); setFormData({ ...formData, mobile: e.target.value }) }} required />
-                            </div>
-                            {error.mobile && <div className='text-xs text-red-500'>Phone number must:<br />
-                                • Contain 3 to 11 digits<br />
-                                • Start with numbers only<br />
-                                • English numbers only"</div>}
-                        </div>
-                        {/* Customer Email */}
-                        <div className='flex flex-col mb-2'>
-                            <label className="block text-xs font-medium text-gray-700 mb-1">
-                                Customer Email <span className="text-red-500">*</span>
-                            </label>
-                            <div className="relative rounded-md shadow-sm">
-                                <input className={`w-full px-3 py-1.5 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500 pr-9 focus-visible:outline-none`} type="text" value={formData.email} required onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
-                            </div>
-                        </div>
-                    </div>
+                    </div> */}
+
+                    {/* Amount Summary */}
+                    <AmountSummary formData={formData} requestType={requestType} />
+
+                    {/* Payment Method List */}
+                    <PaymentMethodList paymentMethod={paymentMethod} formData={formData} setFormData={setFormData} error={paymentMethodError} setError={setPaymentMethodError} />
 
                 </div>
-                <div className="flex justify-end space-x-3 p-4 absolute w-full bottom-0 z-50 bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+                <div className="flex justify-end space-x-3 p-4 w-full bottom-0 z-50 bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
                     <button
                         type="button"
                         onClick={() => { setFormData({ PaymentMethodId: "" }); setOpen(false); }}
-                        className="px-6 py-2.5 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors duration-200"
+                        className="px-6 py-2.5 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 
+                        bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 
+                        transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:outline-none"
                     >
                         Cancel
                     </button>
@@ -200,7 +131,10 @@ const SelectCurrencyModal = ({ open, setOpen }) => {
                         className="flex px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors duration-200"
                     >
                         {paymentExecuteLoading && <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mx-2"></div>}
-                        <p>{!paymentExecuteLoading ? "Proceed To pay" : "Proceeding..."}</p>
+                        <p>
+                            {!paymentExecuteLoading ? "Proceed to Payment" : "Processing..."}
+                        </p>
+
                     </button>
                 </div>
             </form>
@@ -209,3 +143,105 @@ const SelectCurrencyModal = ({ open, setOpen }) => {
 }
 
 export default SelectCurrencyModal
+
+const AmountSummary = ({ formData, requestType }) => {
+    return (
+        <div className="mb-6">
+            <div className="grid gap-3 max-h-96 overflow-auto rounded-xl border border-primary-100 bg-gradient-to-r from-primary-50 to-white p-3 shadow-sm">
+                <p className="text-xs font-medium text-gray-500 mb-1">
+                    Amount to Pay
+                </p>
+
+                <div className="flex items-end justify-between">
+                    <div>
+                        <p className="text-3xl font-bold text-gray-900">
+                            {formData.amount}
+                            <span className="text-base font-medium text-gray-500 ml-1">
+                                {requestType?.currency || "QAR"}
+                            </span>
+                        </p>
+
+                    </div>
+
+                    <div className="px-3 py-1 rounded-full bg-primary-100 text-primary-700 text-xs font-medium">
+                        Secure Payment
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+const PaymentMethodList = ({ paymentMethod, formData, setFormData, error, setError }) => {
+    return (
+        <div className="flex flex-col ">
+            <div className="mb-3">
+                <p className="text-sm font-semibold text-gray-800">
+                    Choose a payment method
+                </p>
+                <p className="text-xs text-gray-500">
+                    Select your preferred payment option
+                </p>
+            </div>
+
+
+            <div className="grid gap-3 max-h-96 overflow-auto border rounded-md border-primary-100 bg-gradient-to-r from-primary-50 to-white p-3 shadow-sm">
+                {paymentMethod.map((method) => {
+                    const isSelected = method.PaymentMethodId === formData.PaymentMethodId
+
+                    return (
+                        <button
+                            aria-pressed={isSelected}
+                            type="button"
+                            key={method.PaymentMethodId}
+                            onClick={() => {
+                                setError(true)
+                                setFormData({
+                                    ...formData,
+                                    PaymentMethodId: method.PaymentMethodId,
+                                })
+                            }}
+                            className={`group flex items-center justify-between p-4 rounded-xl border transition-all duration-200 text-left ${isSelected
+                                ? "border-primary-500 bg-primary-50 shadow-md"
+                                : "border-gray-200 bg-white hover:border-primary-300 hover:shadow-sm"
+                                }
+                                        `}>
+                            {/* Left side */}
+                            <div className="flex items-center gap-4">
+                                <img
+                                    src={method.ImageUrl}
+                                    alt={method.PaymentCurrencyIso}
+                                    className="w-11 h-11 rounded-full border border-gray-200 bg-white shadow-sm"
+                                />
+
+
+                                <div>
+                                    <p className="text-sm font-medium text-gray-800">
+                                        {method.PaymentMethodEn}
+                                    </p>
+                                    <p className="text-xs text-gray-500">
+                                        {method.PaymentCurrencyIso}
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Right side (check icon) */}
+                            {isSelected && (
+                                <IoCheckmarkCircle
+                                    className="w-6 h-6 text-primary-600 transition-transform duration-200 group-hover:scale-105"
+                                />
+                            )}
+
+                        </button>
+                    )
+                })}
+            </div>
+
+            {error.PaymentMethodId && (
+                <p className="text-xs text-red-500 mt-2">
+                    Please, select payment method
+                </p>
+            )}
+        </div>
+    )
+}

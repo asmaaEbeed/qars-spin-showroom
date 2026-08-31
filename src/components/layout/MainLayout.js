@@ -6,6 +6,7 @@ import { FaBars, FaTimes } from "react-icons/fa";
 import { IoMdArrowDropdown } from "react-icons/io";
 import { FiLogOut } from "react-icons/fi";
 import { ChevronDownIcon } from "@heroicons/react/24/solid";
+import Footer from "../common/Footer";
 
 const MainLayout = ({ children }) => {
   const { user, logout } = useAuth();
@@ -64,6 +65,51 @@ const MainLayout = ({ children }) => {
               },
             ],
           },
+          {
+            label: "Requests",
+            to: `/admin/requests`,
+            isActive: /^\/admin\/requests(\/|$)/.test(path),
+          },
+          {
+            label: "Reports",
+            to: "#", // parent has no direct link
+            isActive:
+              path.includes("/payment-reports"),
+
+            // Submenu Children
+            children: [
+              {
+                label: "Payment Reports",
+                to: `/admin/payment-reports`,
+                isActive: path.includes("/payment-reports"),
+              },
+            ]
+          },
+          {
+            label: "Managements",
+            to: "#", // parent has no direct link
+            isActive:
+              path.includes("/cars-management"),
+
+            // Submenu Children
+            children: [
+              {
+                label: "Car Makes",
+                to: `/admin/cars-management/car-makes`,
+                isActive: path.includes("/cars-management/car-makes"),
+              },
+              {
+                label: "Car Classes",
+                to: `/admin/cars-management/car-classes`,
+                isActive: path.includes("/cars-management/car-classes"),
+              },
+              {
+                label: "Car Models",
+                to: `/admin/cars-management/car-models`,
+                isActive: path.includes("/cars-management/car-models"),
+              },
+            ]
+          }
         ]
       : []),
     {
@@ -97,16 +143,16 @@ const MainLayout = ({ children }) => {
             <img className="h-8 w-auto" src={Logo} alt="Qars Spin Logo" />
           </Link>
         </div>
-        <div className="flex items-center shadow bg-primary-600 justify-between px-6 py-3 md:py-0 relative">
+        <div className="flex items-center shadow bg-primary-600 justify-between px-6 py-3 lg:py-0 relative">
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex h-full">
+          <nav className="hidden lg:flex h-full">
             <div className="flex flex-row">
               {navItems.map((item) => (
                 <div key={item.label} className="relative group">
                   {/* Parent Link */}
                   <Link
                     to={item.to}
-                    className={`h-full flex w-auto uppercase md:px-2 lg:px-4 text-center py-4 text-sm font-medium hover:bg-primary-700 whitespace-nowrap transition-all duration-200 tracking-widest ${
+                    className={`h-full flex w-auto uppercase lg:px-2 lg:px-4 text-center py-4 text-sm font-medium hover:bg-primary-700 whitespace-nowrap transition-all duration-200 tracking-widest ${
                       item.isActive ? "bg-primary-700 text-white" : ""
                     }`}
                   >
@@ -155,7 +201,7 @@ const MainLayout = ({ children }) => {
           </nav>
 
           {/* User Menu (Desktop) */}
-          <div className="hidden md:flex items-center relative">
+          <div className="hidden lg:flex items-center relative">
             <button
               onClick={() => setUserMenuOpen(!userMenuOpen)}
               className="flex items-center space-x-3 px-4 py-1 rounded-xl hover:shadow-md transition-all duration-200"
@@ -186,13 +232,21 @@ const MainLayout = ({ children }) => {
             </button>
 
             {userMenuOpen && (
-              <div className="absolute right-0 top-full mt-2 w-56 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 py-2 z-50">
-                <div className="px-4 py-3 border-b border-secondary-100">
+              <div className="absolute right-0 top-full mt-2 w-56 overflow-hidden bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 py-2 z-50">
+                <div className="px-3 py-4 bg-primary-50 border-b border-color-white">
                   <p className="text-sm font-medium text-secondary-900">
                     {user?.fullName}
                   </p>
-                  <p className="text-xs text-secondary-500">{user.role === "superAdmin" ? "Qars Spin" : "Partner"} Account</p>
+                  <p className="text-xs text-secondary-500">
+                    {user.role === "superAdmin" ? "Qars Spin" : "Partner"}{" "}
+                    Account
+                  </p>
                 </div>
+                {!isSuperAdmin && (
+                  <div className="px-4 py-3 border-b border-secondary-50 text-secondary-500 hover:bg-gray-50">
+                    <Link to="/user-requests">My Requests</Link>
+                  </div>
+                )}
                 <button
                   onClick={() => {
                     logout();
@@ -208,16 +262,15 @@ const MainLayout = ({ children }) => {
 
           {/* Mobile Menu Button */}
           <button
-            className="md:hidden text-white text-2xl flex ml-auto"
+            className="lg:hidden text-white text-2xl flex ml-auto"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             {mobileMenuOpen ? <FaTimes /> : <FaBars />}
           </button>
 
           {/* Mobile Navigation Drawer */}
-          {/* Mobile Navigation Drawer */}
           {mobileMenuOpen && (
-            <div className="fixed inset-0 top-24 z-40 md:hidden bg-black/30 backdrop-blur-sm">
+            <div className="fixed inset-0 top-24 z-40 lg:hidden bg-black/30 backdrop-blur-sm">
               <div
                 className="bg-white shadow-xl rounded-b-lg overflow-hidden"
                 onClick={(e) => e.stopPropagation()}
@@ -227,11 +280,20 @@ const MainLayout = ({ children }) => {
                     <div key={item.label} className="relative group">
                       {item.children ? (
                         <div className="border-b border-gray-100 last:border-b-0">
-                          <div className="flex items-center justify-between px-5 py-3.5 text-gray-800 font-medium" onClick={() => setMobileSubMenu(!mobileSubMenu)}>
+                          <div
+                            className="flex items-center justify-between px-5 py-3.5 text-gray-800 font-medium"
+                            onClick={() => setMobileSubMenu(!mobileSubMenu)}
+                          >
                             <span>{item.label}</span>
                             <ChevronDownIcon className="w-4 h-4 text-gray-500 transition-transform duration-200 group-has-[.submenu-open]:rotate-180" />
                           </div>
-                          <div className={mobileSubMenu ? "submenu bg-gray-50" : "hidden submenu bg-gray-50"}>
+                          <div
+                            className={
+                              mobileSubMenu
+                                ? "submenu bg-gray-50"
+                                : "hidden submenu bg-gray-50"
+                            }
+                          >
                             {item.children.map((child) => (
                               <Link
                                 key={child.label}
@@ -304,26 +366,7 @@ const MainLayout = ({ children }) => {
       </div>
 
       {/* Footer */}
-      <footer className="bg-white shadow">
-        <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center">
-            <div className="text-sm text-white">
-              © {new Date().getFullYear()} Qars Spin. All rights reserved.
-            </div>
-            <div className="text-sm text-gray-500">
-              Developed by{" "}
-              <a
-                href="https://smartvillage.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary-600 hover:text-primary-700"
-              >
-                Smart Village
-              </a>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
       {/* Click Outside Handler */}
       {(userMenuOpen || mobileMenuOpen) && (
         <div

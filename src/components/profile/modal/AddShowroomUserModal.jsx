@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import BaseModal from '../../common/BaseModal'
-import SwitchSelect from '../../common/SwitchSelect';
 import { useParams } from 'react-router-dom';
 import { useShowroomContext } from '../../../context/ShowroomContext';
 
@@ -27,7 +26,6 @@ const AddShowroomUserModal = ({ open, setOpen }) => {
         try {
             setLoading(true);
             const res = await addNewShowroomUser(formData);
-            console.log(res);
             if (res.status === 200 || res.status === 201) {
                 setFormData(initialFormData);
                 getPartnerUsers(id);
@@ -137,7 +135,7 @@ const AddShowroomUserModal = ({ open, setOpen }) => {
                     </div>
 
                     {/* Roles */}
-                    <div>
+                    {/* <div>
                         <div className="flex items-center gap-4 mt-8 mb-6">
                             <div className="flex-grow h-[2px] bg-gray-300"></div>
 
@@ -169,7 +167,7 @@ const AddShowroomUserModal = ({ open, setOpen }) => {
                                 <p>Billing Payments</p>
                             </div>
                         </div>
-                    </div>
+                    </div> */}
                 </div>
 
                 <div className="flex justify-end space-x-3 p-4 sticky bottom-0 z-50 bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">

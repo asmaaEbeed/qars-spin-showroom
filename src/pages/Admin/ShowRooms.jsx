@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import MainLayout from '../../components/layout/MainLayout'
 import { ShowRoomsHeader } from '../../components/showrooms/ShowRoomsHeader'
 import { FaImage, FaSearch } from 'react-icons/fa'
@@ -9,6 +9,8 @@ import Pagination from '../../components/layout/Pagination'
 import { usePosts } from '../../context/PostsContext'
 import { AdminPartnerAPI } from '../../services/api'
 import { toast } from 'react-toastify'
+import qarsSpinLogo from "../../assets/images/logo/Logo.svg"
+import { QARS_SPIN_PARTNER_ID } from '../../constants/qars-spin-data'
 
 const PARTNER_STATUS_COLOR = {
   Approved: "bg-green-500",
@@ -42,6 +44,7 @@ const ShowRooms = () => {
   }, [])
   useEffect(() => {
     if (!showrooms.length) fetchShowrooms();
+    console.log(showrooms.filter((s) => s.partnerStatus === "Approved"))
   }, [showrooms, fetchShowrooms]);
 
   // === Filter by partnerName ===
@@ -112,8 +115,10 @@ const ShowRooms = () => {
                   </div>
 
                   {/* Content */}
-                  <div className="p-6">
-                    <h2 className="text-xl font-semibold text-gray-900 mb-2">{showroom.partnerName}</h2>
+                  <div className="p-4">
+                    {showroom.partnerId === QARS_SPIN_PARTNER_ID ?
+                    <img src={qarsSpinLogo} alt={`${showroom.partnerName} logo`} className="h-10 -ml-4 w-auto mb-2" /> :
+                    <h2 className="text-xl font-semibold text-gray-900 mb-2">{showroom.partnerName}</h2>}
 
                     <div className="space-y-2 mb-4">
                       <div className="flex items-center justify-between">

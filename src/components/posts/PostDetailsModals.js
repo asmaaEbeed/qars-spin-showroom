@@ -67,7 +67,7 @@ const PostDetailsModals = ({
     try {
       setLoading(true);
       const url =
-        "https://qarsspintest.smartvillageqatar.com/QarsSpinAPI/BrowsingRelatedApi.asmx/UploadPostCoverPhoto";
+        `${process.env.REACT_APP_MOBILE_API_BASE_URL}/BrowsingRelatedApi.asmx/UploadPostCoverPhoto`;
       const response = await fetch(url, {
         method: "POST",
         body: formData,

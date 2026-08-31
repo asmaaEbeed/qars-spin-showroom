@@ -50,10 +50,16 @@ export const BigBannerProvider = ({ children }) => {
       targetUrlSl: editingBanner?.targetUrlSl || "",
       targetType: editingBanner?.targetType || "Global",
       bannerRemarks: editingBanner?.bannerRemarks || "",
-      startDate: formatDateTime(editingBanner?.startDate, { type: "date" }) || getDates().today,
-      endDate: formatDateTime(editingBanner?.endDate, { type: "date" }) || getDates().nextWeek,
+      startDate:
+        formatDateTime(editingBanner?.startDate, { type: "date" }) ||
+        getDates().today,
+      endDate: editingBanner?.endDate
+        ? formatDateTime(editingBanner?.endDate, { type: "date" })
+        : bannerType.includes("Filler")
+          ? getDates().nextCentury
+          : getDates().nextWeek,
     };
-  }, [editingBanner]);
+  }, [editingBanner, bannerType]);
   // Banner Info Modal
   const [formData, setFormData] = useState(initialValues);
 
@@ -61,7 +67,10 @@ export const BigBannerProvider = ({ children }) => {
     setFormData(initialValues);
   }, [initialValues]);
 
-  const resetFilter = useCallback(() => setFilter(initialFilterValues), [initialFilterValues]);
+  const resetFilter = useCallback(
+    () => setFilter(initialFilterValues),
+    [initialFilterValues],
+  );
 
   const fetchBigBanner = useCallback(async (params) => {
     setLoadingBigBanner(true);
@@ -87,9 +96,13 @@ export const BigBannerProvider = ({ children }) => {
           setBigBanners((prev) =>
             prev.map((banner) =>
               banner.bannerId === id
-                ? { ...banner, imageUrlPl: res.data.imageUrl, bannerStatus: "Draft" }
-                : banner
-            )
+                ? {
+                    ...banner,
+                    imageUrlPl: res.data.imageUrl,
+                    bannerStatus: "Draft",
+                  }
+                : banner,
+            ),
           );
           toast.success("Banner uploaded successfully!");
           return res;
@@ -97,13 +110,16 @@ export const BigBannerProvider = ({ children }) => {
       } else {
         const res = await bannerAPI.uploadBigBannerSl(id, uploadFile);
         if (res.status === 200) {
-          
           setBigBanners((prev) =>
             prev.map((banner) =>
               banner.bannerId === id
-                ? { ...banner, imageUrlSl: res.data.imageUrl, bannerStatus: "Draft" }
-                : banner
-            )
+                ? {
+                    ...banner,
+                    imageUrlSl: res.data.imageUrl,
+                    bannerStatus: "Draft",
+                  }
+                : banner,
+            ),
           );
           toast.success("Banner uploaded successfully!");
           return res;
@@ -148,7 +164,13 @@ export const BigBannerProvider = ({ children }) => {
       const newData = {
         ...data,
       };
-      setBigBanners((prev) => prev.map((banner) => banner.bannerId === id ? { ...banner, ...newData, bannerStatus: "Draft" } : banner));
+      setBigBanners((prev) =>
+        prev.map((banner) =>
+          banner.bannerId === id
+            ? { ...banner, ...newData, bannerStatus: "Draft" }
+            : banner,
+        ),
+      );
       // resetForm();
       toast.success(res.data.message || "Banner updated successfully!");
       return res;
@@ -165,8 +187,14 @@ export const BigBannerProvider = ({ children }) => {
     setLoadingApproveBigBanner(true);
     try {
       const res = await bannerAPI.approveBanner(id, status);
-      
-      setBigBanners((prev) => prev.map((banner) => banner.bannerId === id ? { ...banner, bannerStatus: "Approved" } : banner));
+
+      setBigBanners((prev) =>
+        prev.map((banner) =>
+          banner.bannerId === id
+            ? { ...banner, bannerStatus: "Approved" }
+            : banner,
+        ),
+      );
       // resetForm();
       toast.success(res.data.message || "Banner approved successfully!");
       return res;
@@ -183,7 +211,6 @@ export const BigBannerProvider = ({ children }) => {
     setEditingBanner(null);
     setFormData(initialValues);
   }, [initialValues]);
-
 
   const value = useMemo(
     () => ({
@@ -209,7 +236,7 @@ export const BigBannerProvider = ({ children }) => {
       setFilter,
       resetFilter,
       loadingApproveBigBanner,
-      handleApproveBanner
+      handleApproveBanner,
     }),
     [
       bigBanners,
@@ -234,8 +261,8 @@ export const BigBannerProvider = ({ children }) => {
       setFilter,
       resetFilter,
       loadingApproveBigBanner,
-      handleApproveBanner
-    ]
+      handleApproveBanner,
+    ],
   );
 
   return (

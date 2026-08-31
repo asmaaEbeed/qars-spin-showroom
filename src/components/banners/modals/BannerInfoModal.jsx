@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useBannerForm } from "../hooks/useBannerForm";
@@ -18,6 +18,7 @@ export default function BannerInfoModal({
 }) {
 
   const TODAY = new Date().toISOString().split('T')[0];
+  const [isSmall, setIsSmall] = useState(false)
 
   const { errors, validateForm, handleBlur } = useBannerForm(editingBanner);
   const { handleAddBanner,
@@ -26,6 +27,18 @@ export default function BannerInfoModal({
     formData,
     setFormData,
     bannerType } = useBannerContext();
+
+  useEffect(() => {
+    if (bannerType === "smallFiller" || bannerType === "small") {
+      setIsSmall(true)
+    } else {
+      setIsSmall(false)
+    }
+    //smallFiller
+    // bigFiller
+    // small
+    // big
+  }, [bannerType])
 
   const {
     viewFile: viewPl,
@@ -182,9 +195,13 @@ export default function BannerInfoModal({
                             onChange={(e) => { setFormData({ ...formData, targetType: e.target.value }) }}
                             onBlur={() => handleBlur("targetType")}
                           >
-                            {TARGET_TYPE.map((type) => (
-                              <option key={type} value={type}>{type}</option>
-                            ))}
+                            {
+
+                              isSmall ? TARGET_TYPE.filter(type => type === "Home Page").map((type) => (
+                                <option key={type} value={type}>{type}</option>
+                              )) : TARGET_TYPE.map((type) => (
+                                <option key={type} value={type}>{type}</option>
+                              ))}
                           </select>
                           {errors.targetType && (
                             <p className="mt-1 text-xs text-red-600">{errors.targetType}</p>

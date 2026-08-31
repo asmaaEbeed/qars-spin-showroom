@@ -35,7 +35,6 @@ export const ShowroomProvider = ({ children }) => {
       setLoadingPartnerUsers(true);
       const res = await AdminPartnerAPI.getPartnerUsers(id);
       if (res.status === 200 || res.status === 201) {
-        console.log(res.data);
         setPartnerUsers(res.data);
       }
       return res;

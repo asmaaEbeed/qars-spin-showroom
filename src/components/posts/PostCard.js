@@ -11,6 +11,11 @@ import PlaceHolderImage from "../../assets/images/placeholder-car.jpg";
 import { useAuth } from "../../context/AuthContext";
 import { toast } from "react-toastify";
 import { usePosts } from "../../context/PostsContext";
+import { Menu } from "@headlessui/react";
+import { POST_STATUS } from "./constants/post-constants";
+import qarsSpinLogo from "../../assets/images/logo/Logo.svg";
+import { PauseCircleIcon } from "@heroicons/react/24/solid";
+import { QARS_SPIN_PARTNER_ID } from "../../constants/qars-spin-data";
 
 const statusColors = {
   Approved: {
@@ -27,6 +32,11 @@ const statusColors = {
     bg: "bg-red-50",
     text: "text-red-800",
     border: "border-red-200",
+  },
+  "Rejected Permanently": {
+    bg: "bg-red-800",
+    text: "text-white",
+    border: "border-red-800",
   },
   Draft: {
     bg: "bg-gray-200",
@@ -61,46 +71,65 @@ const PostCard = ({
       toast.error("Failed to send post to review");
     }
   };
+  const isDisabled = post.postStatus && post.postStatus.includes("Permanently");
+
+  const route = isDisabled
+    ? "#"
+    : `${id ? `/admin/dealer/${id}` : ""}/showroom/posts/${post.postCode}`;
+
+  const source_Kind_label = {
+    Individual: "bg-blue-600 text-blue-50 border-blue-500",
+    Partner: "bg-primary-600 text-primary-50 border-primary-500",
+    "Qars Spin": "bg-white border-2 border-primary-500 text-primary-50",
+    [QARS_SPIN_PARTNER_ID]:
+      "bg-white border-2 border-primary-500 border-r-0 text-primary-50",
+  };
 
   return (
     <Link
-      to={`${id ? `/admin/dealer/${id}` : ""}/showroom/posts/${post.postCode}`}
-      className="block mb-3 bg-white rounded-xl  shadow-sm border border-gray-100 hover:shadow-md transition-all duration-200 overflow-hidden"
+      to={route}
+      className={`block mb-3 rounded-xl  shadow-sm border border-gray-100 transition-all duration-200 ${isDisabled ? "pointer-events-none bg-gray-50" : "bg-white hover:shadow-md"}`}
+      aria-disabled={isDisabled}
     >
       <div className="flex md:flex-row flex-col w-full">
         {/* Image Section */}
-        <div className="relative md:max-w-60 max-w-full bg-gray-100">
+        <div className="relative md:max-w-48 overflow-hidden max-w-full bg-gray-100 rounded-tl-xl">
           <img
             src={post.rectangleImageUrl || PlaceHolderImage}
             alt={post.title}
-            className="w-full h-full object-cover"
+            className="h-full object-cover max-height-[150px] w-[300px]"
           />
+          {post.isSold && (
+            <img
+              src="/images/sold.png"
+              alt="Sold"
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          )}
           <div className="absolute top-3 left-3 flex flex-col space-y-1">
             <p
               className={`px-3 py-1 rounded-full text-xs min-w-20 text-center border ${statusStyle.bg} ${statusStyle.text} ${statusStyle.border}`}
             >
               {post.postStatus}
             </p>
-            <p
-              className={`text-center px-3 py-1 rounded-full min-w-20 text-xs ${
-                post.isSold
-                  ? "bg-red-800 text-red-50 border-red-200"
-                  : "bg-green-600 text-green-50 border-green-500"
-              }`}
-            >
-              {post.isSold ? "Sold" : "Available"}
-            </p>
           </div>
           <div className="absolute bottom-2 right-0 flex flex-col space-y-1 tracking-wider">
             {!id && !user.partnerId && (
               <div
                 className={`text-center px-3 py-1 rounded-l-full min-w-20 text-xs ${
-                  post.sourceKind === "Individual"
-                    ? "bg-blue-600 text-blue-50 border-blue-500"
-                    : "bg-primary-600 text-primary-50 border-primary-500"
-                }`}
+                  source_Kind_label[post.sourceKind]
+                } ${post.partnerId === QARS_SPIN_PARTNER_ID && source_Kind_label[QARS_SPIN_PARTNER_ID]}`}
               >
-                {post.sourceKind}
+                {post.sourceKind === "Qars Spin" ||
+                post.partnerId === QARS_SPIN_PARTNER_ID ? (
+                  <img
+                    src={qarsSpinLogo}
+                    alt={`${post.sourceKind} logo`}
+                    className="h-5  w-auto"
+                  />
+                ) : (
+                  post.sourceKind
+                )}
               </div>
             )}
           </div>
@@ -201,73 +230,156 @@ const PostCard = ({
               </div>
             </div>
 
-            <div className="flex space-x-2">
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onEdit(e);
-                }}
-                className="p-3 h-10  w-10 text-white bg-primary-400 hover:bg-primary-600 hover:text-white rounded-full transition-colors"
-                title="Edit post"
-              >
-                <PencilIcon className="h-4 w-4" />
-              </button>
-              {post.postStatus === "Draft" && user.role !== "superAdmin" && (
+            {!isDisabled && (
+              <div className="flex space-x-2">
                 <button
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    handleSendToReview();
+                    onEdit(e);
                   }}
-                  className="p-2 bg-blue-500 text-white text-center hover:bg-blue-700 hover:text-white rounded-full transition-colors font-bold"
-                  title="Send to review"
+                  className="p-3 h-10  w-10 text-white bg-primary-400 hover:bg-primary-600 hover:text-white rounded-full transition-colors"
+                  title="Edit post"
                 >
-                  <PaperAirplaneIcon className="h-6 w-6" />
+                  <PencilIcon className="h-4 w-4" />
                 </button>
-              )}
-              {(post.postStatus === "Pending Approval" ||
-                post.postStatus === "Draft") &&
-                user.role === "superAdmin" && (
+                {post.postStatus === "Draft" && user.role !== "superAdmin" && (
                   <button
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      handleChangePostStatus(post.postId, "Approved");
+                      handleSendToReview();
                     }}
-                    className="p-2 bg-green-600 text-white hover:bg-green-600 hover:text-white rounded-full transition-colors font-bold"
-                    title="Approve post"
+                    className="p-2 bg-blue-500 text-white text-center hover:bg-blue-700 hover:text-white rounded-full transition-colors font-bold"
+                    title="Send to review"
                   >
-                    <CheckCircleIcon className="h-6 w-6" />
+                    <PaperAirplaneIcon className="h-6 w-6" />
                   </button>
                 )}
-              {(post.postStatus === "Pending Approval" ||
-                post.postStatus === "Draft") &&
-                user.role === "superAdmin" && (
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handleChangePostStatus(post.postId, "Rejected");
-                    }}
-                    className="p-2 bg-red-600 text-white hover:bg-red-600 hover:text-white rounded-full transition-colors font-bold"
-                    title="Reject post"
-                  >
-                    <XCircleIcon className="h-6 w-6" />
-                  </button>
+                {(post.postStatus === "Pending Approval" ||
+                  post.postStatus === "Draft") &&
+                  user.role === "superAdmin" && (
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleChangePostStatus(post.postId, "Approved");
+                      }}
+                      className="p-2 bg-green-600 text-white hover:bg-green-600 hover:text-white rounded-full transition-colors font-bold"
+                      title="Approve post"
+                    >
+                      <CheckCircleIcon className="h-6 w-6" />
+                    </button>
+                  )}
+                {(post.postStatus === "Pending Approval" ||
+                  post.postStatus === "Draft") &&
+                  user.role === "superAdmin" && (
+                    <div
+                      className="relative z-50"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                      }}
+                    >
+                      <Menu>
+                        <Menu.Button
+                          className="p-2 bg-red-600 text-white hover:bg-red-600 hover:text-white rounded-full transition-colors font-bold"
+                          title="Reject post"
+                          type="button"
+                        >
+                          <XCircleIcon className="h-6 w-6" />
+                        </Menu.Button>
+                        <Menu.Items
+                          transition
+                          anchor="bottom end"
+                          className={`min-w-52 origin-top-right absolute shadow-md right-0 bg-white rounded-xl border  p-1 text-sm/6 text-gray-800 z-50 transition duration-100 ease-out [--anchor-gap:--spacing(1)] focus:outline-none data-closed:scale-95 data-closed:opacity-0 top-10`}
+                        >
+                          <Menu.Item>
+                            <button
+                              className="group hover:bg-red-500/10 flex w-full items-center gap-2 rounded-lg px-3 py-1.5 data-focus:bg-white/10"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                handleChangePostStatus(post.postId, "Rejected");
+                              }}
+                            >
+                              Reject
+                            </button>
+                          </Menu.Item>
+                          <Menu.Item>
+                            <button
+                              className="group hover:bg-red-500/10 flex w-full items-center  gap-2 rounded-lg px-3 py-1.5 data-focus:bg-white/10"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                handleChangePostStatus(
+                                  post.postId,
+                                  "Rejected Permanently",
+                                );
+                              }}
+                            >
+                              Rejected Permanently
+                            </button>
+                          </Menu.Item>
+                        </Menu.Items>
+                      </Menu>
+                    </div>
+                  )}
+                {post.postStatus === POST_STATUS.APPROVED && (
+                  <div className="relative">
+                    <Menu>
+                      <Menu.Button
+                        // onClick={(e) => {
+                        //   e.preventDefault();
+                        //   e.stopPropagation();
+                        //   onDelete(post.postId);
+                        // }}
+                        className="p-2 bg-red-600 text-white hover:bg-red-600 hover:text-white rounded-full transition-colors font-bold"
+                        title="Suspend post"
+                      >
+                        <PauseCircleIcon className="h-6 w-6" />
+                      </Menu.Button>
+                      <Menu.Items
+                        transition
+                        anchor="bottom end"
+                        className={`min-w-52 origin-top-right absolute shadow-md right-0 bg-white rounded-xl border  p-1 text-sm/6 text-gray-800 z-50 transition duration-100 ease-out [--anchor-gap:--spacing(1)] focus:outline-none data-closed:scale-95 data-closed:opacity-0 top-10`}
+                      >
+                        <Menu.Item>
+                          <button
+                            className="group hover:bg-red-500/10 flex w-full items-center gap-2 rounded-lg px-3 py-1.5 data-focus:bg-white/10"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleChangePostStatus(
+                                post.postId,
+                                POST_STATUS.SUSPENDED,
+                              );
+                            }}
+                          >
+                            Suspend
+                          </button>
+                        </Menu.Item>
+                        <Menu.Item>
+                          <button
+                            className="group hover:bg-red-500/10 flex w-full items-center gap-2 rounded-lg px-3 py-1.5 data-focus:bg-white/10"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleChangePostStatus(
+                                post.postId,
+                                POST_STATUS.SUSPENDED_PERMANENTLY,
+                              );
+                            }}
+                          >
+                            Suspend Permanently
+                          </button>
+                        </Menu.Item>
+                      </Menu.Items>
+                    </Menu>
+                  </div>
                 )}
-              {/* <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onDelete(post.postId);
-                }}
-                className="p-2 text-red-600 bg-red-50 hover:bg-red-600 hover:text-white rounded-full transition-colors"
-                title="Delete post"
-              >
-                <TrashIcon className="h-4 w-4" />
-              </button> */}
-            </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

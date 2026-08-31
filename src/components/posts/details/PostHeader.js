@@ -208,7 +208,10 @@ const PostHeader = ({
                   )}
 
                   {currentPost?.pinToTop && (
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-500 text-white">
+                    <span className="inline-flex items-center px-6 py-6 rounded-full text-lg font-medium 
+                    absolute w-[170px] h-[30px] top-10 right-[-25px] z-10 bg-gradient-to-r from-amber-300 to-amber-600
+                     text-white justify-center shadow-xl 
+                    ">
                       <svg
                         className="h-4 w-4 mr-1"
                         fill="none"

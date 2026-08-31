@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import Swal from "sweetalert2";
 import { ShowroomProfileAPI } from "../../services/api";

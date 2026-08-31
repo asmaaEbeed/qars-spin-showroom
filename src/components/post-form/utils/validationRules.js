@@ -1,8 +1,8 @@
 export const validationRules = (isEdit) => ({
   carNamePl: { required: false },
   makeId: { required: true },
-  classId: { reuired: false },
-  modelId: { required: false },
+  classId: { reuired: true },
+  modelId: { required: true },
   categoryId: { required: true },
   manufactureYear: { required: true, min: 0 },
   askingPrice: { required: true, min: 0, pattern: /^\d+(\.\d{1,2})?$/ },

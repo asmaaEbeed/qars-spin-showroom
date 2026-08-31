@@ -58,11 +58,11 @@ const ShowRoomUsersList = () => {
         return <><LoadingState title="Users" /></>
     }
 
-    if(partnerUsers.length === 0) {
+    if (partnerUsers.length === 0) {
         return <div className="text-center py-12">
-        <div className="text-gray-500 text-lg">No Users found</div>
-        <div className="mt-2 text-gray-400">Try add a new user for this showroom.</div>
-      </div>
+            <div className="text-gray-500 text-lg">No Users found</div>
+            <div className="mt-2 text-gray-400">Try add a new user for this showroom.</div>
+        </div>
     }
     return (
         <div className="rounded-xl border border-gray-200 shadow-sm m-4 overflow-x-auto overflow-y-visible">

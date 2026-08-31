@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { usePosts } from "../../context/PostsContext";
+import { POST_STATUS } from "./constants/post-constants";
 
 const PostSearch = ({ onFilterChange }) => {
   const { filters, setFilters } = usePosts();
@@ -38,14 +39,15 @@ const PostSearch = ({ onFilterChange }) => {
   ];
 
   const statusOptions = [
-    "Approved",
-    "Archived",
-    "Draft",
-    "Pending Approval",
-    "Rejected",
-    "Rejected Permanently",
-    "Suspended",
-    "Suspended Permanently",
+    { value: POST_STATUS.APPROVED, label: "Approved" },
+    { value: POST_STATUS.ARCHIVED, label: "Archived" },
+    { value: POST_STATUS.DRAFT, label: "Draft" },
+    { value: POST_STATUS.PENDING_APPROVAL, label: "Pending Approval" },
+    { value: POST_STATUS.REJECTED, label: "Rejected" },
+    { value: POST_STATUS.REJECTED_PERMANENTLY, label: "Rejected Permanently" },
+    { value: POST_STATUS.SUSPENDED, label: "Suspended" },
+    { value: POST_STATUS.SUSPENDED_PERMANENTLY, label: "Suspended Permanently" },
+    { value: POST_STATUS.EXPIRED, label: "Expired" },
   ];
 
   const sortByOptions = [
@@ -104,8 +106,8 @@ const PostSearch = ({ onFilterChange }) => {
             >
               <option value="">All Status</option>
               {statusOptions.map((option) => (
-                <option key={option} value={option}>
-                  {option}
+                <option key={option.value} value={option.value}>
+                  {option.label}
                 </option>
               ))}
             </select>
