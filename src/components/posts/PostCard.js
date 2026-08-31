@@ -99,20 +99,18 @@ const PostCard = ({
             alt={post.title}
             className="h-full object-cover max-height-[150px] w-[300px]"
           />
+          {post.isSold && (
+            <img
+              src="/images/sold.png"
+              alt="Sold"
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          )}
           <div className="absolute top-3 left-3 flex flex-col space-y-1">
             <p
               className={`px-3 py-1 rounded-full text-xs min-w-20 text-center border ${statusStyle.bg} ${statusStyle.text} ${statusStyle.border}`}
             >
               {post.postStatus}
-            </p>
-            <p
-              className={`text-center px-3 py-1 rounded-full min-w-20 text-xs ${
-                post.isSold
-                  ? "bg-red-800 text-red-50 border-red-200"
-                  : "bg-green-600 text-green-50 border-green-500"
-              }`}
-            >
-              {post.isSold ? "Sold" : "Available"}
             </p>
           </div>
           <div className="absolute bottom-2 right-0 flex flex-col space-y-1 tracking-wider">

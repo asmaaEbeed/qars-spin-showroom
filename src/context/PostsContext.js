@@ -6,6 +6,8 @@ import {
   superAdminAPI,
 } from "../services/api";
 import Swal from "sweetalert2";
+import { useCarContext } from "./CarContext";
+import { toast } from "react-toastify";
 // Post kind constants
 
 const PostsContext = createContext(null);
@@ -41,6 +43,8 @@ export function PostsProvider({ children }) {
 
   const [carsModelList, setCarsModelList] = useState([]);
   const [carsModelLoading, setCarsModelLoading] = useState(false);
+
+  const { fetchCarProfile } = useCarContext();
 
   // Update Specification for post Reviewed after AI
   const updateSpecification = async (postId, specId, updatedSpec) => {
@@ -210,6 +214,38 @@ export function PostsProvider({ children }) {
     return { Code: "CANCELLED" };
   };
 
+  const onChangeSold = async (postId, postCode) => {
+    // postSoldRequest
+    const result = await Swal.fire({
+      icon: "warning",
+      title: `Post Sold`,
+      text: "Are you sure you want to mark this post as sold?",
+      showConfirmButton: true,
+      confirmButtonText: "Mark as Sold",
+      confirmButtonColor: "#34c38f",
+      showCancelButton: true,
+      cancelButtonText: "Close",
+      cancelButtonColor: "#f46a6a",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        Swal.showLoading();
+        const response = await carAPI.postSoldRequest(postId);
+        if (response.status === 200) {
+          fetchCarProfile(postCode);
+          toast(response.data.message || "Car marked as sold successfully");
+        }
+        Swal.close();
+        return response;
+      } catch (error) {
+        Swal.close();
+        return { Code: "ERROR", Desc: error.message };
+      }
+    }
+    return { Code: "CANCELLED" };
+  };
+
   const value = {
     posts,
     loadingFetchPosts,
@@ -249,6 +285,9 @@ export function PostsProvider({ children }) {
     carsModelList,
     carsModelLoading,
     setCarsModelList,
+
+    // Post Sold
+    onChangeSold,
   };
 
   return (

@@ -9,10 +9,7 @@ import {
   Squares2X2Icon,
   XCircleIcon,
 } from "@heroicons/react/24/outline";
-import {
-  CurrencyDollarIcon,
-  PauseCircleIcon,
-} from "@heroicons/react/24/solid";
+import { CurrencyDollarIcon, PauseCircleIcon } from "@heroicons/react/24/solid";
 import React, { useState } from "react";
 import PostRequestMenu from "../PostRequestMenu";
 import SelectCurrencyModal from "../../../pages/payment/SelectCurrencyModal";
@@ -23,6 +20,8 @@ import { Menu } from "@headlessui/react";
 import { POST_STATUS } from "../constants/post-constants";
 import { BiEdit } from "react-icons/bi";
 import { IoMdArrowDropdown } from "react-icons/io";
+import { usePosts } from "../../../context/PostsContext";
+import { LuCircleCheckBig } from "react-icons/lu";
 
 const PostTabs = ({
   activeTab,
@@ -38,7 +37,10 @@ const PostTabs = ({
   currentPost,
 }) => {
   const { user } = useAuth();
+  const { onChangeSold } = usePosts();
+
   const [selectCurrencyOpen, setSelectCurrencyOpen] = useState(false);
+
   const handleTabChange = (tabName) => {
     setActiveTab(tabName);
   };
@@ -64,7 +66,7 @@ const PostTabs = ({
       color: "green",
       icon: <CheckCircleIcon className="w-4 h-4 text-green-500" />,
     },
-  
+
     {
       value: POST_STATUS.SUSPENDED,
       color: "orange",
@@ -80,12 +82,11 @@ const PostTabs = ({
       color: "red",
       icon: <NoSymbolIcon className="w-4 h-4 text-red-700" />,
     },
-    {
-      value: POST_STATUS.SOLD,
-      color: "red",
-      icon: <NoSymbolIcon className="w-4 h-4 text-blue-700" />,
-    },
   ];
+
+  const handleChangeSold = async () => {
+    await onChangeSold(postId, currentPost?.postCode);
+  };
   return (
     <div className="bg-white/90 backdrop-blur-sm shadow-lg border-b border-white/20 sticky top-16 z-40">
       <div className="max-w-7xl mx-auto md:px-6 px-4">
@@ -154,6 +155,25 @@ const PostTabs = ({
               </div>
             )}
 
+            {/* Post Sold */}
+            {!currentPost?.isSold && (
+              <div className="relative">
+                <button
+                  onClick={() => handleChangeSold()}
+                  className="flex items-center gap-2
+                            rounded-lg
+                            bg-purple-100 text-purple-700
+                            hover:bg-purple-200
+                            transition-colors
+                            md:text-md text-sm
+                            md:px-4 px-2 py-2"
+                >
+                  <LuCircleCheckBig className="h-6 w-6" />
+                  <span>Sold</span>
+                </button>
+              </div>
+            )}
+
             {/* Super Admin Add 360 */}
             {role === "superAdmin" && (
               <div className="relative">
@@ -183,36 +203,6 @@ const PostTabs = ({
                 </button>
               </div>
             )}
-            {postStatus === POST_STATUS.PENDING_APPROVAL &&
-              role === "superAdmin" && (
-                <div className="flex gap-2">
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handleChangePostStatus(POST_STATUS.APPROVED);
-                    }}
-                    className="flex items-center bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors md:text-md text-sm md:px-4 px-1 py-2"
-                    title="Approve post"
-                  >
-                    <CheckCircleIcon className="h-6 w-6" />
-                    Approve
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handleChangePostStatus(POST_STATUS.REJECTED);
-                    }}
-                    className="flex items-center bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors md:text-md text-sm md:px-4 px-1 py-2"
-                    title="Approve post"
-                  >
-                    <XCircleIcon className="h-6 w-6" />
-                    Reject
-                  </button>
-                </div>
-              )}
-     
 
             {/* Suspend Post for both Admin And showroom user */}
             {/* {(postStatus === POST_STATUS.APPROVED || role !== "superAdmin") && (
@@ -306,6 +296,36 @@ const PostTabs = ({
                 </Menu>
               </div>
             )}
+
+            {postStatus === POST_STATUS.PENDING_APPROVAL &&
+              role === "superAdmin" && (
+                <div className="flex gap-2">
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleChangePostStatus(POST_STATUS.APPROVED);
+                    }}
+                    className="flex items-center bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors md:text-md text-sm md:px-4 px-1 py-2"
+                    title="Approve post"
+                  >
+                    <CheckCircleIcon className="h-6 w-6" />
+                    Approve
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleChangePostStatus(POST_STATUS.REJECTED);
+                    }}
+                    className="flex items-center bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors md:text-md text-sm md:px-4 px-1 py-2"
+                    title="Approve post"
+                  >
+                    <XCircleIcon className="h-6 w-6" />
+                    Reject
+                  </button>
+                </div>
+              )}
           </div>
         </div>
       </div>

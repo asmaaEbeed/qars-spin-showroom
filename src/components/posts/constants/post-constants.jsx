@@ -9,5 +9,6 @@ export const POST_STATUS = Object.freeze({
   SUSPENDED: "Suspended",
   SUSPENDED_PERMANENTLY: "Suspended Permanently",
   DRAFT: "Draft",
-  SOLD: "Sold"
+  ARCHIVED: "Archived",
+  EXPIRED: "Expired"
 });
